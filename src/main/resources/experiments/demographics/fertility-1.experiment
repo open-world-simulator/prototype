@@ -1,0 +1,8 @@
+experiment.description=Changes in fertility
+experiment.id=fertility-1
+
+# Override parameters
+MATERNITY_AGE_MEAN  = 30
+MATERNITY_AGE_STDEV = 5
+MATERNITY_NUM_CHILDREN_MEAN  = 2
+MATERNITY_NUM_CHILDREN_STDEV = 1
