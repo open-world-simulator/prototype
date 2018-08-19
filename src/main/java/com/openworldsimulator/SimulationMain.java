@@ -3,37 +3,17 @@ package com.openworldsimulator;
 import com.openworldsimulator.simulation.Experiments;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.*;
 
 public class SimulationMain {
     public static final int DEFAULT_MONTHS = 100 * 12;
-    public static final String DEFAULT_EXPERIMENT = "default";
 
-    private static boolean existSetting(String name, String[] args) {
-        for (String arg : args) {
-            if (arg.startsWith("-" + name)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    private static Set<String> settings = new HashSet<>();
+    private static Map<String, String> optionalParams = new HashMap<>();
+    private static List<String> baseParams = new ArrayList<>();
 
-    private static String getParameter(String name, String[] args, String defaultValue) {
-        for (String arg : args) {
-            if (arg.contains("=")) {
-                String key = arg.substring(0, arg.indexOf("="));
-                String value = arg.substring(arg.indexOf("=")+1);
-                if (key.trim().equals(name)) {
-                    System.out.println(key + "=" + value);
-                    return value.trim();
-                }
-            }
-        }
-        return defaultValue;
-    }
-
-    private static int getParameterInt(String name, String[] args, int defaultValue) {
-        String valueStr = getParameter(name, args, null);
+    private static int getParameterInt(String name, int defaultValue) {
+        String valueStr = optionalParams.get(name);
         if (valueStr == null) {
             return defaultValue;
         } else {
@@ -41,30 +21,62 @@ public class SimulationMain {
         }
     }
 
+    private static String getParameterStr(String name, String defaultValue) {
+        String valueStr = optionalParams.get(name);
+        if (valueStr == null) {
+            return defaultValue;
+        } else {
+            return valueStr;
+        }
+    }
+
+    private static void parseArgs(String[] args) {
+        for (String arg : args) {
+            if (arg.startsWith("--")) {
+                settings.add(arg.substring(2));
+            } else if (arg.startsWith("-")) {
+                settings.add(arg.substring(1));
+            } else if (arg.contains("=")) {
+                String key = arg.substring(0, arg.indexOf("="));
+                String value = arg.substring(arg.indexOf("=") + 1);
+                optionalParams.put(key, value);
+            } else {
+                baseParams.add(arg);
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-        File outputPath = new File("./output");
-        if (args.length == 0 || existSetting("h", args) || existSetting("?", args) || existSetting("help", args)) {
+
+        System.out.println(args.length);
+        System.out.println(args[0]);
+        parseArgs(args);
+
+        if (baseParams.size() < 2 || settings.contains("h") || settings.contains("?") || settings.contains("help")) {
             System.out.println("\n---------------------------------------------------------------------------");
             System.out.println("-- Open World Simulator usage:");
             System.out.println("---------------------------------------------------------------------------");
-            System.out.println("  - (Help):                     ./run-runSimulation.sh --help");
-            System.out.println("  - (Run single experiment):    ./run-runSimulation.sh [months=<num_months>] experiment=<experiment id>");
-            System.out.println("  - (Run suite of experiments): ./run-runSimulation.sh [months=<num_months>] suite=<suite id>");
+            System.out.println("  - ./ows.sh --help");
+            System.out.println("  - ./ows.sh <experiment name> <base config> [months=<num_months>] [output=<output dir>] [<SIMULATION_PARAM>=<value>]*");
             System.out.println("\nExamples:\n");
-            System.out.println(" ./run-runSimulation.sh months=1200 experiment=default");
-            System.out.println(" ./run-runSimulation.sh suite=demographics\n");
+            System.out.println(" ./ows.sh my-sim-1 Spain months=1200");
+            System.out.println(" ./ows.sh my-sim-2 Spain months=1200 INITIAL_POPULATION_SIZE=500000");
+            System.out.println("\n\n");
             System.exit(0);
         }
 
-        int nMonths = getParameterInt("months", args, DEFAULT_MONTHS);
-        String experiment = getParameter("experiment", args, DEFAULT_EXPERIMENT);
-        String suite = getParameter("suite", args, null);
+        String experiment = baseParams.get(0);
+        String baseConfig = baseParams.get(1);
+        int nMonths = getParameterInt("months", DEFAULT_MONTHS);
+
+        File baseOutputPath = new File(getParameterStr("output", "./output"));
 
         Experiments experiments = new Experiments();
-        if (suite == null) {
-            experiments.runExperiment(outputPath, experiment, nMonths);
-        } else {
-            experiments.runSuite(outputPath, suite, nMonths);
-        }
+        experiments.runExperiment(
+                experiment,
+                baseOutputPath,
+                baseConfig,
+                optionalParams,
+                nMonths);
     }
 }

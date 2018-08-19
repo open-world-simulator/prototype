@@ -60,29 +60,30 @@ public class Simulation {
         return transactions;
     }
 
-    public void buildDefaultConfig(Properties optionalProperties) throws IOException {
+    public void buildDefaultConfig(String defaultSettings, Map optionalProperties) throws IOException {
 
         // Load parameters defaults
 
-        simulationLog.logOut("Loading parameters....");
+        simulationLog.log("Loading parameters....");
 
-        Properties defaults = loadDefaults("simulation");
+        Properties defaults = loadDefaults(defaultSettings);
+
         DemographicParams demographicParams =
                 ModelParametersTools.loadParameterValues(defaults, optionalProperties, new DemographicParams());
 
-        simulationLog.logOut(demographicParams.toString());
+        simulationLog.log(demographicParams.toString());
 
         // Create economics model
         EconomyParams economicsParams =
                 ModelParametersTools.loadParameterValues(defaults, optionalProperties, new EconomyParams());
 
-        simulationLog.logOut(economicsParams.toString());
+        simulationLog.log(economicsParams.toString());
 
         // Load parameter change rate
         ModelParametersTools.loadParameterChanges(defaults, simulationParametersChangeRate);
-        simulationLog.logOut(printParametersRate());
+        simulationLog.log(printParametersRate());
 
-        simulationLog.logOut("Building models....");
+        simulationLog.log("Building models....");
         DemographicsModel demographicsModel = new DemographicsModel(this, demographicParams, globalOutputPath);
 
         EconomyModel microEconomyModel = new EconomyModel(this, globalOutputPath, economicsParams);
@@ -112,7 +113,7 @@ public class Simulation {
         return buffer.toString();
     }
 
-    public void init(Properties optionalProperties) throws IOException {
+    public void init() throws IOException {
         getSimulationOutputPath().mkdirs();
 
         // Create runSimulation log
@@ -135,15 +136,15 @@ public class Simulation {
 
     public void simulate(int nMonths) throws Exception {
 
-        System.out.println("* RUNNING SIMULATION : " + simulationId + " for " + nMonths + " months");
+        log("* RUNNING SIMULATION : " + simulationId + " for " + nMonths + " months");
 
         // Do runSimulation initialization
-        System.out.println("- Initializing models ");
+        log("- Initializing models ");
 
         models.forEach(SimulationModel::init);
 
         // Write initial reports
-        System.out.println("- Writing reports at initial status");
+        log("- Writing reports at initial status");
         models.forEach(m -> {
             if (m.getStats() != null) {
                 m.getStats().writeChartsAtStart();
@@ -151,12 +152,11 @@ public class Simulation {
         });
 
         for (int i = 1; i <= nMonths; i++) {
-            System.out.print(".");
             logDebug("Iteration " + i);
             if (i % 120 == 0) {
-                System.out.println(" " + i + " (" + (i / 12) + " years)");
-                System.out.println(getPublicSector().getBalanceSheet());
-                System.out.println(getCompanies().getBalanceSheet());
+                log(" " + i + " (" + (i / 12) + " years)");
+                //System.out.println(getPublicSector().getBalanceSheet());
+                //System.out.println(getCompanies().getBalanceSheet());
             }
             final int month = i;
 
@@ -187,19 +187,16 @@ public class Simulation {
             });
         }
 
-        System.out.println("\n");
+        log("\n");
 
         // Do post-runSimulation stats collection
-        System.out.println("- Writing reports at end status");
+        log("- Writing reports at end status");
         models.forEach(m -> {
             if (m.getStats() != null) {
                 logDebug("Writing reports at end" + m.getId());
                 m.getStats().writeChartsAtEnd();
             }
         });
-
-        // Close runSimulation log
-        simulationLog.close();
     }
 
     public void evolveParametersMonthly(ModelParameters parameters) {
@@ -222,13 +219,9 @@ public class Simulation {
         simulationLog.logDebug(format, args);
     }
 
-    public SimulationLog getLog() {
-        return simulationLog;
-    }
-
     private Properties loadDefaults(String config) throws IOException {
         Properties configProperties = new Properties();
-        System.out.println("- Loading default config: " + config);
+        log("Loading default config: " + config);
         configProperties.load(
                 Thread.currentThread().getContextClassLoader().getResourceAsStream("defaults/" + config + ".defaults")
         );

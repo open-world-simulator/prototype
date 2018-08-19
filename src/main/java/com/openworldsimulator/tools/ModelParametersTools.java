@@ -10,14 +10,14 @@ public class ModelParametersTools {
      * Overrides public attributes in a configuration object according to the values supplied in a Properties object and
      * and optional additional Properties object
      */
-    public static <T extends ModelParameters> T loadParameterValues(Properties defaultProperties, Properties overrideProperties, T params) {
+    public static <T extends ModelParameters> T loadParameterValues(Properties defaultProperties, Map overrideProperties, T params) {
 
         params = loadParameterValues(defaultProperties, params);
         params = loadParameterValues(overrideProperties, params);
         return params;
     }
 
-    private static <T extends ModelParameters> T loadParameterValues(Properties properties, T params) {
+    private static <T extends ModelParameters> T loadParameterValues(Map properties, T params) {
         if (properties == null) {
             return params;
         }
@@ -99,18 +99,32 @@ public class ModelParametersTools {
      * @param fieldName
      * @return
      */
-    public static double getParameterValue(ModelParameters modelParameters, String fieldName) {
+    public static Double getParameterValueDouble(ModelParameters modelParameters, String fieldName) {
         Class<?> clazz = modelParameters.getClass();
         try {
             Field field = clazz.getDeclaredField(fieldName);
-            if (field != null) {
+            if (field != null && field.getType().isAssignableFrom(double.class)) {
                 return field.getDouble(modelParameters);
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
 
-        return 0.0;
+        return null;
+    }
+
+    public static String getParameterValueString(ModelParameters modelParameters, String fieldName) {
+        Class<?> clazz = modelParameters.getClass();
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            if (field != null && field.getType().isAssignableFrom(String.class)) {
+                return String.valueOf(field.get(modelParameters));
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+
+        return null;
     }
 
     /**
@@ -121,23 +135,24 @@ public class ModelParametersTools {
      */
     public static String toString(ModelParameters parameters) {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Model Parameters: ")
+        buffer.append("Parameters: ")
                 .append(parameters.getClass().getSimpleName())
                 .append("\n");
 
         getParameterNames(parameters).forEach(
                 s -> {
-                    double value = getParameterValue(parameters, s);
-                    buffer.append("  - ")
-                            .append(s)
-                            .append(" = ")
-                            .append(String.format("%.02f", value));
+                    Double value = getParameterValueDouble(parameters, s);
+                    if (value != null) {
+                        buffer.append("  - ")
+                                .append(s)
+                                .append(" = ")
+                                .append(String.format("%.02f", value));
 
-                    if (s.endsWith("_RATE")) {
-                        buffer.append(" (").append(String.format("%.01f", value * 100.0)).append("%)");
+                        if (s.endsWith("_RATE")) {
+                            buffer.append(" (").append(String.format("%.01f", value * 100.0)).append("%)");
+                        }
+                        buffer.append("\n");
                     }
-
-                    buffer.append("\n");
                 }
         );
 
@@ -148,7 +163,7 @@ public class ModelParametersTools {
         for (String p : getParameterNames(parameters)) {
             Double changeRate = parametersChangeAnualRate.get(p);
             if (changeRate != null && changeRate == 0.0D) {
-                double currentValue = getParameterValue(parameters, p);
+                double currentValue = getParameterValueDouble(parameters, p);
                 double delta = currentValue * changeRate / 12.0D;
                 double newValue = currentValue + delta;
                 System.out.println("Increasing parameter " + p + " by " + delta);

@@ -34,12 +34,12 @@ public class EconomyModel extends SimulationModel {
     public void init() {
         super.init();
 
-        simulation.log("* Initializing global balance sheets");
+        log("* Initializing global balance sheets");
         simulation.getPublicSector().getBalanceSheet().reset();
         simulation.getCompanies().getBalanceSheet().reset();
 
-        simulation.log("* Initializing population income model.");
-        simulation.log(params.toString());
+        log("* Initializing population income model.");
+        log(params.toString());
 
         simulation.getPopulation().getPeople().forEach(
                 this::initEconomicData
@@ -66,7 +66,7 @@ public class EconomyModel extends SimulationModel {
 
     @Override
     public void runSimulation(int month) {
-        simulation.log("\n[ECONOMICS]", month, (month) / 12D);
+        log("\n[ECONOMICS]", month, (month) / 12D);
 
         List<Person> people = simulation.getPopulation().getPeople();
 
@@ -102,7 +102,7 @@ public class EconomyModel extends SimulationModel {
             //   simulateInvestmentDecisions(month, p);
         }
 
-        simulation.log("[END Economics %d]", simulation.getPopulation().size());
+        log("[END Economics %d]", simulation.getPopulation().size());
     }
 
     @Override
@@ -142,7 +142,7 @@ public class EconomyModel extends SimulationModel {
             if (person.grossMonthlySalary < params.MINIMAL_WAGE) {
                 person.grossMonthlySalary = params.MINIMAL_WAGE;
             }
-            simulation.log("[JOBS] Person " + person.id + " finds job of %.2f at age %.2f", person.grossMonthlySalary, person.age);
+            log("[JOBS] Person " + person.id + " finds job of %.2f at age %.2f", person.grossMonthlySalary, person.age);
         }
     }
 
@@ -177,7 +177,7 @@ public class EconomyModel extends SimulationModel {
             person.grossPension = person.monthlyData.monthIncomeWage * params.PENSION_REPLACEMENT_RATE;
             person.monthlyData.monthIncomeWage = 0;
             person.economicStatus = Person.ECONOMIC_STATUS.RETIRED;
-            simulation.log("Person " + person.id + " starts receiving avgMonthlyIncomePension of %.2f at age %.2f", person.monthlyData.monthIncomePension, person.age);
+            log("Person " + person.id + " starts receiving avgMonthlyIncomePension of %.2f at age %.2f", person.monthlyData.monthIncomePension, person.age);
         }
 
         person.monthlyData.monthIncomePension  = person.grossPension;
@@ -205,7 +205,7 @@ public class EconomyModel extends SimulationModel {
 
         person.economicStatus = Person.ECONOMIC_STATUS.NONE;
 
-        simulation.log("Person " + person.id + " economic death at age %.2f", person.age);
+        log("Person " + person.id + " economic death at age %.2f", person.age);
     }
 
     void simulateInheritance(int month, Person person) {
@@ -220,11 +220,11 @@ public class EconomyModel extends SimulationModel {
                     receiver
             );
 
-            simulation.log("[INHERITANCE] Person %s received %.2f", receiver.toString(),
+            log("[INHERITANCE] Person %s received %.2f", receiver.toString(),
                     receiver.getBalanceSheet().getSavings()
             );
         } else {
-            simulation.log("[ERROR] No alive people left to receive inheritance");
+            log("[ERROR] No alive people left to receive inheritance");
         }
     }
 
@@ -254,7 +254,7 @@ public class EconomyModel extends SimulationModel {
         );
 
         if (person.monthlyData.monthExpensesNonDiscretionary > person.getBalanceSheet().getSavings()) {
-            simulation.log("[EXPENSES1] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.monthExpensesNonDiscretionary);
+            log("[EXPENSES1] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.monthExpensesNonDiscretionary);
 
             // TODO: Simulate debt or asset liquidation
             // person.monthExpensesNonDiscretionary = person.getSavings();
@@ -285,7 +285,7 @@ public class EconomyModel extends SimulationModel {
         ) * (1 - params.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE) * remainingIncome;
 
         if (person.monthlyData.monthExpensesDiscretionary > person.getBalanceSheet().getSavings()) {
-            simulation.log("[EXPENSES2] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.monthExpensesDiscretionary);
+            log("[EXPENSES2] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.monthExpensesDiscretionary);
 
             // TODO: Simulate debt or asset liquidation
             //person.monthExpensesDiscretionary = person.getSavings();

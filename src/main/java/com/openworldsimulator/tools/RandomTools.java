@@ -9,6 +9,10 @@ public class RandomTools {
         return random.nextDouble() <= threshold;
     }
 
+   public static double random() {
+        return random.nextDouble();
+    }
+
     public static int random(int nOptions) {
         return random.nextInt(nOptions);
     }

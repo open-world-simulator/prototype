@@ -1,7 +1,6 @@
 package com.openworldsimulator.simulation;
 
 import java.io.File;
-import java.io.IOException;
 
 public abstract class SimulationModel {
     protected Simulation simulation;
@@ -24,16 +23,24 @@ public abstract class SimulationModel {
         }
     }
 
-    /*
-     * Reporting
-     *
-     */
-    protected File getSimulationPath() {
-        String dir = outputPath.getAbsolutePath();
+    public void log(String log) {
+        simulation.log(log);
+    }
 
-        File fullPath = new File(dir, simulation.getSimulationId());
-        fullPath.mkdirs();
-        return fullPath;
+    public void logDebug(String log) {
+        simulation.logDebug(log);
+    }
+
+    public void log(String format, Object... args) {
+        simulation.log(format, args);
+    }
+
+    public void logDebug(String format, Object... args) {
+        simulation.logDebug(format, args);
+    }
+
+    public ModelStats getStats() {
+        return null;
     }
 
     public abstract String getId();
@@ -43,8 +50,4 @@ public abstract class SimulationModel {
     public abstract void runSimulation(int month);
 
     public abstract void postSimulation(int month);
-
-    public ModelStats getStats() {
-        return null;
-    }
 }
