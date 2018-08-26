@@ -5,6 +5,7 @@ import com.openworldsimulator.economics.EconomyModel;
 import com.openworldsimulator.experiments.Experiment;
 import com.openworldsimulator.experiments.ExperimentsManager;
 import com.openworldsimulator.simulation.ModelParameters;
+import com.openworldsimulator.tools.ConfigTools;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -44,11 +45,14 @@ public class SimulationStudioApp extends AbstractVerticle {
     private static File getOutputDir() {
         try {
             // TODO: Make this optionally configurable by system properties
-            File f = new File(".", "output");
+            String dir = ConfigTools.getConfig("OPEN_WORLD_SIM_OUTPUT_DIR", "./output");
+
+            File f = new File(dir);
+            System.out.println("Output Dir is " + f.getCanonicalPath());
+
             if (!f.exists() || !f.canWrite()) {
                 throw new FileNotFoundException(f.getCanonicalPath());
             }
-            System.out.println("Output Dir is " + f.getCanonicalPath());
 
             return f.getCanonicalFile();
         } catch (IOException e) {
@@ -66,7 +70,7 @@ public class SimulationStudioApp extends AbstractVerticle {
                 experiment = getExperimentsManager().loadExperiment(id);
             }
 
-            if( experiment == null) {
+            if (experiment == null) {
                 // Todo: pass parameters
                 experiment = getExperimentsManager().newExperiment();
             }
@@ -80,12 +84,12 @@ public class SimulationStudioApp extends AbstractVerticle {
             ctx.put("configs", getExperimentsManager().getAvailableBaseConfigurations());
 
             ctx.put("experiment", experiment);
-            
+
             ModelParameters demographyParams = experiment.getSimulation().getModel(DemographicsModel.MODEL_ID).getParams();
 
             // Pass all model parameters
             ctx.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", demographyParams.getParameterValueString("INITIAL_DEMOGRAPHY_DATA_COUNTRY"));
-            ctx.put("INITIAL_DEMOGRAPHY_DATA_YEAR",    demographyParams.getParameterValueDouble("INITIAL_DEMOGRAPHY_DATA_YEAR"));
+            ctx.put("INITIAL_DEMOGRAPHY_DATA_YEAR", demographyParams.getParameterValueDouble("INITIAL_DEMOGRAPHY_DATA_YEAR"));
 
             ctx.put("demography", demographyParams.getParameterMapForDouble());
             ctx.put("economy", experiment.getSimulation().getModel(EconomyModel.MODEL_ID).getParams().getParameterMapForDouble());
