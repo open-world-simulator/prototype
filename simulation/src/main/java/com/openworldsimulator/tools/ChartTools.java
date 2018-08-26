@@ -8,6 +8,7 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChartTools {
 
@@ -189,12 +190,16 @@ public class ChartTools {
 
     private static void fillDataSeries(Map<Long, Long> histoData, List<Long> xData, List<Long> yData, long min, long max) {
         // For better representation, we want x values with no representation in the histogram
+        long sum = yData.stream().collect(Collectors.summingLong(l->l)).longValue();
+
         for (long i = min; i <= max; i++) {
             xData.add(i);
-            if (histoData.get(i) != null) {
-                yData.add(histoData.get(i));
+            Long value = histoData.get(i);
+            if (value != null && sum != 0) {
+                //yData.add(histoData.get(i));
+                yData.add((long) (value * 100D / sum) );
             } else {
-                yData.add(null);
+                //yData.add(null);
             }
         }
     }

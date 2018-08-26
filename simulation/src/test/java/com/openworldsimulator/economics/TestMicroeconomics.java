@@ -28,7 +28,7 @@ public class TestMicroeconomics {
         properties.put("INITIAL_POPULATION_SIZE", "1");
 
         simulation.init();
-        simulation.buildDefaultConfig("blank", properties);
+        simulation.loadDefaultConfig("blank", properties);
     }
 
     protected Person getSinglePerson() {

@@ -3,7 +3,10 @@ package com.openworldsimulator.tools;
 import com.openworldsimulator.simulation.ModelParameters;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class ModelParametersTools {
     /**
@@ -79,7 +82,7 @@ public class ModelParametersTools {
      * @param modelParameters
      * @return
      */
-    public static Collection<String> getParameterNames(ModelParameters modelParameters) {
+    public static List<String> getParameterNames(ModelParameters modelParameters) {
         Class<?> clazz = modelParameters.getClass();
         List<String> paramNames = new ArrayList<>();
 
@@ -118,7 +121,11 @@ public class ModelParametersTools {
         try {
             Field field = clazz.getDeclaredField(fieldName);
             if (field != null && field.getType().isAssignableFrom(String.class)) {
-                return String.valueOf(field.get(modelParameters));
+                if (field.get(modelParameters) == null) {
+                    return null;
+                } else {
+                    return String.valueOf(field.get(modelParameters));
+                }
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);

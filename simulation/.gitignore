@@ -1,4 +1,6 @@
 *.iml
 .idea/
+.experiments
 target/
 output/
+output-tests/

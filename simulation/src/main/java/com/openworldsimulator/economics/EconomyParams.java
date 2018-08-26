@@ -3,7 +3,7 @@ package com.openworldsimulator.economics;
 import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.tools.ModelParametersTools;
 
-public class EconomyParams implements ModelParameters {
+public class EconomyParams extends ModelParameters {
     // TODO: Unemployment
 
     // Work market modeling

@@ -1,6 +1,7 @@
 package com.openworldsimulator.economics;
 
 import com.openworldsimulator.model.Person;
+import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.simulation.ModelStats;
 import com.openworldsimulator.simulation.Simulation;
 import com.openworldsimulator.simulation.SimulationModel;
@@ -11,6 +12,7 @@ import java.util.List;
 
 public class EconomyModel extends SimulationModel {
 
+    public static final String MODEL_ID = "economics-model";
     private EconomyParams params;
     private MicroEconomyStats modelStats;
     private MacroEconomyStats macroStats;
@@ -22,12 +24,17 @@ public class EconomyModel extends SimulationModel {
 
     @Override
     public String getId() {
-        return "economics-model";
+        return MODEL_ID;
     }
 
     @Override
     public ModelStats getStats() {
         return modelStats;
+    }
+
+    @Override
+    public ModelParameters getParams() {
+        return params;
     }
 
     @Override

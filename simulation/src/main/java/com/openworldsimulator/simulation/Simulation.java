@@ -6,6 +6,7 @@ import com.openworldsimulator.economics.EconomyModel;
 import com.openworldsimulator.economics.EconomyParams;
 import com.openworldsimulator.model.*;
 import com.openworldsimulator.tools.ModelParametersTools;
+import com.openworldsimulator.tools.ResourceTools;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,14 +23,14 @@ public class Simulation {
     private Transactions transactions;
     private Map<String, Double> simulationParametersChangeRate = new HashMap<>();
 
+    private File simulationOutputPath;
     private SimulationLog simulationLog;
-    private File globalOutputPath;
 
     private List<SimulationModel> models;
 
-    public Simulation(String simulationId, File outputPath) {
+    public Simulation(String simulationId, File simulationOutputPath) {
         this.simulationId = simulationId;
-        this.globalOutputPath = outputPath;
+        this.simulationOutputPath = simulationOutputPath;
     }
 
     public String getSimulationId() {
@@ -37,7 +38,7 @@ public class Simulation {
     }
 
     public File getSimulationOutputPath() {
-        return new File(globalOutputPath, getSimulationId());
+        return simulationOutputPath;
     }
 
     public Population getPopulation() {
@@ -60,7 +61,7 @@ public class Simulation {
         return transactions;
     }
 
-    public void buildDefaultConfig(String defaultSettings, Map optionalProperties) throws IOException {
+    public void loadDefaultConfig(String defaultSettings, Map optionalProperties) throws IOException {
 
         // Load parameters defaults
 
@@ -84,13 +85,13 @@ public class Simulation {
         simulationLog.log(printParametersRate());
 
         simulationLog.log("Building models....");
-        DemographicsModel demographicsModel = new DemographicsModel(this, demographicParams, globalOutputPath);
+        DemographicsModel demographicsModel = new DemographicsModel(this, demographicParams, simulationOutputPath);
 
-        EconomyModel microEconomyModel = new EconomyModel(this, globalOutputPath, economicsParams);
+        EconomyModel microEconomyModel = new EconomyModel(this, simulationOutputPath, economicsParams);
 
         addSimulationModels(Arrays.asList(
-                demographicsModel//,
-                //microEconomyModel
+                demographicsModel,
+                microEconomyModel
         ));
     }
 
@@ -114,8 +115,6 @@ public class Simulation {
     }
 
     public void init() throws IOException {
-        getSimulationOutputPath().mkdirs();
-
         // Create runSimulation log
         simulationLog = new SimulationLog(this, "runSimulation-" + getSimulationId());
         simulationLog.init();
@@ -133,6 +132,18 @@ public class Simulation {
         this.models = new ArrayList<>();
         this.models.addAll(models);
     }
+
+    public List<SimulationModel> getModels() {
+        return models;
+    }
+
+    public SimulationModel getModel(String id) {
+        for (SimulationModel m : getModels()) {
+            if (m.getId().equals(id)) return m;
+        }
+        return null;
+    }
+
 
     public void simulate(int nMonths) throws Exception {
 
@@ -221,10 +232,12 @@ public class Simulation {
 
     private Properties loadDefaults(String config) throws IOException {
         Properties configProperties = new Properties();
-        log("Loading default config: " + config);
-        configProperties.load(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("defaults/" + config + ".defaults")
-        );
+        if (config != null) {
+            log("Loading default config: " + config);
+            configProperties.load(
+                    Thread.currentThread().getContextClassLoader().getResourceAsStream("defaults/" + config)
+            );
+        }
         return configProperties;
     }
 }

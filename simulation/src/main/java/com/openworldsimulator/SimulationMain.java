@@ -1,6 +1,7 @@
 package com.openworldsimulator;
 
-import com.openworldsimulator.simulation.Experiments;
+import com.openworldsimulator.experiments.Experiment;
+import com.openworldsimulator.experiments.ExperimentsManager;
 
 import java.io.File;
 import java.util.*;
@@ -65,18 +66,21 @@ public class SimulationMain {
             System.exit(0);
         }
 
-        String experiment = baseParams.get(0);
+        String experimentId = baseParams.get(0);
         String baseConfig = baseParams.get(1);
         int nMonths = getParameterInt("months", DEFAULT_MONTHS);
 
         File baseOutputPath = new File(getParameterStr("output", "./output"));
+        ExperimentsManager experimentsManager = new ExperimentsManager(baseOutputPath);
 
-        Experiments experiments = new Experiments();
-        experiments.runExperiment(
-                experiment,
-                baseOutputPath,
+        Experiment experiment = new Experiment(
+                experimentsManager,
+                experimentId,
                 baseConfig,
                 optionalParams,
-                nMonths);
+                nMonths
+        );
+
+        experiment.run();
     }
 }

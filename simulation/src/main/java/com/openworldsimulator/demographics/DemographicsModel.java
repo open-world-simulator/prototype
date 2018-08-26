@@ -1,6 +1,7 @@
 package com.openworldsimulator.demographics;
 
 import com.openworldsimulator.model.Person;
+import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.simulation.ModelStats;
 import com.openworldsimulator.simulation.Simulation;
 import com.openworldsimulator.simulation.SimulationModel;
@@ -12,6 +13,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class DemographicsModel extends SimulationModel {
+
+    public static final String MODEL_ID = "demographics-model";
 
     private DemographicParams params;
 
@@ -28,7 +31,12 @@ public class DemographicsModel extends SimulationModel {
 
     @Override
     public String getId() {
-        return "demographics-model";
+        return MODEL_ID;
+    }
+
+    @Override
+    public ModelParameters getParams() {
+        return params;
     }
 
     /*
@@ -48,8 +56,8 @@ public class DemographicsModel extends SimulationModel {
         InitialPopulationLoader loader = new InitialPopulationLoader(
                 simulation.getPopulation(),
                 params,
-                "Spain",
-                2015,
+                params.INITIAL_DEMOGRAPHY_DATA_COUNTRY,
+                params.INITIAL_DEMOGRAPHY_DATA_YEAR,
                 (int) params.INITIAL_POPULATION_SIZE
         );
 
@@ -66,6 +74,7 @@ public class DemographicsModel extends SimulationModel {
     public ModelStats getStats() {
         return modelStats;
     }
+
 
     /*
      * Simulation

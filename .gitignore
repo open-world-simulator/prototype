@@ -1,4 +1,6 @@
 *.iml
+.experiments
 .idea/
+.vertx/
 target/
 output/

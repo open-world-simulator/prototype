@@ -3,7 +3,7 @@ package com.openworldsimulator.demographics;
 import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.tools.ModelParametersTools;
 
-public class DemographicParams implements ModelParameters {
+public class DemographicParams extends ModelParameters {
 
     public String INITIAL_DEMOGRAPHY_DATA_COUNTRY;
     public int    INITIAL_DEMOGRAPHY_DATA_YEAR;
@@ -34,11 +34,5 @@ public class DemographicParams implements ModelParameters {
 
     public DemographicParams() {
     }
-
-    @Override
-    public String toString() {
-        return ModelParametersTools.toString(this);
-    }
-
 
 }

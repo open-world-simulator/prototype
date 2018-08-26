@@ -23,27 +23,29 @@ public abstract class SimulationModel {
         }
     }
 
-    public void log(String log) {
+    protected void log(String log) {
         simulation.log(log);
     }
 
-    public void logDebug(String log) {
+    protected void logDebug(String log) {
         simulation.logDebug(log);
     }
 
-    public void log(String format, Object... args) {
+    protected void log(String format, Object... args) {
         simulation.log(format, args);
     }
 
-    public void logDebug(String format, Object... args) {
+    protected void logDebug(String format, Object... args) {
         simulation.logDebug(format, args);
     }
+
+    public abstract String getId();
 
     public ModelStats getStats() {
         return null;
     }
 
-    public abstract String getId();
+    public abstract ModelParameters getParams();
 
     public abstract void preSimulation(int month);
 
