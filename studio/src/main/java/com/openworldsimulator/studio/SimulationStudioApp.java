@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -26,7 +27,6 @@ import java.util.function.Consumer;
 public class SimulationStudioApp extends AbstractVerticle {
 
     private static FreeMarkerTemplateEngine engine;
-    private static File outputDir;
 
     private static ExperimentsManager experimentsManager = null;
 
@@ -44,9 +44,7 @@ public class SimulationStudioApp extends AbstractVerticle {
 
     private static File getOutputDir() {
         try {
-            // TODO: Make this optionally configurable by system properties
             String dir = ConfigTools.getConfig("OPEN_WORLD_SIM_OUTPUT_DIR", "./output");
-
             File f = new File(dir);
             System.out.println("Output Dir is " + f.getCanonicalPath());
 
@@ -81,7 +79,9 @@ public class SimulationStudioApp extends AbstractVerticle {
 
         try {
             ctx.put("experiments", getExperimentsManager().listExperiments());
-            ctx.put("configs", getExperimentsManager().getAvailableBaseConfigurations());
+
+            // TODO: List dynamically
+            ctx.put("configs", Arrays.asList("blank.defaults", "Spain.defaults"));
 
             ctx.put("experiment", experiment);
 
@@ -208,17 +208,6 @@ public class SimulationStudioApp extends AbstractVerticle {
 
         // In order to use a template we first need to create an engine
         engine = FreeMarkerTemplateEngine.create();
-        System.out.println(engine.isCachingEnabled());
-
-
-        // TODO: Make this automatically configurable
-        File f = new File(".", "output");
-        if (!f.exists() || !f.canWrite()) {
-            throw new FileNotFoundException(f.getCanonicalPath());
-        }
-
-        outputDir = f;
-        System.out.println("Output path is " + outputDir.getCanonicalPath());
 
         Router router = Router.router(vertx);
 

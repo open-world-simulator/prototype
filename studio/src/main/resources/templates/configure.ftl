@@ -49,7 +49,7 @@
                         <select class="form-control" id="baseConfiguration" name="baseConfiguration" required>
                             <#list context.configs as config>
                             <option>${config}</option>
-                        </#list>
+                            </#list>
                         </select>
                     </div>
                     <div class="form-group">
@@ -78,9 +78,8 @@
                                 <input type="text" class="form-control sim-property"
                                        id="INITIAL_DEMOGRAPHY_DATA_COUNTRY"
                                        name="INITIAL_DEMOGRAPHY_DATA_COUNTRY"
-                                       placeholder="${context.demography['INITIAL_DEMOGRAPHY_DATA_COUNTRY']!""} -
-                                Country to load population data"
-                                value="${context.INITIAL_DEMOGRAPHY_DATA_COUNTRY!""}"
+                                       placeholder="${context.demography['INITIAL_DEMOGRAPHY_DATA_COUNTRY']!""}"
+                                       value="${context.INITIAL_DEMOGRAPHY_DATA_COUNTRY!""}"
                                 >
                             </div>
                             <div class="form-group">
@@ -97,8 +96,7 @@
                                 <input type="number" class="form-control sim-property" id="${key}" name="${key}"
                                        placeholder="${context.demography[key]}">
                             </div>
-                        </
-                        #list>
+                            </#list>
                     </div>
 
                     <div role="tabpanel" class="tab-pane" id="economy">
@@ -108,8 +106,7 @@
                             <input type="text" class="form-control sim-property" id="${key}" name="${key}"
                                    placeholder="${context.economy[key]}">
                         </div>
-                    </
-                    #list>
+                        </#list>
                 </div>
         </div>
     </div>

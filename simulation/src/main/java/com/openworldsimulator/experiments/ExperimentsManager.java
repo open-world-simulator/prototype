@@ -1,7 +1,6 @@
 package com.openworldsimulator.experiments;
 
 import com.google.gson.Gson;
-import com.openworldsimulator.tools.ResourceTools;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -131,9 +130,5 @@ public class ExperimentsManager {
             }
         }
         return null;
-    }
-
-    public List<String> getAvailableBaseConfigurations() {
-        return ResourceTools.getResourceFolderFiles("defaults");
     }
 }

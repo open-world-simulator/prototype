@@ -6,7 +6,6 @@ import com.openworldsimulator.economics.EconomyModel;
 import com.openworldsimulator.economics.EconomyParams;
 import com.openworldsimulator.model.*;
 import com.openworldsimulator.tools.ModelParametersTools;
-import com.openworldsimulator.tools.ResourceTools;
 
 import java.io.File;
 import java.io.IOException;
