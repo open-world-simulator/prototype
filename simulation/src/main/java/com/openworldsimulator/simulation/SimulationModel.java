@@ -14,12 +14,14 @@ public abstract class SimulationModel {
     public void init() {
         // Check output path
         if (outputPath == null) {
-            throw new ExceptionInInitializerError("Output path must be configured");
+            System.out.println("Output path is NULL");
+            throw new ExceptionInInitializerError();
         }
 
         outputPath.mkdirs();
         if (!outputPath.exists() || !outputPath.isDirectory() || !outputPath.canWrite()) {
-            throw new ExceptionInInitializerError("Invalid output path or can't write to: " + outputPath.getPath());
+            System.out.println("Invalid output path or can't write to: " + outputPath.getPath());
+            throw new ExceptionInInitializerError();
         }
     }
 

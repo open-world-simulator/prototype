@@ -64,6 +64,7 @@ public class DemographicsModel extends SimulationModel {
         try {
             loader.load();
         } catch (IOException e) {
+            e.printStackTrace();
             throw new ExceptionInInitializerError(e);
         }
 

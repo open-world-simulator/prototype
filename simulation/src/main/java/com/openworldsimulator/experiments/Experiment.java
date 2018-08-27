@@ -4,12 +4,12 @@ import com.openworldsimulator.simulation.Simulation;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Experiment {
-    public static final String DEFAULT_BASE_CONFIG = "blank";
     private String experimentId;
-    private String baseSimulationConfig = DEFAULT_BASE_CONFIG;
+    private String baseSimulationConfig;
     private int months;
     private Map optionalProperties;
     private transient Simulation simulation;
@@ -18,11 +18,11 @@ public class Experiment {
     public Experiment(
             ExperimentsManager experimentsManager,
             String experimentId, String baseConfig, Map optionalProperties, int months) {
-        this.experimentId = experimentId;
-        this.baseSimulationConfig = baseConfig;
-        this.optionalProperties = optionalProperties;
-        this.months = months;
-        this.experimentsManager = experimentsManager;
+        setExperimentId(experimentId);
+        setBaseSimulationConfig(baseConfig);
+        setExperimentsManager(experimentsManager);
+        setOptionalProperties(optionalProperties);
+        setMonths(months);
     }
 
     public Simulation getSimulation() throws Exception {
@@ -46,6 +46,15 @@ public class Experiment {
         return experimentId;
     }
 
+    public boolean isValidId() {
+        if(experimentId == null || experimentId.length() < 3) return false;
+        for( int i = 0; i < experimentId.length(); i++) {
+            char c = experimentId.charAt(i);
+            if( !Character.isLetterOrDigit(c) && c != '-') return false;
+        }
+        return true;
+    }
+
     public String getBaseSimulationConfig() {
         return baseSimulationConfig;
     }
@@ -59,9 +68,12 @@ public class Experiment {
         return optionalProperties;
     }
 
-
     public void setOptionalProperties(Map optionalProperties) {
-        this.optionalProperties = optionalProperties;
+        if( optionalProperties == null ) {
+            this.optionalProperties = new HashMap();
+        } else {
+            this.optionalProperties = optionalProperties;
+        }
         simulation = null;
     }
 
@@ -91,6 +103,13 @@ public class Experiment {
         simulation.log("> TIME   : " + new Date());
         simulation.log("> MONTHS : " + months);
 
-        simulation.simulate(months);
+        try {
+            simulation.init();
+            simulation.loadDefaultConfig(baseSimulationConfig, optionalProperties);
+            simulation.simulate(months);
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

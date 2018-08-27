@@ -73,6 +73,7 @@ public class EconomyModel extends SimulationModel {
 
     @Override
     public void runSimulation(int month) {
+
         log("\n[ECONOMICS]", month, (month) / 12D);
 
         List<Person> people = simulation.getPopulation().getPeople();

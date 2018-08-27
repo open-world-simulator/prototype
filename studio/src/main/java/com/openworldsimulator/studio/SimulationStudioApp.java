@@ -5,6 +5,7 @@ import com.openworldsimulator.economics.EconomyModel;
 import com.openworldsimulator.experiments.Experiment;
 import com.openworldsimulator.experiments.ExperimentsManager;
 import com.openworldsimulator.simulation.ModelParameters;
+import com.openworldsimulator.simulation.Simulation;
 import com.openworldsimulator.tools.ConfigTools;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
@@ -60,134 +61,22 @@ public class SimulationStudioApp extends AbstractVerticle {
         }
     }
 
-    private static void pageConfigureExperiment(RoutingContext ctx) {
+    private static Experiment getExperiment(RoutingContext ctx, boolean createNew) throws IOException {
+
+        Experiment experiment = null;
 
         String id = ctx.queryParams().get("id");
-        Experiment experiment = null;
-        try {
-            if (id != null && !id.equals("")) {
-                experiment = getExperimentsManager().loadExperiment(id);
+        if (id != null && !id.equals("")) {
+            experiment = getExperimentsManager().loadExperiment(id);
+        }
+        if (experiment == null && createNew) {
+            experiment = getExperimentsManager().newExperiment();
+            if (id == null || id.length() > 3) {
+                experiment.setExperimentId(id);
             }
-
-            if (experiment == null) {
-                // Todo: pass parameters
-                experiment = getExperimentsManager().newExperiment();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            ctx.fail(e);
         }
 
-        try {
-            ctx.put("experiments", getExperimentsManager().listExperiments());
-
-            // TODO: List dynamically
-            ctx.put("configs", Arrays.asList("blank.defaults", "Spain.defaults"));
-
-            ctx.put("experiment", experiment);
-
-            ModelParameters demographyParams = experiment.getSimulation().getModel(DemographicsModel.MODEL_ID).getParams();
-
-            // Pass all model parameters
-            ctx.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", demographyParams.getParameterValueString("INITIAL_DEMOGRAPHY_DATA_COUNTRY"));
-            ctx.put("INITIAL_DEMOGRAPHY_DATA_YEAR", demographyParams.getParameterValueDouble("INITIAL_DEMOGRAPHY_DATA_YEAR"));
-
-            ctx.put("demography", demographyParams.getParameterMapForDouble());
-            ctx.put("economy", experiment.getSimulation().getModel(EconomyModel.MODEL_ID).getParams().getParameterMapForDouble());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            ctx.fail(e);
-        }
-        render("templates/configure.ftl", ctx);
-    }
-
-    private static void actionSaveExperiment(RoutingContext ctx) {
-
-        // Parse request
-        boolean validated = true;
-
-        String baseSettings = ctx.queryParams().get("baseConfiguration");
-
-        int nMonths = 0;
-        try {
-            nMonths = NumberFormat.getInstance().parse(ctx.queryParams().get("nMonths")).intValue();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        String experimentId = ctx.queryParams().get("id");
-
-        int year = 0;
-        try {
-            year = NumberFormat.getInstance().parse(ctx.queryParams().get("INITIAL_DEMOGRAPHY_DATA_COUNTRY")).intValue();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-
-        Map optionalParameters = new HashMap();
-        optionalParameters.clear();
-        ctx.queryParams().forEach(
-                entry -> {
-                    if (entry.getValue() != null) {
-                        System.out.println(entry.getKey() + "=" + entry.getValue());
-                        optionalParameters.put(entry.getKey(), entry.getValue());
-                    }
-                });
-
-
-        System.out.println("EXPERIMENT ID: " + experimentId);
-
-        validated = experimentId != null && year > 1900 && nMonths > 0;
-
-        if (validated) {
-
-            try {
-                Experiment existingExperiment = getExperimentsManager().loadExperiment(experimentId);
-                Experiment experiment = existingExperiment == null ? getExperimentsManager().newExperiment() : existingExperiment;
-
-                experiment.setExperimentId(experimentId);
-                experiment.setBaseSimulationConfig(baseSettings);
-                experiment.setOptionalProperties(optionalParameters);
-                experiment.setMonths(nMonths);
-
-                getExperimentsManager().saveExperiment(experiment);
-
-                ctx.vertx().executeBlocking(
-                        future -> {
-                            // EXECUTE SIMULATION
-                            try {
-                                //experiment.run();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            future.complete();
-                        },
-                        result -> {
-                        }
-                );
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                ctx.fail(e);
-            }
-            ctx.put("success", Boolean.TRUE);
-            pageConfigureExperiment(ctx);
-        } else {
-            ctx.put("success", Boolean.FALSE);
-            pageConfigureExperiment(ctx);
-        }
-    }
-
-    private static void pageExperimentResults(RoutingContext ctx) {
-
-        render("templates/results.ftl", ctx);
-    }
-
-    private static void pageExperimentStatus(RoutingContext ctx) {
-
-        render("templates/status.ftl", ctx);
+        return experiment;
     }
 
     private static void render(String template, RoutingContext ctx) {
@@ -204,6 +93,220 @@ public class SimulationStudioApp extends AbstractVerticle {
         });
     }
 
+    //------------------------------------------------------------------
+
+    private static void pageConfiguration(RoutingContext ctx) {
+
+        try {
+            Experiment experiment = getExperiment(ctx, true);
+
+            ctx.put("experiments", getExperimentsManager().listExperiments());
+            ctx.put("experiment", experiment);
+            ctx.put("configs", Arrays.asList("blank.defaults", "Spain.defaults"));
+        } catch (IOException e) {
+            ctx.fail(e);
+            return;
+        }
+
+        render("templates/configuration.ftl", ctx);
+    }
+
+    private static void actionSaveConfiguration(RoutingContext ctx) {
+        try {
+            Experiment experiment = getExperiment(ctx, true);
+
+            // Parse request
+            boolean validated = true;
+
+            String baseSettings = ctx.queryParams().get("baseConfiguration");
+
+            int nMonths = 0;
+            try {
+                nMonths = NumberFormat.getInstance().parse(ctx.queryParams().get("nMonths")).intValue();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            validated = experiment.isValidId();
+
+            if (validated) {
+                experiment.setBaseSimulationConfig(baseSettings);
+                experiment.setMonths(nMonths);
+
+                getExperimentsManager().saveExperiment(experiment);
+
+                ctx.put("success", Boolean.TRUE);
+
+                pageConfiguration(ctx);
+            } else {
+                ctx.put("success", Boolean.FALSE);
+                pageConfiguration(ctx);
+            }
+        } catch (Exception e) {
+            ctx.fail(e);
+        }
+    }
+
+
+    //-------------------------------------------------
+
+
+    private static void pageParameters(RoutingContext ctx) {
+        try {
+            Experiment experiment = getExperiment(ctx, false);
+            if (experiment == null) {
+                ctx.fail(404);
+                return;
+            }
+
+            ctx.put("experiments", getExperimentsManager().listExperiments());
+            ctx.put("experiment", experiment);
+
+            ModelParameters demographyParams = experiment.getSimulation().getModel(DemographicsModel.MODEL_ID).getParams();
+
+            // Pass all model parameters
+            ctx.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", demographyParams.getParameterValueString("INITIAL_DEMOGRAPHY_DATA_COUNTRY"));
+            ctx.put("INITIAL_DEMOGRAPHY_DATA_YEAR", demographyParams.getParameterValueDouble("INITIAL_DEMOGRAPHY_DATA_YEAR"));
+
+            ctx.put("demography", demographyParams.getParameterMapForDouble());
+            ctx.put("economy", experiment.getSimulation().getModel(EconomyModel.MODEL_ID).getParams().getParameterMapForDouble());
+
+        } catch (Exception e) {
+            ctx.fail(e);
+        }
+        render("templates/parameters.ftl", ctx);
+    }
+
+    private static void actionSaveParameters(RoutingContext ctx) {
+
+        try {
+            Experiment experiment = getExperiment(ctx, false);
+            if (experiment == null) {
+                ctx.fail(404);
+                return;
+            }
+
+            Map optionalParameters = new HashMap();
+            optionalParameters.clear();
+            ctx.queryParams().forEach(
+                    entry -> {
+                        if (entry.getValue() != null) {
+                            //System.out.println(entry.getKey() + "=" + entry.getValue());
+                            optionalParameters.put(entry.getKey(), entry.getValue());
+                        }
+                    });
+
+            // Non Double parameters
+            int year = 0;
+            String country = null;
+            try {
+                country = ctx.queryParams().get("INITIAL_DEMOGRAPHY_DATA_COUNTRY");
+                if (country != null) {
+                    optionalParameters.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", country);
+                }
+                String yearParam = ctx.queryParams().get("INITIAL_DEMOGRAPHY_DATA_YEAR");
+                if (yearParam != null) {
+                    year = NumberFormat.getInstance().parse(yearParam).intValue();
+                    optionalParameters.put("INITIAL_DEMOGRAPHY_DATA_YEAR", year);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if (country != null && country.length() > 3 && year > 1900) {
+                experiment.setOptionalProperties(optionalParameters);
+                getExperimentsManager().saveExperiment(experiment);
+
+                ctx.put("success", Boolean.TRUE);
+                pageParameters(ctx);
+            } else {
+                ctx.put("success", Boolean.FALSE);
+                pageParameters(ctx);
+            }
+        } catch (Exception e) {
+            ctx.fail(e);
+        }
+    }
+
+    //------------------------------------------------------------------
+
+    private static void pageExperimentResults(RoutingContext ctx) {
+
+        /*
+        ctx.vertx().executeBlocking(
+                future -> {
+                    // EXECUTE SIMULATION
+                    try {
+                        //experiment.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    future.complete();
+                },
+                result -> {
+                }
+        );
+        */
+        render("templates/results.ftl", ctx);
+    }
+
+    private static void pageExperimentStatus(RoutingContext ctx) {
+        try {
+            Experiment experiment = getExperiment(ctx, false);
+            if (experiment == null) {
+                ctx.fail(404);
+                return;
+            }
+
+            ctx.put("experiments", getExperimentsManager().listExperiments());
+            ctx.put("experiment", experiment);
+            Simulation simulation = experiment.getSimulation();
+            ctx.put("simulation", simulation);
+
+            render("templates/status.ftl", ctx);
+        } catch (Exception e) {
+            ctx.fail(e);
+        }
+    }
+
+    private static void actionExecute(RoutingContext ctx) {
+        try {
+            Experiment experiment = getExperiment(ctx, false);
+            if (experiment == null) {
+                ctx.fail(404);
+                return;
+            }
+
+            ctx.put("experiments", getExperimentsManager().listExperiments());
+            ctx.put("experiment", experiment);
+            Simulation simulation = experiment.getSimulation();
+            ctx.put("simulation", simulation);
+
+            if( !simulation.isRunning()) {
+                ctx.vertx().executeBlocking(
+                        future -> {
+                            // EXECUTE SIMULATION
+                            try {
+                                experiment.run();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            future.complete();
+                        },
+                        result -> {
+                            // Do nothing
+                            System.out.println("ENDED!");
+                        }
+                );
+            }
+
+            render("templates/status.ftl", ctx);
+        } catch (Exception e) {
+            ctx.fail(e);
+        }
+    }
+
+
     @Override
     public void start() throws Exception {
 
@@ -212,10 +315,15 @@ public class SimulationStudioApp extends AbstractVerticle {
 
         Router router = Router.router(vertx);
 
-        router.route("/").handler(SimulationStudioApp::pageConfigureExperiment);
-        router.route("/configure").handler(SimulationStudioApp::pageConfigureExperiment);
-        router.route("/save").handler(SimulationStudioApp::actionSaveExperiment);
+        router.route("/").handler(SimulationStudioApp::pageConfiguration);
+        router.route("/configuration").handler(SimulationStudioApp::pageConfiguration);
+        router.route("/save-configuration").handler(SimulationStudioApp::actionSaveConfiguration);
+        router.route("/parameters").handler(SimulationStudioApp::pageParameters);
+        router.route("/save-parameters").handler(SimulationStudioApp::actionSaveParameters);
         router.route("/status").handler(SimulationStudioApp::pageExperimentStatus);
+        router.route("/execute").handler(SimulationStudioApp::actionExecute);
+
+
         router.route("/results").handler(SimulationStudioApp::pageExperimentResults);
         router.route("/static/*").handler(StaticHandler.create().setCachingEnabled(false));
 

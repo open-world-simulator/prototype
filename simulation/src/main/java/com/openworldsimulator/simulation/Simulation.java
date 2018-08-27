@@ -15,6 +15,10 @@ public class Simulation {
 
     private String simulationId;
 
+    private int currentMonth = 0;
+    private boolean running = false;
+    private String status = null;
+
     private Population population;
     private Banks banks;
     private Companies companies;
@@ -143,70 +147,102 @@ public class Simulation {
         return null;
     }
 
+    public int getCurrentMonth() {
+        return currentMonth;
+    }
+
+    private void setCurrentMonth(int currentMonth) {
+        this.currentMonth = currentMonth;
+    }
+
+    private void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    private void setStatus(String status) {
+        this.status = status;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
 
     public void simulate(int nMonths) throws Exception {
 
-        log("* RUNNING SIMULATION : " + simulationId + " for " + nMonths + " months");
+        try {
+            setCurrentMonth(0);
+            setRunning(true);
 
-        // Do runSimulation initialization
-        log("- Initializing models ");
+            log("* RUNNING SIMULATION : " + simulationId + " for " + nMonths + " months");
 
-        models.forEach(SimulationModel::init);
+            // Do runSimulation initialization
+            setStatus("Initializing Models");
 
-        // Write initial reports
-        log("- Writing reports at initial status");
-        models.forEach(m -> {
-            if (m.getStats() != null) {
-                m.getStats().writeChartsAtStart();
-            }
-        });
+            models.forEach(SimulationModel::init);
 
-        for (int i = 1; i <= nMonths; i++) {
-            logDebug("Iteration " + i);
-            if (i % 120 == 0) {
-                log(" " + i + " (" + (i / 12) + " years)");
-                //System.out.println(getPublicSector().getBalanceSheet());
-                //System.out.println(getCompanies().getBalanceSheet());
-            }
-            final int month = i;
+            setStatus("Writing initial reports");
 
-            // Run simulation for all models
+            // Write initial reports
             models.forEach(m -> {
-                logDebug("Running simulation " + m.getId());
-                m.preSimulation(month);
-            });
-
-            // Run simulation for all models
-            models.forEach(m -> {
-                logDebug("Running simulation " + m.getId());
-                m.runSimulation(month);
-            });
-
-            // Collect statistics
-            models.forEach(m -> {
-                logDebug("Collecting statistics " + m.getId());
-                m.postSimulation(month);
-            });
-
-            // Write snapshots
-            models.forEach(m -> {
-                logDebug("Writing snapshots " + m.getId());
                 if (m.getStats() != null) {
-                    m.getStats().writeSnapshots(month);
+                    m.getStats().writeChartsAtStart();
+                }
+            });
+
+            setStatus("Running");
+            for (int i = 1; i <= nMonths; i++) {
+                setCurrentMonth(1);
+                logDebug("Iteration " + i);
+                if (i % 120 == 0) {
+                    log(" " + i + " (" + (i / 12) + " years)");
+                    //System.out.println(getPublicSector().getBalanceSheet());
+                    //System.out.println(getCompanies().getBalanceSheet());
+                }
+                final int month = i;
+
+                // Run simulation for all models
+                models.forEach(m -> {
+                    logDebug("Running simulation " + m.getId());
+                    m.preSimulation(month);
+                });
+
+                // Run simulation for all models
+                models.forEach(m -> {
+                    logDebug("Running simulation " + m.getId());
+                    m.runSimulation(month);
+                });
+
+                // Collect statistics
+                models.forEach(m -> {
+                    logDebug("Collecting statistics " + m.getId());
+                    m.postSimulation(month);
+                });
+
+                // Write snapshots
+                models.forEach(m -> {
+                    logDebug("Writing snapshots " + m.getId());
+                    if (m.getStats() != null) {
+                        m.getStats().writeSnapshots(month);
+                    }
+                });
+            }
+
+            log("\n");
+
+            // Do post-runSimulation stats collection
+            setStatus("Writing reports at end status");
+            models.forEach(m -> {
+                if (m.getStats() != null) {
+                    logDebug("Writing reports at end" + m.getId());
+                    m.getStats().writeChartsAtEnd();
                 }
             });
         }
-
-        log("\n");
-
-        // Do post-runSimulation stats collection
-        log("- Writing reports at end status");
-        models.forEach(m -> {
-            if (m.getStats() != null) {
-                logDebug("Writing reports at end" + m.getId());
-                m.getStats().writeChartsAtEnd();
-            }
-        });
+        finally {
+            setStatus(null);
+            setRunning(false);
+            setCurrentMonth(0);
+        }
     }
 
     public void evolveParametersMonthly(ModelParameters parameters) {
