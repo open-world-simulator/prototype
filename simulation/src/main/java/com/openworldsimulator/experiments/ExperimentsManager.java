@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExperimentsManager {
-    public static final String EXPERIMENTS_MARKER_FILE = ".experiments";
+    public static final String MARKER_FILE = ".experiments";
     private File baseDirectory;
 
     public ExperimentsManager(File baseDirectory) throws IOException {
         System.out.println("Experiments stored at " + baseDirectory);
-        if (!new File(baseDirectory, EXPERIMENTS_MARKER_FILE).exists()) {
-            throw new IOException(EXPERIMENTS_MARKER_FILE + " : File must be created in experiments dir " + baseDirectory.getCanonicalPath());
+        if (!new File(baseDirectory, MARKER_FILE).exists()) {
+            throw new IOException(MARKER_FILE + " : File must be created in experiments dir " + baseDirectory.getCanonicalPath());
         }
         if (baseDirectory == null || !baseDirectory.isDirectory() || !baseDirectory.canRead() || !baseDirectory.canWrite()) {
             throw new IOException("Experiments Manager : directory " + baseDirectory + " is not a valid directory");

@@ -13,10 +13,12 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.templ.FreeMarkerTemplateEngine;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -46,7 +48,6 @@ public class SimulationStudioApp extends AbstractVerticle {
         try {
             String dir = ConfigTools.getConfig("OPEN_WORLD_SIM_OUTPUT_DIR", "./output");
             File f = new File(dir);
-            System.out.println("Output Dir is " + f.getCanonicalPath());
 
             if (!f.exists() || !f.canWrite()) {
                 throw new FileNotFoundException(f.getCanonicalPath());
@@ -217,6 +218,19 @@ public class SimulationStudioApp extends AbstractVerticle {
         router.route("/status").handler(SimulationStudioApp::pageExperimentStatus);
         router.route("/results").handler(SimulationStudioApp::pageExperimentResults);
         router.route("/static/*").handler(StaticHandler.create().setCachingEnabled(false));
+
+        File outputDir = getOutputDir();
+        if (!outputDir.exists()) {
+            System.out.println("# Creating output dir: " + getOutputDir().getCanonicalPath());
+        }
+
+        File markerFile = new File(outputDir, ExperimentsManager.MARKER_FILE);
+        if (!markerFile.exists()) {
+            System.out.println("# Creating experiments marker file: " + markerFile.getCanonicalPath());
+            FileUtils.write(markerFile, "", Charset.defaultCharset());
+        }
+        System.out.println("# Found " + getExperimentsManager().listExperiments().size() + " experiments");
+        System.out.println("# Listening at 8080");
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)

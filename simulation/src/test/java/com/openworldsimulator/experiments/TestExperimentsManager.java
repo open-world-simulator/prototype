@@ -18,7 +18,7 @@ public class TestExperimentsManager {
             );
         } catch (IOException e) {
             // Exception is expected
-            Assert.assertTrue(e.getMessage().contains(ExperimentsManager.EXPERIMENTS_MARKER_FILE));
+            Assert.assertTrue(e.getMessage().contains(ExperimentsManager.MARKER_FILE));
             exceptionThrown = true;
         }
 
