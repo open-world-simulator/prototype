@@ -222,6 +222,7 @@ public class SimulationStudioApp extends AbstractVerticle {
         File outputDir = getOutputDir();
         if (!outputDir.exists()) {
             System.out.println("# Creating output dir: " + getOutputDir().getCanonicalPath());
+            outputDir.mkdirs();
         }
 
         File markerFile = new File(outputDir, ExperimentsManager.MARKER_FILE);
