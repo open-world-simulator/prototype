@@ -5,6 +5,7 @@ import com.openworldsimulator.tools.ModelParametersTools;
 
 public class EconomyParams extends ModelParameters {
     // TODO: Unemployment
+    public double _ENABLE_ECONOMY_SIMULATION = 0;
 
     // Work market modeling
     public double PRIVATE_SECTOR_MONTHLY_WAGE_STDEV = 500;

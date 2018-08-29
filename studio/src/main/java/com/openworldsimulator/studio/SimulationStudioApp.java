@@ -3,6 +3,7 @@ package com.openworldsimulator.studio;
 import com.openworldsimulator.demographics.DemographicsModel;
 import com.openworldsimulator.economics.EconomyModel;
 import com.openworldsimulator.experiments.Experiment;
+import com.openworldsimulator.experiments.ExperimentResult;
 import com.openworldsimulator.experiments.ExperimentsManager;
 import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.simulation.Simulation;
@@ -24,6 +25,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -32,6 +34,8 @@ public class SimulationStudioApp extends AbstractVerticle {
     private static FreeMarkerTemplateEngine engine;
 
     private static ExperimentsManager experimentsManager = null;
+
+    private static Map<String, Simulation> runningSimulations = new HashMap<>();
 
     private static ExperimentsManager getExperimentsManager() {
         if (experimentsManager == null) {
@@ -51,10 +55,10 @@ public class SimulationStudioApp extends AbstractVerticle {
             File f = new File(dir);
 
             if (!f.exists() || !f.canWrite()) {
-                throw new FileNotFoundException(f.getCanonicalPath());
+                throw new FileNotFoundException(f.getPath());
             }
 
-            return f.getCanonicalFile();
+            return f;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -166,7 +170,7 @@ public class SimulationStudioApp extends AbstractVerticle {
 
             // Pass all model parameters
             ctx.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", demographyParams.getParameterValueString("INITIAL_DEMOGRAPHY_DATA_COUNTRY"));
-            ctx.put("INITIAL_DEMOGRAPHY_DATA_YEAR", demographyParams.getParameterValueDouble("INITIAL_DEMOGRAPHY_DATA_YEAR"));
+            ctx.put("INITIAL_DEMOGRAPHY_DATA_YEAR", demographyParams.getParameterValueString("INITIAL_DEMOGRAPHY_DATA_YEAR"));
 
             ctx.put("demography", demographyParams.getParameterMapForDouble());
             ctx.put("economy", experiment.getSimulation().getModel(EconomyModel.MODEL_ID).getParams().getParameterMapForDouble());
@@ -197,23 +201,15 @@ public class SimulationStudioApp extends AbstractVerticle {
                     });
 
             // Non Double parameters
-            int year = 0;
             String country = null;
-            try {
-                country = ctx.queryParams().get("INITIAL_DEMOGRAPHY_DATA_COUNTRY");
-                if (country != null) {
-                    optionalParameters.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", country);
-                }
-                String yearParam = ctx.queryParams().get("INITIAL_DEMOGRAPHY_DATA_YEAR");
-                if (yearParam != null) {
-                    year = NumberFormat.getInstance().parse(yearParam).intValue();
-                    optionalParameters.put("INITIAL_DEMOGRAPHY_DATA_YEAR", year);
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
+
+            country = ctx.queryParams().get("INITIAL_DEMOGRAPHY_DATA_COUNTRY");
+            if (country != null) {
+                optionalParameters.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", country);
             }
 
-            if (country != null && country.length() > 3 && year > 1900) {
+
+            if (country != null && country.length() > 3) {
                 experiment.setOptionalProperties(optionalParameters);
                 getExperimentsManager().saveExperiment(experiment);
 
@@ -231,23 +227,22 @@ public class SimulationStudioApp extends AbstractVerticle {
     //------------------------------------------------------------------
 
     private static void pageExperimentResults(RoutingContext ctx) {
+        try {
+            Experiment experiment = getExperiment(ctx, false);
+            if (experiment == null) {
+                ctx.fail(404);
+                return;
+            }
+            ctx.put("experiments", getExperimentsManager().listExperiments());
+            ctx.put("experiment", experiment);
 
-        /*
-        ctx.vertx().executeBlocking(
-                future -> {
-                    // EXECUTE SIMULATION
-                    try {
-                        //experiment.run();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    future.complete();
-                },
-                result -> {
-                }
-        );
-        */
-        render("templates/results.ftl", ctx);
+            List<String> results = getExperimentsManager().listExperimentResults(experiment.getExperimentId());
+            ctx.put("results", results);
+
+            render("templates/results.ftl", ctx);
+        } catch (Exception e) {
+            ctx.fail(e);
+        }
     }
 
     private static void pageExperimentStatus(RoutingContext ctx) {
@@ -260,7 +255,12 @@ public class SimulationStudioApp extends AbstractVerticle {
 
             ctx.put("experiments", getExperimentsManager().listExperiments());
             ctx.put("experiment", experiment);
-            Simulation simulation = experiment.getSimulation();
+            Simulation simulation = null;
+            if (runningSimulations.containsKey(experiment.getExperimentId())) {
+                simulation = runningSimulations.get(experiment.getExperimentId());
+            } else {
+                simulation = experiment.getSimulation();
+            }
             ctx.put("simulation", simulation);
 
             render("templates/status.ftl", ctx);
@@ -282,7 +282,10 @@ public class SimulationStudioApp extends AbstractVerticle {
             Simulation simulation = experiment.getSimulation();
             ctx.put("simulation", simulation);
 
-            if( !simulation.isRunning()) {
+            // Register that as running simulations
+            runningSimulations.put(experiment.getExperimentId(), simulation);
+
+            if (!simulation.isRunning()) {
                 ctx.vertx().executeBlocking(
                         future -> {
                             // EXECUTE SIMULATION
@@ -290,6 +293,8 @@ public class SimulationStudioApp extends AbstractVerticle {
                                 experiment.run();
                             } catch (Exception e) {
                                 e.printStackTrace();
+                            } finally {
+                                runningSimulations.remove(experiment.getExperimentId());
                             }
                             future.complete();
                         },
@@ -310,6 +315,12 @@ public class SimulationStudioApp extends AbstractVerticle {
     @Override
     public void start() throws Exception {
 
+        File outputDir = getOutputDir();
+        if (!outputDir.exists()) {
+            System.out.println("# Creating output dir: " + getOutputDir().getCanonicalPath());
+            outputDir.mkdirs();
+        }
+
         // In order to use a template we first need to create an engine
         engine = FreeMarkerTemplateEngine.create();
 
@@ -323,15 +334,8 @@ public class SimulationStudioApp extends AbstractVerticle {
         router.route("/status").handler(SimulationStudioApp::pageExperimentStatus);
         router.route("/execute").handler(SimulationStudioApp::actionExecute);
 
-
         router.route("/results").handler(SimulationStudioApp::pageExperimentResults);
-        router.route("/static/*").handler(StaticHandler.create().setCachingEnabled(false));
-
-        File outputDir = getOutputDir();
-        if (!outputDir.exists()) {
-            System.out.println("# Creating output dir: " + getOutputDir().getCanonicalPath());
-            outputDir.mkdirs();
-        }
+        router.route("/static/*").handler(StaticHandler.create(outputDir.getPath()).setCachingEnabled(false));
 
         File markerFile = new File(outputDir, ExperimentsManager.MARKER_FILE);
         if (!markerFile.exists()) {

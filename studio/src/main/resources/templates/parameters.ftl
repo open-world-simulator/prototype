@@ -3,8 +3,9 @@
 <html lang="en">
 <head><#include "head.ftl"></head>
 <body>
+<#include "top.ftl">
+
 <div class="container-fluid">
-    <#include "top.ftl">
     <div class="row">
         <div class="col-md-2">
             <#include "menu.ftl">
@@ -27,7 +28,7 @@
             >
                 <div class="row">
                     <#include "success.ftl">
-                    <legend class="scheduler-border">Experiment <strong>'${context.experiment.experimentId}'</strong> parameters:</legend>
+                    <legend>Experiment <strong>'${context.experiment.experimentId}'</strong> parameters:</legend>
 
                     <div class="form-group">
                         <label for="id">Experiment ID:</label>
@@ -54,15 +55,6 @@
                                    required
                                    placeholder="${context.demography['INITIAL_DEMOGRAPHY_DATA_COUNTRY']!''}"
                                    value="${context.experiment.optionalProperties['INITIAL_DEMOGRAPHY_DATA_COUNTRY']!''}"
-                            >
-                        </div>
-                        <div class="form-group">
-                            <label for="INITIAL_DEMOGRAPHY_DATA_YEAR">INITIAL_DEMOGRAPHY_DATA_YEAR</label>
-                            <input type="text" class="form-control sim-property" id="INITIAL_DEMOGRAPHY_DATA_YEAR"
-                                   name="INITIAL_DEMOGRAPHY_DATA_YEAR"
-                                   required
-                                   placeholder="Year starting population data will be loaded from"
-                                   value="${context.experiment.optionalProperties['INITIAL_DEMOGRAPHY_DATA_YEAR']!''}"
                             >
                         </div>
                         <#list context.demography?keys as key>

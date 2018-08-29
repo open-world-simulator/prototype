@@ -13,16 +13,14 @@ public class ModelParametersTools {
      * Overrides public attributes in a configuration object according to the values supplied in a Properties object and
      * and optional additional Properties object
      */
-    public static <T extends ModelParameters> T loadParameterValues(Properties defaultProperties, Map overrideProperties, T params) {
-
-        params = loadParameterValues(defaultProperties, params);
-        params = loadParameterValues(overrideProperties, params);
-        return params;
+    public static void updateParameterValues(Properties defaultProperties, Map overrideProperties, ModelParameters params) {
+        updateParameterValues(defaultProperties, params);
+        updateParameterValues(overrideProperties, params);
     }
 
-    private static <T extends ModelParameters> T loadParameterValues(Map properties, T params) {
+    private static void updateParameterValues(Map properties, ModelParameters params) {
         if (properties == null) {
-            return params;
+            return;
         }
 
         properties.keySet().forEach(
@@ -30,18 +28,19 @@ public class ModelParametersTools {
                     String key = k.toString().trim();
                     if (!key.startsWith("#")) { // IS PARAMETER
                         try {
-                            double value = Double.valueOf(properties.get(k).toString().trim());
-                            //System.out.println("Setting property '" + key + "' to '" + value + "");
-                            setParameterValue(params, key, value);
+                            if (isDouble(params, key)) {
+                                double value = Double.valueOf(properties.get(k).toString().trim());
+                                //System.out.println("Setting property '" + key + "' to '" + value + "");
+                                setParameterValue(params, key, value);
+                            } else if (isString(params, key)) {
+                                setParameterValue(params, key, properties.get(k).toString().trim());
+                            }
                         } catch (Exception e) {
-                            //System.out.println("[ERROR] Failed to set property '" + key + "' with value '" + properties.get(k) + "' on " + params.getClass().getName());
+                            System.out.println("[ERROR] Failed to set property '" + key + "' with value '" + properties.get(k) + "' on " + params.getClass().getName());
                         }
                     }
                 }
         );
-
-
-        return params;
     }
 
     public static void loadParameterChanges(Properties properties, Map<String, Double> paramChanges) {
@@ -76,6 +75,21 @@ public class ModelParametersTools {
         }
     }
 
+    private static void setParameterValue(ModelParameters modelParameters, String fieldName, String fieldValue) {
+        Class<?> clazz = modelParameters.getClass();
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            if (field != null) {
+                field.setAccessible(true);
+                if (field.getType().equals(String.class)) {
+                    field.set(modelParameters, fieldValue);
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     /**
      * Returns the list of parameters
      *
@@ -95,13 +109,26 @@ public class ModelParametersTools {
         return paramNames;
     }
 
-    /**
-     * Returns parameter value by
-     *
-     * @param modelParameters
-     * @param fieldName
-     * @return
-     */
+    public static boolean isDouble(ModelParameters modelParameters, String fieldName) {
+        Class<?> clazz = modelParameters.getClass();
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            return (field != null && field.getType().isAssignableFrom(double.class));
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static boolean isString(ModelParameters modelParameters, String fieldName) {
+        Class<?> clazz = modelParameters.getClass();
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            return (field != null && field.getType().isAssignableFrom(String.class));
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     public static Double getParameterValueDouble(ModelParameters modelParameters, String fieldName) {
         Class<?> clazz = modelParameters.getClass();
         try {

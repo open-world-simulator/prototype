@@ -8,7 +8,9 @@ import com.openworldsimulator.model.*;
 import com.openworldsimulator.tools.ModelParametersTools;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 public class Simulation {
@@ -72,14 +74,14 @@ public class Simulation {
 
         Properties defaults = loadDefaults(defaultSettings);
 
-        DemographicParams demographicParams =
-                ModelParametersTools.loadParameterValues(defaults, optionalProperties, new DemographicParams());
+        DemographicParams demographicParams = new DemographicParams();
+        demographicParams.loadParameterValues(defaults, optionalProperties);
 
         simulationLog.log(demographicParams.toString());
 
         // Create economics model
-        EconomyParams economicsParams =
-                ModelParametersTools.loadParameterValues(defaults, optionalProperties, new EconomyParams());
+        EconomyParams economicsParams = new EconomyParams();
+        economicsParams.loadParameterValues(defaults, optionalProperties);
 
         simulationLog.log(economicsParams.toString());
 
@@ -237,8 +239,7 @@ public class Simulation {
                     m.getStats().writeChartsAtEnd();
                 }
             });
-        }
-        finally {
+        } finally {
             setStatus(null);
             setRunning(false);
             setCurrentMonth(0);
@@ -246,6 +247,7 @@ public class Simulation {
     }
 
     public void evolveParametersMonthly(ModelParameters parameters) {
+        // TODO: Change call
         ModelParametersTools.evolveParameterDeltaMonthly(parameters, simulationParametersChangeRate);
     }
 
@@ -269,9 +271,12 @@ public class Simulation {
         Properties configProperties = new Properties();
         if (config != null) {
             log("Loading default config: " + config);
-            configProperties.load(
-                    Thread.currentThread().getContextClassLoader().getResourceAsStream("defaults/" + config)
-            );
+            InputStream is = Simulation.class.getClassLoader().getResourceAsStream("defaults/" + config);
+            if (is == null) {
+                System.out.println("Can't find base resource: " + config);
+                throw new FileNotFoundException("Resource " + config + " not found");
+            }
+            configProperties.load(is);
         }
         return configProperties;
     }

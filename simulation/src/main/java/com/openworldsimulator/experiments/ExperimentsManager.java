@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ExperimentsManager {
@@ -118,8 +119,26 @@ public class ExperimentsManager {
 
     }
 
+    public List<String> listExperimentResults(String experimentId) {
+        List<String> results = new ArrayList<>();
+        File dir = getExperimentDirectory(experimentId);
+        if (dir != null) {
+            FileUtils.listFiles(
+                    dir, new String[]{"png", "csv", "txt", "json"}, true
+            ).forEach(
+                    f -> {
+                        results.add(
+                                f.getPath().substring(dir.getPath().length())
+                        );
+                    }
+            );
+            results.sort(String::compareTo);
+        }
+        return results;
+    }
+
     public File getExperimentDirectory(String experimentId) {
-        if( experimentId != null) {
+        if (experimentId != null) {
             File dir = new File(getBaseDirectory(), experimentId);
             if (dir.exists() && dir.canRead()) {
                 return dir;

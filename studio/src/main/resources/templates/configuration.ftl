@@ -3,8 +3,9 @@
 <html lang="en">
 <head><#include "head.ftl"></head>
 <body>
+<#include "top.ftl">
+
 <div class="container-fluid">
-    <#include "top.ftl">
     <div class="row">
         <div class="col-md-2">
             <#include "menu.ftl">
@@ -14,7 +15,7 @@
                 <div class="row">
                     <#include "success.ftl">
 
-                <legend class="scheduler-border">Experiment configuration:</legend>
+                <legend>Experiment configuration:</legend>
                     <div class="form-group">
                         <label for="id">Experiment Id</label>
                         <input type="text" class="form-control" id="id" name="id"

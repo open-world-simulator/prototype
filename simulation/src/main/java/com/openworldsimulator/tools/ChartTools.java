@@ -190,16 +190,15 @@ public class ChartTools {
 
     private static void fillDataSeries(Map<Long, Long> histoData, List<Long> xData, List<Long> yData, long min, long max) {
         // For better representation, we want x values with no representation in the histogram
-        long sum = yData.stream().collect(Collectors.summingLong(l->l)).longValue();
+       // long sum = yData.stream().collect(Collectors.summingLong(l->l)).longValue();
 
         for (long i = min; i <= max; i++) {
             xData.add(i);
             Long value = histoData.get(i);
-            if (value != null && sum != 0) {
-                //yData.add(histoData.get(i));
-                yData.add((long) (value * 100D / sum) );
+            if (value != null ) {
+                yData.add(value);
             } else {
-                //yData.add(null);
+                yData.add(null);
             }
         }
     }

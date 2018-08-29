@@ -115,7 +115,7 @@ public class DemographicsStats extends ModelStats {
                 )
         );
 
-   ChartTools.writeTimeChartYoYPercent(
+/*   ChartTools.writeTimeChartYoYPercent(
                 demographyPath.getPath(),
                 "population_pct",
                 "Population",
@@ -126,7 +126,7 @@ public class DemographicsStats extends ModelStats {
                         buildCountSeries(POPULATION)
                 )
         );
-
+*/
         // TODO: Population growth
 
         ChartTools.writeTimeChart(demographyPath.getPath(), "age", "Average Age of population",

@@ -29,6 +29,11 @@ public class EconomyModel extends SimulationModel {
 
     @Override
     public ModelStats getStats() {
+
+        if( !isEnabled()) {
+            return null;
+        }
+
         return modelStats;
     }
 
@@ -37,9 +42,16 @@ public class EconomyModel extends SimulationModel {
         return params;
     }
 
+    private boolean isEnabled() {
+        return params._ENABLE_ECONOMY_SIMULATION != 0;
+    }
     @Override
     public void init() {
         super.init();
+
+        if( !isEnabled()) {
+            return;
+        }
 
         log("* Initializing global balance sheets");
         simulation.getPublicSector().getBalanceSheet().reset();
@@ -73,6 +85,9 @@ public class EconomyModel extends SimulationModel {
 
     @Override
     public void runSimulation(int month) {
+        if( !isEnabled()) {
+            return;
+        }
 
         log("\n[ECONOMICS]", month, (month) / 12D);
 
@@ -115,6 +130,10 @@ public class EconomyModel extends SimulationModel {
 
     @Override
     public void postSimulation(int month) {
+        if( !isEnabled()) {
+            return;
+        }
+
         // Build monthly stats
         modelStats.collect(month);
 

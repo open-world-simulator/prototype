@@ -40,7 +40,7 @@ public class TestExperimentsManager {
         Experiment e = new Experiment(
                 experimentsManager,
                 "experiment1",
-                "blank",
+                "blank.defaults",
                 null,
                 1000
         );
@@ -63,7 +63,7 @@ public class TestExperimentsManager {
             e = new Experiment(
                     experimentsManager,
                     "experiment" + i,
-                    "blank",
+                    "blank.defaults",
                     null,
                     1000 + i
             );

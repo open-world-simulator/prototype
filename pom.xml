@@ -6,7 +6,7 @@
 
     <name>Open World Simulator [Parent]</name>
     <groupId>com.openworldsimulator</groupId>
-    <artifactId>prototype-parent</artifactId>
+    <artifactId>prototype-folder</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>simulation</module>

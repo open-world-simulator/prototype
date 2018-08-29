@@ -3,8 +3,9 @@
 <html lang="en">
 <head><#include "head.ftl"></head>
 <body>
+<#include "top.ftl">
+
 <div class="container-fluid">
-    <#include "top.ftl">
     <div class="row">
         <div class="col-md-2">
             <#include "menu.ftl">
