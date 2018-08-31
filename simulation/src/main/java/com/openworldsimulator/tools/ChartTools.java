@@ -8,28 +8,40 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
+// TODO: Parametrize Chart Size
 public class ChartTools {
+
+    private static List<Date> buildXSeries(int baseYear, int totalMonths) {
+        List<Date> xData = new ArrayList<>();
+
+        Calendar c = Calendar.getInstance();
+
+        // Build xData
+        for (int i = 0; i < totalMonths; i++) {
+            c.set(Calendar.YEAR, baseYear+1);
+            c.set(Calendar.MONTH, 0);
+            c.set(Calendar.DAY_OF_MONTH, 1);
+            c.add(Calendar.MONTH, i);
+            xData.add(c.getTime());
+        }
+        return xData;
+    }
 
     public static void writeTimeChart(
             String path,
             String fileName,
             String title,
-            List<Number> yData
+            List<Number> yData,
+            int baseYear
     ) {
 
-        List<Number> xData = new ArrayList<>();
-
-        // Build xData
-        for (int i = 1; i <= yData.size(); i++) {
-            xData.add(new Integer(i));
-        }
+        List<Date> xData = buildXSeries(baseYear, yData.size());
 
         // Create Chart
         XYChart chart = new XYChart(1024, 800);
         chart.setTitle(title);
-        chart.setXAxisTitle("Time (months)");
+        chart.setXAxisTitle("Year");
         chart.setYAxisTitle(title);
 
         chart.getStyler().setXAxisLabelRotation(-90);
@@ -44,79 +56,20 @@ public class ChartTools {
         }
     }
 
-    public static void writeAllTimeCharts(
-            String path,
-            String fileName,
-            String title,
-            List<String> seriesTitle,
-            List<List<Number>> seriesData
-    ) {
-        writeTimeChart(path,
-                fileName,
-                title,
-                seriesTitle,
-                seriesData);
-
-        writeTimeChartYoYPercent(path,
-                fileName + "-YoY",
-                title + " YoY %",
-                seriesTitle,
-                seriesData);
-    }
-
-    public static void writeTimeChartYoYPercent(
-            String path,
-            String fileName,
-            String title,
-            List<String> seriesTitle,
-            List<List<Number>> seriesData
-    ) {
-        // Calc variation
-        List<List<Number>> newSeriesData = new ArrayList<>();
-
-        for (int i = 0; i < seriesData.size(); i++) {
-            List<Number> series = seriesData.get(i);
-            List<Number> newSeries = new ArrayList<>();
-
-            for (int n = 12; n < series.size(); n++) {
-
-                double pct = 0;
-                if (series.get(n - 12).doubleValue() == 0) {
-                    System.out.println("YoY calculation : Invalid 0 value at index: " + n);
-                } else {
-                    pct = (series.get(n).doubleValue() - series.get(n - 12).doubleValue()) / series.get(n - 12).doubleValue() * 100.0;
-                }
-                newSeries.add(pct);
-            }
-            newSeriesData.add(newSeries);
-        }
-
-        writeTimeChart(path,
-                fileName,
-                title,
-                seriesTitle,
-                newSeriesData);
-    }
-
     public static void writeTimeChart(
             String path,
             String fileName,
             String title,
             List<String> seriesTitle,
-            List<List<Number>> seriesData
+            List<List<Number>> seriesData,
+            int baseYear
     ) {
-
-        List<Number> xData = new ArrayList<>();
-
-        // Build xData
-        for (int i = 1; i <= seriesData.get(0).size(); i++) {
-            xData.add(i);
-        }
+        List<Date> xData = buildXSeries(baseYear, seriesData.get(0).size());
 
         // Create Chart
         XYChart chart = new XYChart(1024, 800);
         chart.setTitle(title);
-        chart.setXAxisTitle("Time (months)");
+        chart.setXAxisTitle("Year");
         chart.setYAxisTitle(title);
 
         chart.getStyler().setXAxisLabelRotation(-90);

@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.*;
 
 public class SimulationMain {
-    public static final int DEFAULT_MONTHS = 100 * 12;
 
     private static Set<String> settings = new HashSet<>();
     private static Map<String, String> optionalParams = new HashMap<>();
@@ -68,17 +67,19 @@ public class SimulationMain {
 
         String experimentId = baseParams.get(0);
         String baseConfig = baseParams.get(1);
-        int nMonths = getParameterInt("months", DEFAULT_MONTHS);
+        int nMonths  = getParameterInt("months", ExperimentsManager.DEFAULT_EXPERIMENT_DURATION);
+        int baseYear = getParameterInt("year", ExperimentsManager.DEFAULT_EXPERIMENT_YEAR);
 
         File baseOutputPath = new File(getParameterStr("output", "./output"));
         ExperimentsManager experimentsManager = new ExperimentsManager(baseOutputPath);
 
         Experiment experiment = new Experiment(
+                baseYear,
+                nMonths,
                 experimentsManager,
                 experimentId,
                 baseConfig,
-                optionalParams,
-                nMonths
+                optionalParams
         );
 
         experiment.run();

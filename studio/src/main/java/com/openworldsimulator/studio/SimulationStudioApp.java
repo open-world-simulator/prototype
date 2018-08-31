@@ -54,6 +54,7 @@ public class SimulationStudioApp extends AbstractVerticle {
             String dir = ConfigTools.getConfig("OPEN_WORLD_SIM_OUTPUT_DIR", "./output");
             File f = new File(dir);
 
+            System.out.println("Checking dir " + f.getPath());
             if (!f.exists() || !f.canWrite()) {
                 throw new FileNotFoundException(f.getPath());
             }
@@ -119,23 +120,23 @@ public class SimulationStudioApp extends AbstractVerticle {
         try {
             Experiment experiment = getExperiment(ctx, true);
 
-            // Parse request
-            boolean validated = true;
-
             String baseSettings = ctx.queryParams().get("baseConfiguration");
 
             int nMonths = 0;
+            int baseYear = 0;
             try {
                 nMonths = NumberFormat.getInstance().parse(ctx.queryParams().get("nMonths")).intValue();
+                baseYear = NumberFormat.getInstance().parse(ctx.queryParams().get("baseYear")).intValue();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-            validated = experiment.isValidId();
+            boolean validated = experiment.isValidId() && nMonths > 0 && baseYear > 1000;
 
             if (validated) {
                 experiment.setBaseSimulationConfig(baseSettings);
                 experiment.setMonths(nMonths);
+                experiment.setBaseYear(baseYear);
 
                 getExperimentsManager().saveExperiment(experiment);
 
@@ -170,7 +171,6 @@ public class SimulationStudioApp extends AbstractVerticle {
 
             // Pass all model parameters
             ctx.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", demographyParams.getParameterValueString("INITIAL_DEMOGRAPHY_DATA_COUNTRY"));
-            ctx.put("INITIAL_DEMOGRAPHY_DATA_YEAR", demographyParams.getParameterValueString("INITIAL_DEMOGRAPHY_DATA_YEAR"));
 
             ctx.put("demography", demographyParams.getParameterMapForDouble());
             ctx.put("economy", experiment.getSimulation().getModel(EconomyModel.MODEL_ID).getParams().getParameterMapForDouble());
@@ -316,6 +316,9 @@ public class SimulationStudioApp extends AbstractVerticle {
     public void start() throws Exception {
 
         File outputDir = getOutputDir();
+        if( outputDir == null ) {
+
+        }
         if (!outputDir.exists()) {
             System.out.println("# Creating output dir: " + getOutputDir().getCanonicalPath());
             outputDir.mkdirs();

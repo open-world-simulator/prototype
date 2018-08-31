@@ -38,11 +38,12 @@ public class TestExperimentsManager {
         Assert.assertEquals(0, experimentsManager.listExperiments().size());
 
         Experiment e = new Experiment(
+                2020,
+                100,
                 experimentsManager,
                 "experiment1",
                 "blank.defaults",
-                null,
-                1000
+                null
         );
 
         File d = experimentsManager.getExperimentDirectory(e.getExperimentId());
@@ -61,11 +62,12 @@ public class TestExperimentsManager {
 
         for (int i = 0; i < 10; i++) {
             e = new Experiment(
+                    2020 + i,
+                    1000 + i,
                     experimentsManager,
                     "experiment" + i,
                     "blank.defaults",
-                    null,
-                    1000 + i
+                    null
             );
             experimentsManager.saveExperiment(e);
         }

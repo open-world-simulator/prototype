@@ -24,6 +24,8 @@
                 Status: ${context.simulation.status!''}:
                 <br>
                 Month: ${context.simulation.currentMonth}</p>
+
+            <a href="/status?id=${context.experiment.experimentId}" class="btn btn-primary">Refresh</a>
             </#if>
     </div>
 </div>

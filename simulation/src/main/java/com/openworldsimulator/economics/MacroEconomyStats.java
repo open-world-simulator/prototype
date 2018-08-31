@@ -74,7 +74,8 @@ public class MacroEconomyStats extends ModelStats {
                         buildAvgSeries(ASSETS_COMPANIES),
                         buildAvgSeries(ASSETS_BANKS),
                         buildAvgSeries(ASSETS_POPULATION)
-                )
+                ),
+                getSimulation().getBaseYear()
         );
 
         ChartTools.writeTimeChart(
@@ -85,7 +86,8 @@ public class MacroEconomyStats extends ModelStats {
                         buildAvgSeries(DEBT_COMPANIES),
                         buildAvgSeries(DEBT_BANKS),
                         buildAvgSeries(DEBT_POPULATION)
-                )
+                ),
+                getSimulation().getBaseYear()
         );
 
         ChartTools.writeTimeChart(
@@ -95,7 +97,8 @@ public class MacroEconomyStats extends ModelStats {
                         buildAvgSeries(MONTHLY_RESULT_COMPANIES),
                         buildAvgSeries(MONTHLY_RESULT_BANKS),
                         buildAvgSeries(MONTHLY_RESULT_POPULATION)
-                )
+                ),
+                getSimulation().getBaseYear()
         );
 
         ChartTools.writeTimeChart(
@@ -106,6 +109,8 @@ public class MacroEconomyStats extends ModelStats {
                         buildAvgSeries(MONTHLY_PUBLIC_SECTOR_EXPENSES),
                         buildAvgSeries(MONTHLY_PUBLIC_SECTOR_DEFICIT)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
     }
 }

@@ -33,7 +33,17 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <div class="col-auto my-1">
+                        <div class="col-auto">
+                            <label for="baseYear">Base Year</label>
+                            <input type="string" class="form-control" required id="baseYear"
+                                   value="${context.experiment.baseYear}"
+                                   name="baseYear"
+                                   required
+                            >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-auto">
                             <label for="nMonths">Number of months</label>
                             <input type="string" class="form-control" required id="nMonths"
                                    value="${context.experiment.months}"

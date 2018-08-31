@@ -17,10 +17,17 @@ public class Simulation {
 
     private String simulationId;
 
+    private int baseYear = 0;
+    private int totalMonths = 0;
+
+    /////////////////////////////////////////////////////////////////////////7
+    //// Status variables
     private int currentMonth = 0;
     private boolean running = false;
     private String status = null;
 
+    /////////////////////////////////////////////////////////////////////////7
+    //// Simulation models
     private Population population;
     private Banks banks;
     private Companies companies;
@@ -66,7 +73,10 @@ public class Simulation {
         return transactions;
     }
 
-    public void loadDefaultConfig(String defaultSettings, Map optionalProperties) throws IOException {
+    public void loadDefaultConfig(int year, int months, String defaultSettings, Map optionalProperties) throws IOException {
+
+        this.baseYear = year;
+        this.totalMonths = months;
 
         // Load parameters defaults
 
@@ -149,6 +159,14 @@ public class Simulation {
         return null;
     }
 
+    public int getBaseYear() {
+        return baseYear;
+    }
+
+    public int getTotalMonths() {
+        return totalMonths;
+    }
+
     public int getCurrentMonth() {
         return currentMonth;
     }
@@ -169,13 +187,15 @@ public class Simulation {
         return running;
     }
 
-    public void simulate(int nMonths) throws Exception {
+    public void simulate() throws Exception {
+        assert totalMonths > 0;
+        assert baseYear > 0;
 
         try {
             setCurrentMonth(0);
             setRunning(true);
 
-            log("* RUNNING SIMULATION : " + simulationId + " for " + nMonths + " months");
+            log("Running simulation " + simulationId + " for " + totalMonths + " months from year " + baseYear);
 
             // Do runSimulation initialization
             setStatus("Initializing Models");
@@ -192,8 +212,8 @@ public class Simulation {
             });
 
             setStatus("Running");
-            for (int i = 1; i <= nMonths; i++) {
-                setCurrentMonth(1);
+            for (int i = 1; i <= totalMonths; i++) {
+                setCurrentMonth(i);
                 logDebug("Iteration " + i);
                 if (i % 120 == 0) {
                     log(" " + i + " (" + (i / 12) + " years)");

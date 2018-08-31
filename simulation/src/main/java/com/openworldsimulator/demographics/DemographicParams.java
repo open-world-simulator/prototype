@@ -6,7 +6,6 @@ import com.openworldsimulator.tools.ModelParametersTools;
 public class DemographicParams extends ModelParameters {
 
     public String INITIAL_DEMOGRAPHY_DATA_COUNTRY;
-    public double INITIAL_DEMOGRAPHY_DATA_YEAR;
 
     public double INITIAL_LIFE_EXPECTANCY_MEAN = 80;
     public double INITIAL_LIFE_EXPECTANCY_STDEV = 10;

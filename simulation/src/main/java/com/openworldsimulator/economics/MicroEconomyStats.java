@@ -63,6 +63,8 @@ public class MicroEconomyStats extends ModelStats {
                         buildAvgSeries(INCOME_TOTAL),
                         buildAvgSeries(EXPENSES_TOTAL)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
 
 
@@ -74,6 +76,8 @@ public class MicroEconomyStats extends ModelStats {
                         buildSumSeries(INCOME_TOTAL),
                         buildSumSeries(EXPENSES_TOTAL)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
 
 
@@ -86,6 +90,8 @@ public class MicroEconomyStats extends ModelStats {
                         buildAvgSeries(INCOME_PENSION),
                         buildAvgSeries(INCOME_FINANCIAL)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
 
         ChartTools.writeTimeChart(
@@ -97,6 +103,8 @@ public class MicroEconomyStats extends ModelStats {
                         buildSumSeries(INCOME_PENSION),
                         buildSumSeries(INCOME_FINANCIAL)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
 
         ChartTools.writeTimeChart(
@@ -108,6 +116,8 @@ public class MicroEconomyStats extends ModelStats {
                         buildAvgSeries(EXPENSES_NON_DISCRETIONARY),
                         buildAvgSeries(TAXES_TOTAL)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
 
         ChartTools.writeTimeChart(
@@ -119,6 +129,8 @@ public class MicroEconomyStats extends ModelStats {
                         buildSumSeries(EXPENSES_NON_DISCRETIONARY),
                         buildSumSeries(TAXES_TOTAL)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
 
         ChartTools.writeTimeChart(
@@ -127,6 +139,8 @@ public class MicroEconomyStats extends ModelStats {
                 Arrays.asList(
                         buildAvgSeries(ASSETS_SAVINGS)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
 
         ChartTools.writeTimeChart(
@@ -135,6 +149,8 @@ public class MicroEconomyStats extends ModelStats {
                 Arrays.asList(
                         buildSumSeries(ASSETS_SAVINGS)
                 )
+                ,
+                getSimulation().getBaseYear()
         );
 
         // Salary distribution

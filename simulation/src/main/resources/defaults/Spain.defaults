@@ -1,7 +1,6 @@
 # Default demographics parameters
 
 LOAD_DEMOGRAPHY_DATA_COUNTRY = Spain
-LOAD_DEMOGRAPHY_DATA_YEAR    = 2017
 
 INITIAL_POPULATION_SIZE       = 100000
 

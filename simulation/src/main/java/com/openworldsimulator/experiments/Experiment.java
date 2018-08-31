@@ -2,7 +2,6 @@ package com.openworldsimulator.experiments;
 
 import com.openworldsimulator.simulation.Simulation;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,18 +10,22 @@ public class Experiment {
     private String experimentId;
     private String baseSimulationConfig;
     private int months;
+    private int baseYear;
     private Map optionalProperties;
     private transient Simulation simulation;
     private transient ExperimentsManager experimentsManager;
 
     public Experiment(
+            int baseYear,
+            int nMonths,
             ExperimentsManager experimentsManager,
-            String experimentId, String baseConfig, Map optionalProperties, int months) {
+            String experimentId, String baseConfig, Map optionalProperties) {
         setExperimentId(experimentId);
+        setMonths(nMonths);
+        setBaseYear(baseYear);
         setBaseSimulationConfig(baseConfig);
         setExperimentsManager(experimentsManager);
         setOptionalProperties(optionalProperties);
-        setMonths(months);
     }
 
     public Simulation getSimulation() throws Exception {
@@ -33,7 +36,7 @@ public class Experiment {
             );
 
             simulation.init();
-            simulation.loadDefaultConfig(baseSimulationConfig, optionalProperties);
+            simulation.loadDefaultConfig(baseYear, months, baseSimulationConfig, optionalProperties);
         }
         return simulation;
     }
@@ -47,10 +50,10 @@ public class Experiment {
     }
 
     public boolean isValidId() {
-        if(experimentId == null || experimentId.length() < 3) return false;
-        for( int i = 0; i < experimentId.length(); i++) {
+        if (experimentId == null || experimentId.length() < 3) return false;
+        for (int i = 0; i < experimentId.length(); i++) {
             char c = experimentId.charAt(i);
-            if( !Character.isLetterOrDigit(c) && c != '-') return false;
+            if (!Character.isLetterOrDigit(c) && c != '-') return false;
         }
         return true;
     }
@@ -69,7 +72,7 @@ public class Experiment {
     }
 
     public void setOptionalProperties(Map optionalProperties) {
-        if( optionalProperties == null ) {
+        if (optionalProperties == null) {
             this.optionalProperties = new HashMap();
         } else {
             this.optionalProperties = optionalProperties;
@@ -85,6 +88,14 @@ public class Experiment {
         this.months = months;
     }
 
+    public int getBaseYear() {
+        return baseYear;
+    }
+
+    public void setBaseYear(int baseYear) {
+        this.baseYear = baseYear;
+    }
+
     public ExperimentsManager getExperimentsManager() {
         return experimentsManager;
     }
@@ -98,16 +109,17 @@ public class Experiment {
         Simulation simulation = getSimulation();
 
         simulation.log("Running experiment at " + new Date() + ":");
-        simulation.log("> ID     : " + experimentId);
-        simulation.log("> BASE   : " + baseSimulationConfig);
-        simulation.log("> TIME   : " + new Date());
-        simulation.log("> MONTHS : " + months);
+        simulation.log("ID     : " + experimentId);
+        simulation.log("BASE   : " + baseSimulationConfig);
+        simulation.log("TIME   : " + new Date());
+        simulation.log("YEAR   : " + baseYear);
+        simulation.log("MONTHS : " + months);
 
         try {
             simulation.init();
-            simulation.loadDefaultConfig(baseSimulationConfig, optionalProperties);
-            simulation.simulate(months);
-        }catch (Exception e) {
+            simulation.loadDefaultConfig(baseYear, months, baseSimulationConfig, optionalProperties);
+            simulation.simulate();
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }

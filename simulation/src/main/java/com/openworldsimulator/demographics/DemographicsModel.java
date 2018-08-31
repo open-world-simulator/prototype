@@ -57,7 +57,7 @@ public class DemographicsModel extends SimulationModel {
                 simulation.getPopulation(),
                 params,
                 params.INITIAL_DEMOGRAPHY_DATA_COUNTRY,
-                (int) params.INITIAL_DEMOGRAPHY_DATA_YEAR,
+                simulation.getBaseYear(),
                 (int) params.INITIAL_POPULATION_SIZE
         );
 

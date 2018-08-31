@@ -10,10 +10,10 @@ import java.util.Arrays;
 
 public class DemographicsStats extends ModelStats {
     private static final String POPULATION = "population";
-    private static final String POPULATION_SIZE_0_14 = "populationSize0_14";
-    private static final String POPULATION_SIZE_15_35 = "populationSize15_35";
-    private static final String POPULATION_SIZE_36_64 = "populationSize36_64";
-    private static final String POPULATION_SIZE_65 = "populationSize65";
+    private static final String POPULATION_SIZE_0_15 = "populationSize0_15";
+    private static final String POPULATION_SIZE_16_35 = "populationSize16_35";
+    private static final String POPULATION_SIZE_36_65 = "populationSize36_65";
+    private static final String POPULATION_SIZE_65_PLUS = "populationSize65";
     private static final String AGE = "age";
     private static final String NUM_CHILDREN = "numChildren";
     private DemographicParams params;
@@ -33,10 +33,10 @@ public class DemographicsStats extends ModelStats {
 
         // Collect monthly stats over all population
         collectMonthStats(POPULATION, true, p -> 1);
-        collectMonthStats(POPULATION_SIZE_0_14, true, p -> p.age < 15.0, p -> 1);
-        collectMonthStats(POPULATION_SIZE_15_35, true, p -> p.age >= 15 && p.age < 35.0, p -> 1);
-        collectMonthStats(POPULATION_SIZE_36_64, true, p -> p.age >= 35 && p.age < 64.0, p -> 1);
-        collectMonthStats(POPULATION_SIZE_65, true, p -> p.age >= 64.0, p -> 1);
+        collectMonthStats(POPULATION_SIZE_0_15, true, p -> p.age < 16.0, p -> 1);
+        collectMonthStats(POPULATION_SIZE_16_35, true, p -> p.age >= 16 && p.age < 35.0, p -> 1);
+        collectMonthStats(POPULATION_SIZE_36_65, true, p -> p.age >= 35 && p.age < 65.0, p -> 1);
+        collectMonthStats(POPULATION_SIZE_65_PLUS, true, p -> p.age > 65.0, p -> 1);
         collectMonthStats(AGE, true, p->true, p -> p.age);
         collectMonthStats(NUM_CHILDREN, true, p -> p.isFemale() && p.age > params.MATERNITY_MAX_AGE, p -> p.numChildren);
 
@@ -59,8 +59,6 @@ public class DemographicsStats extends ModelStats {
     @Override
     public void writeChartsAtStart() {
         File initialPath = getStatsDir("initial");
-
-        /// Save initial model and population status
 
         ChartTools.writeHistoChart(initialPath.getPath(),
                 "dist-initial-life-expectancy",
@@ -101,18 +99,19 @@ public class DemographicsStats extends ModelStats {
                 "Population",
                 Arrays.asList(
                         "Population",
-                        "0-14",
-                        "15-35",
-                        "36-64",
+                        "0-15",
+                        "16-35",
+                        "36-65",
                         "65+"
                 ),
                 Arrays.asList(
                         buildCountSeries(POPULATION),
-                        buildCountSeries(POPULATION_SIZE_0_14),
-                        buildCountSeries(POPULATION_SIZE_15_35),
-                        buildCountSeries(POPULATION_SIZE_36_64),
-                        buildCountSeries(POPULATION_SIZE_65)
-                )
+                        buildCountSeries(POPULATION_SIZE_0_15),
+                        buildCountSeries(POPULATION_SIZE_16_35),
+                        buildCountSeries(POPULATION_SIZE_36_65),
+                        buildCountSeries(POPULATION_SIZE_65_PLUS)
+                ),
+                getSimulation().getBaseYear()
         );
 
 /*   ChartTools.writeTimeChartYoYPercent(
@@ -130,10 +129,10 @@ public class DemographicsStats extends ModelStats {
         // TODO: Population growth
 
         ChartTools.writeTimeChart(demographyPath.getPath(), "age", "Average Age of population",
-                buildAvgSeries("age"));
+                buildAvgSeries("age"), getSimulation().getBaseYear());
 
         ChartTools.writeTimeChart(demographyPath.getPath(), "fertility", "Average children per woman",
-                buildAvgSeries("numChildren"));
+                buildAvgSeries("numChildren"), getSimulation().getBaseYear());
 
         //
         // Write histograms

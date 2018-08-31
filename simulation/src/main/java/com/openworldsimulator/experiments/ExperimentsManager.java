@@ -11,11 +11,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class ExperimentsManager {
     public static final String MARKER_FILE = ".experiments";
+    public static final int DEFAULT_EXPERIMENT_DURATION = 12 * 100;
+    public static final int DEFAULT_EXPERIMENT_YEAR     = 2017;
+
     private File baseDirectory;
 
     public ExperimentsManager(File baseDirectory) throws IOException {
@@ -30,7 +32,7 @@ public class ExperimentsManager {
     }
 
     public Experiment newExperiment() throws IOException {
-        return new Experiment(this, null, null, null, 1200);
+        return new Experiment(0, DEFAULT_EXPERIMENT_DURATION, this, null, null, null);
     }
 
     public void deleteAllExperiments() throws IOException {

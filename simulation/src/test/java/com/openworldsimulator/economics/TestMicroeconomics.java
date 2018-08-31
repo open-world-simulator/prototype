@@ -28,7 +28,7 @@ public class TestMicroeconomics {
         properties.put("INITIAL_POPULATION_SIZE", "1");
 
         simulation.init();
-        simulation.loadDefaultConfig("blank", properties);
+        simulation.loadDefaultConfig(2020, 100,"blank", properties);
     }
 
     protected Person getSinglePerson() {
@@ -46,7 +46,7 @@ public class TestMicroeconomics {
 
         System.out.println("Preparing runSimulation...");
         buildTestSimulation();
-        simulation.simulate(1);
+        simulation.simulate();
         System.out.println("Done...");
 
         Person p = getSinglePerson();
