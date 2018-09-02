@@ -153,9 +153,12 @@ public class DemographicsModel extends SimulationModel {
     }
 
     protected void simulateImmigration(int month) {
-        if (params.MIGRATION_INFLOW_PCT > 0) {
+        if (params.MIGRATION_INFLOW_PCT > 0 || params.MIGRATION_INFLOW_BASE_PCT > 0) {
             int currentPop = simulation.getPopulation().getAlivePeople().size();
-            int immigrants = (int) Math.round(currentPop * params.MIGRATION_INFLOW_PCT / (12.0D * 100));
+            int immigrants = 0;
+
+            immigrants += params.INITIAL_POPULATION_SIZE * params.MIGRATION_INFLOW_BASE_PCT / (12.0D * 100);
+            immigrants += (int) Math.round(currentPop * params.MIGRATION_INFLOW_PCT / (12.0D * 100));
 
             System.out.printf("[IMMIGRANTS] Immigrants: %d / Population: %d\n", immigrants, currentPop);
 

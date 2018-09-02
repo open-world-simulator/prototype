@@ -56,6 +56,7 @@
                                    placeholder="${context.demography['INITIAL_DEMOGRAPHY_DATA_COUNTRY']!''}"
                                    value="${context.experiment.optionalProperties['INITIAL_DEMOGRAPHY_DATA_COUNTRY']!''}"
                             >
+                            <div><i class="glyphicon glyphicon-info-sign"></i> <a href="https://github.com/open-world-simulator/prototype/blob/master/docs/Countries.md" target="_blank">List of countries</a></div>
                         </div>
                         <#list context.demography?keys as key>
                         <div class="form-group">
