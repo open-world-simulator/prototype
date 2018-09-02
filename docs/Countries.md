@@ -1,0 +1,255 @@
+### Data source
+
+Demographic data is loaded from http://api.population.io.
+ 
+List of valid API regions at:
+http://api.population.io/1.0/countries/?format=json
+
+### Regions  
+- World 
+
+- AFRICA
+    - Northern Africa 
+    - Eastern Africa 
+    - Western Africa 
+    - Southern Africa
+    - Sub-Saharan Africa
+    
+- ASIA 
+    - Central Asia
+    - Eastern Asia 
+    - Western Asia 
+    - South-Central Asia 
+    - South-Eastern Asia 
+    - Southern Asia
+
+- EUROPE
+    - Eastern Europe 
+    - Northern Europe 
+    - Western Europe 
+    - Southern Europe
+
+- NORTHERN AMERICA
+ 
+- LATIN AMERICA AND THE CARIBBEAN
+    - Central America
+    - South America  
+
+- OCEANIA 
+  
+  
+#### Other regions:
+- Less developed regions 
+- Less developed regions, excluding China 
+- Less developed regions, excluding least developed countries 
+ 
+
+### Individual Countries and Other:
+ 
+- Afghanistan
+- Albania 
+- Algeria 
+- Angola 
+- Antigua and Barbuda 
+- Arab Rep of Egypt 
+- Argentina 
+- Armenia 
+- Aruba 
+- Australia 
+- Australia/New Zealand 
+- Austria 
+- Azerbaijan 
+- The Bahamas 
+- Bahrain 
+- Bangladesh 
+- Barbados 
+- Belarus 
+- Belgium 
+- Belize 
+- Benin 
+- Bhutan 
+- Bolivia 
+- Bosnia and Herzegovina 
+- Botswana 
+- Brazil 
+- Brunei Darussalam 
+- Bulgaria 
+- Burkina Faso 
+- Burundi 
+- Cote-d-Ivoire 
+- Cabo Verde 
+- Cambodia 
+- Cameroon 
+- Canada 
+- Caribbean 
+- Central African Republic 
+- Chad 
+- Channel Islands 
+- Chile 
+- China 
+- Hong Kong SAR-China 
+- Macao SAR China 
+- Colombia 
+- Comoros 
+- Congo 
+- Costa Rica 
+- Croatia 
+- Cuba 
+- Curacao 
+- Cyprus 
+- Czech Republic 
+- Dem Peoples Rep of Korea 
+- Dem Rep of Congo 
+- Denmark 
+- Djibouti 
+- Dominican Republic 
+- Ecuador 
+- El Salvador 
+- Equatorial Guinea 
+- Eritrea 
+- Estonia 
+- Ethiopia  
+- Federated States of Micronesia 
+- Fiji 
+- Finland 
+- France 
+- French Guiana 
+- French Polynesia 
+- FYR Macedonia 
+- Gabon 
+- The Gambia 
+- Georgia 
+- Germany 
+- Ghana 
+- Greece 
+- Grenada 
+- Guadeloupe 
+- Guam 
+- Guatemala 
+- Guinea 
+- Guinea-Bissau 
+- Guyana 
+- Haiti 
+- Honduras 
+- Hungary 
+- Iceland 
+- India 
+- Indonesia 
+- Islamic Republic of Iran 
+- Iraq 
+- Ireland 
+- Israel 
+- Italy 
+- Jamaica 
+- Japan 
+- Jordan 
+- Kazakhstan 
+- Kenya 
+- Kiribati 
+- Kuwait 
+- Kyrgyz Republic 
+- Lao PDR 
+- Latvia 
+- Lebanon 
+- Lesotho 
+- Liberia 
+- Libya 
+- Lithuania 
+- Luxembourg 
+- Madagascar 
+- Malawi 
+- Malaysia 
+- Maldives 
+- Mali 
+- Malta 
+- Martinique 
+- Mauritania 
+- Mauritius 
+- Mayotte 
+- Melanesia 
+- Mexico 
+- Micronesia 
+- Middle Africa 
+- Moldova 
+- Mongolia 
+- Montenegro 
+- More developed regions 
+- Morocco 
+- Mozambique 
+- Myanmar 
+- Namibia 
+- Nepal 
+- The Netherlands 
+- New Caledonia 
+- New Zealand 
+- Nicaragua 
+- Niger 
+- Nigeria 
+- Norway 
+- Oman  
+- Pakistan 
+- Panama 
+- Papua New Guinea 
+- Paraguay 
+- Peru 
+- Philippines 
+- Poland 
+- Polynesia 
+- Portugal 
+- Puerto Rico 
+- Qatar 
+- Reunion 
+- RB-de-Venezuela 
+- Rep of Korea 
+- Rep of Yemen 
+- Romania 
+- Russian Federation 
+- Rwanda 
+- St-Lucia 
+- St-Vincent and the Grenadines 
+- Samoa 
+- Sao Tome and Principe 
+- Saudi Arabia 
+- Senegal 
+- Serbia 
+- Seychelles 
+- Sierra Leone 
+- Singapore 
+- Slovak Republic 
+- Slovenia 
+- Solomon Islands 
+- Somalia 
+- South Sudan 
+- Spain 
+- Sri Lanka 
+- West Bank and Gaza
+- South Africa   
+- Sudan 
+- Suriname 
+- Swaziland 
+- Sweden 
+- Switzerland 
+- Syrian Arab Rep 
+- Tajikistan 
+- Tanzania 
+- Thailand 
+- Timor-Leste 
+- Togo 
+- Tonga 
+- Trinidad and Tobago 
+- Tunisia 
+- Turkey 
+- Turkmenistan 
+- Uganda 
+- Ukraine 
+- United Arab Emirates 
+- United Kingdom 
+- United States 
+- US Virgin Islands 
+- Uruguay 
+- Uzbekistan 
+- Vanuatu 
+- Vietnam 
+- Western Sahara 
+- Zambia 
+- Zimbabwe

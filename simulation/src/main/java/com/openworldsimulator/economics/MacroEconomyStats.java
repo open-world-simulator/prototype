@@ -2,8 +2,9 @@ package com.openworldsimulator.economics;
 
 import com.openworldsimulator.simulation.ModelStats;
 import com.openworldsimulator.simulation.Simulation;
-import com.openworldsimulator.tools.ChartTools;
+import com.openworldsimulator.tools.TimeSeriesChartTools;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 public class MacroEconomyStats extends ModelStats {
@@ -20,8 +21,8 @@ public class MacroEconomyStats extends ModelStats {
     private static final String DEBT_PUBLIC_SECTOR = "publicSectorDebt";
 
     private static final String MONTHLY_PUBLIC_SECTOR_EXPENSES = "monthlyResultPublicSectorExpenses";
-    private static final String MONTHLY_PUBLIC_SECTOR_INCOME   = "monthlyResultPublicSectorIncome";
-    private static final String MONTHLY_PUBLIC_SECTOR_DEFICIT  = "monthlyResultPublicSectorDeficit";
+    private static final String MONTHLY_PUBLIC_SECTOR_INCOME = "monthlyResultPublicSectorIncome";
+    private static final String MONTHLY_PUBLIC_SECTOR_DEFICIT = "monthlyResultPublicSectorDeficit";
 
     private static final String ASSETS_BANKS = "banksAssets";
     private static final String DEBT_BANKS = "banksDebt";
@@ -66,51 +67,64 @@ public class MacroEconomyStats extends ModelStats {
     @Override
     public void writeChartsAtEnd() {
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "total-sectors-assets", "Total assets by sector",
-                Arrays.asList("Public Sector", "Companies", "Banks", "Population"),
-                Arrays.asList(
-                        buildAvgSeries(ASSETS_PUBLIC_SECTOR),
-                        buildAvgSeries(ASSETS_COMPANIES),
-                        buildAvgSeries(ASSETS_BANKS),
-                        buildAvgSeries(ASSETS_POPULATION)
-                ),
-                getSimulation().getBaseYear()
-        );
+        try {
+            TimeSeriesChartTools.writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "total-sectors-assets",
+                    getChartTitle("Total assets by sector"),
+                    "Assets",
+                    Arrays.asList("Public Sector", "Companies", "Banks", "Population"),
+                    Arrays.asList(
+                            buildAvgSeries(ASSETS_PUBLIC_SECTOR),
+                            buildAvgSeries(ASSETS_COMPANIES),
+                            buildAvgSeries(ASSETS_BANKS),
+                            buildAvgSeries(ASSETS_POPULATION)
+                    ),
+                    getSimulation().getBaseYear()
+            );
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "total-sectors-debt", "Total debt by sector",
-                Arrays.asList("Public Sector", "Companies", "Banks", "Population"),
-                Arrays.asList(
-                        buildAvgSeries(DEBT_PUBLIC_SECTOR),
-                        buildAvgSeries(DEBT_COMPANIES),
-                        buildAvgSeries(DEBT_BANKS),
-                        buildAvgSeries(DEBT_POPULATION)
-                ),
-                getSimulation().getBaseYear()
-        );
+            TimeSeriesChartTools.writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "total-sectors-debt",
+                    getChartTitle("Total debt by sector"),
+                    "Debt by sector",
+                    Arrays.asList("Public Sector", "Companies", "Banks", "Population"),
+                    Arrays.asList(
+                            buildAvgSeries(DEBT_PUBLIC_SECTOR),
+                            buildAvgSeries(DEBT_COMPANIES),
+                            buildAvgSeries(DEBT_BANKS),
+                            buildAvgSeries(DEBT_POPULATION)
+                    ),
+                    getSimulation().getBaseYear()
+            );
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "total-sectors-monthly-results", "Total monthly results",
-                Arrays.asList("Companies", "Banks", "Population"),
-                Arrays.asList(
-                        buildAvgSeries(MONTHLY_RESULT_COMPANIES),
-                        buildAvgSeries(MONTHLY_RESULT_BANKS),
-                        buildAvgSeries(MONTHLY_RESULT_POPULATION)
-                ),
-                getSimulation().getBaseYear()
-        );
+            TimeSeriesChartTools.writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "total-sectors-monthly-results",
+                    getChartTitle("Total monthly results"),
+                    "Total monthly results",
+                    Arrays.asList("Companies", "Banks", "Population"),
+                    Arrays.asList(
+                            buildAvgSeries(MONTHLY_RESULT_COMPANIES),
+                            buildAvgSeries(MONTHLY_RESULT_BANKS),
+                            buildAvgSeries(MONTHLY_RESULT_POPULATION)
+                    ),
+                    getSimulation().getBaseYear()
+            );
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "public-sector-flows", "Public Sector monthly results",
-                Arrays.asList("Income", "Expenses", "Deficit"),
-                Arrays.asList(
-                        buildAvgSeries(MONTHLY_PUBLIC_SECTOR_INCOME),
-                        buildAvgSeries(MONTHLY_PUBLIC_SECTOR_EXPENSES),
-                        buildAvgSeries(MONTHLY_PUBLIC_SECTOR_DEFICIT)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+            TimeSeriesChartTools.writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "public-sector-flows",
+                    getChartTitle("Public Sector monthly results"),
+                    "Public Sector monthly results",
+                    Arrays.asList("Income", "Expenses", "Deficit"),
+                    Arrays.asList(
+                            buildAvgSeries(MONTHLY_PUBLIC_SECTOR_INCOME),
+                            buildAvgSeries(MONTHLY_PUBLIC_SECTOR_EXPENSES),
+                            buildAvgSeries(MONTHLY_PUBLIC_SECTOR_DEFICIT)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

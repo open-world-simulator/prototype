@@ -1,7 +1,7 @@
 package com.openworldsimulator.model;
 
-public class Person {
-    public BalanceSheet balanceSheet = new BalanceSheet("Person" );
+public class PopulationSegment {
+    public BalanceSheet balanceSheet = new BalanceSheet("PopulationSegment" );
     public PersonMonthlyData monthlyData = new PersonMonthlyData();
 
     public enum GENDER {MALE, FEMALE}
@@ -16,6 +16,7 @@ public class Person {
 
     public int deathMonth = -1;
     public int bornMonth = -1;
+    public int immigrationMonth = -1;
 
     // Life expectancy at birth
     public double initialLifeExpectancy = 0;
@@ -42,7 +43,7 @@ public class Person {
 
     public ECONOMIC_STATUS economicStatus = ECONOMIC_STATUS.NONE;
 
-    public Person() {
+    public PopulationSegment() {
     }
 
     public BalanceSheet getBalanceSheet() {

@@ -2,9 +2,12 @@ package com.openworldsimulator.economics;
 
 import com.openworldsimulator.simulation.ModelStats;
 import com.openworldsimulator.simulation.Simulation;
-import com.openworldsimulator.tools.ChartTools;
 
+import java.io.IOException;
 import java.util.Arrays;
+
+import static com.openworldsimulator.tools.HistogramChartTools.writeHistoChart;
+import static com.openworldsimulator.tools.TimeSeriesChartTools.writeTimeSeriesChart;
 
 public class MicroEconomyStats extends ModelStats {
 
@@ -55,117 +58,138 @@ public class MicroEconomyStats extends ModelStats {
     @Override
     public void writeChartsAtEnd() {
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "avg-net-savings", "Average of net savings",
-                Arrays.asList("Total Net Savings", "Income", "Expenses"),
-                Arrays.asList(
-                        buildAvgSeries(NET_SAVINGS),
-                        buildAvgSeries(INCOME_TOTAL),
-                        buildAvgSeries(EXPENSES_TOTAL)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+        try {
+            writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "avg-net-savings",
+                    getChartTitle("Average of net savings"),
+                    "Average of net savings",
+                    Arrays.asList("Total Net Savings", "Income", "Expenses"),
+                    Arrays.asList(
+                            buildAvgSeries(NET_SAVINGS),
+                            buildAvgSeries(INCOME_TOTAL),
+                            buildAvgSeries(EXPENSES_TOTAL)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
 
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "sum-net-savings", "Sum of net savings",
-                Arrays.asList("Total Net Savings", "Income", "Expenses"),
-                Arrays.asList(
-                        buildSumSeries(NET_SAVINGS),
-                        buildSumSeries(INCOME_TOTAL),
-                        buildSumSeries(EXPENSES_TOTAL)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+            writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "sum-net-savings",
+                    getChartTitle("Sum of net savings"),
+                    "Sum of net savings",
+                    Arrays.asList("Total Net Savings", "Income", "Expenses"),
+                    Arrays.asList(
+                            buildSumSeries(NET_SAVINGS),
+                            buildSumSeries(INCOME_TOTAL),
+                            buildSumSeries(EXPENSES_TOTAL)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
 
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "avg-individual-income", "Average of monthly income",
-                Arrays.asList("Total", "Wages", "Pensions", "Financial"),
-                Arrays.asList(
-                        buildAvgSeries(INCOME_TOTAL),
-                        buildAvgSeries(INCOME_WAGE),
-                        buildAvgSeries(INCOME_PENSION),
-                        buildAvgSeries(INCOME_FINANCIAL)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+            writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "avg-individual-income",
+                    getChartTitle("Average of monthly income"),
+                    "Average of monthly income",
+                    Arrays.asList("Total", "Wages", "Pensions", "Financial"),
+                    Arrays.asList(
+                            buildAvgSeries(INCOME_TOTAL),
+                            buildAvgSeries(INCOME_WAGE),
+                            buildAvgSeries(INCOME_PENSION),
+                            buildAvgSeries(INCOME_FINANCIAL)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "sum-individual-income", "Sum of monthly income",
-                Arrays.asList("Total", "Wages", "Pensions", "Financial"),
-                Arrays.asList(
-                        buildSumSeries(INCOME_TOTAL),
-                        buildSumSeries(INCOME_WAGE),
-                        buildSumSeries(INCOME_PENSION),
-                        buildSumSeries(INCOME_FINANCIAL)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+            writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "sum-individual-income",
+                    getChartTitle("Sum of monthly income"),
+                    "Sum of monthly income",
+                    Arrays.asList("Total", "Wages", "Pensions", "Financial"),
+                    Arrays.asList(
+                            buildSumSeries(INCOME_TOTAL),
+                            buildSumSeries(INCOME_WAGE),
+                            buildSumSeries(INCOME_PENSION),
+                            buildSumSeries(INCOME_FINANCIAL)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "avg-individual-expenses", "Average of monthly expenses",
-                Arrays.asList("Total", "Discretionary", "Non discretionary", "Taxes"),
-                Arrays.asList(
-                        buildAvgSeries(EXPENSES_TOTAL),
-                        buildAvgSeries(EXPENSES_DISCRETIONARY),
-                        buildAvgSeries(EXPENSES_NON_DISCRETIONARY),
-                        buildAvgSeries(TAXES_TOTAL)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+            writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "avg-individual-expenses",
+                    getChartTitle("Average of monthly expenses"),
+                    "Average of monthly expenses",
+                    Arrays.asList("Total", "Discretionary", "Non discretionary", "Taxes"),
+                    Arrays.asList(
+                            buildAvgSeries(EXPENSES_TOTAL),
+                            buildAvgSeries(EXPENSES_DISCRETIONARY),
+                            buildAvgSeries(EXPENSES_NON_DISCRETIONARY),
+                            buildAvgSeries(TAXES_TOTAL)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "sum-individual-expenses", "Sum of monthly expenses",
-                Arrays.asList("Total", "Discretionary", "Non discretionary", "Taxes"),
-                Arrays.asList(
-                        buildSumSeries(EXPENSES_TOTAL),
-                        buildSumSeries(EXPENSES_DISCRETIONARY),
-                        buildSumSeries(EXPENSES_NON_DISCRETIONARY),
-                        buildSumSeries(TAXES_TOTAL)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+            writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "sum-individual-expenses",
+                    "Sum of monthly expenses",
+                    getChartTitle("Sum of monthly expenses"),
+                    Arrays.asList("Total", "Discretionary", "Non discretionary", "Taxes"),
+                    Arrays.asList(
+                            buildSumSeries(EXPENSES_TOTAL),
+                            buildSumSeries(EXPENSES_DISCRETIONARY),
+                            buildSumSeries(EXPENSES_NON_DISCRETIONARY),
+                            buildSumSeries(TAXES_TOTAL)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "avg-individual-assets", "Average of individual assets",
-                Arrays.asList("Savings"),
-                Arrays.asList(
-                        buildAvgSeries(ASSETS_SAVINGS)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+            writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "avg-individual-assets",
+                    getChartTitle("Average of individual assets"),
+                    "Average of individual assets",
+                    Arrays.asList("Savings"),
+                    Arrays.asList(
+                            buildAvgSeries(ASSETS_SAVINGS)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
 
-        ChartTools.writeTimeChart(
-                getStatsBasePath().getPath(), "sum-individual-assets", "Sum of individual assets",
-                Arrays.asList("Savings"),
-                Arrays.asList(
-                        buildSumSeries(ASSETS_SAVINGS)
-                )
-                ,
-                getSimulation().getBaseYear()
-        );
+            writeTimeSeriesChart(
+                    getStatsBasePath().getPath(), "sum-individual-assets",
+                    getChartTitle("Sum of individual assets"),
+                    "Sum of individual assets",
+                    Arrays.asList("Savings"),
+                    Arrays.asList(
+                            buildSumSeries(ASSETS_SAVINGS)
+                    )
+                    ,
+                    getSimulation().getBaseYear()
+            );
 
-        // Salary distribution
-        ChartTools.writeHistoChart(getStatsBasePath().getPath(),
-                "dist-grossMonthlySalary-income",
-                "Salary distribution",
-                histogram(p -> p.isAlive() && p.monthlyData.monthIncomeWage > 0, p -> (long) (p.monthlyData.monthIncomeWage / 100)));
+            // Salary distribution
+            writeHistoChart(getStatsBasePath().getPath(),
+                    "dist-grossMonthlySalary-income",
+                    "Salary distribution",
+                    histogram(p -> p.isAlive() && p.monthlyData.monthIncomeWage > 0, p -> (long) (p.monthlyData.monthIncomeWage / 100)));
 
-        ChartTools.writeHistoChart(getStatsBasePath().getPath(),
-                "dist-total-income",
-                "Total income distribution",
-                histogram(p -> p.isAlive() && p.monthlyData.getTotalMonthIncome() > 0, p -> (long) (p.monthlyData.getTotalMonthIncome() / 100)));
+            writeHistoChart(getStatsBasePath().getPath(),
+                    "dist-total-income",
+                    "Total income distribution",
+                    histogram(p -> p.isAlive() && p.monthlyData.getTotalMonthIncome() > 0, p -> (long) (p.monthlyData.getTotalMonthIncome() / 100)));
 
-        // TODO: Unemployment, activity rate,
+            // TODO: Unemployment, activity rate,
 
-        // TODO: Average wage, pension, subsidy
+            // TODO: Average wage, pension, subsidy
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

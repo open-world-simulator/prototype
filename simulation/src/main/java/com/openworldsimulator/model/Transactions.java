@@ -13,7 +13,7 @@ public class Transactions {
         this.banks = banks;
     }
 
-    public void grantLoan(double amount, Person p) {
+    public void grantLoan(double amount, PopulationSegment p) {
         banks.balanceSheet.increaseDebt( amount ); // Create a new loan
         banks.balanceSheet.increaseSavings( amount );
 
@@ -21,7 +21,7 @@ public class Transactions {
         p.balanceSheet.increaseSavings(amount);
     }
 
-    public void payLoan(double amount, Person p) {
+    public void payLoan(double amount, PopulationSegment p) {
         banks.balanceSheet.decreaseDebt( amount ); // Create a new loan
         banks.balanceSheet.decreaseSavings( amount );
 
@@ -29,7 +29,7 @@ public class Transactions {
         p.balanceSheet.decreaseSavings(amount);
     }
 
-    public void payTaxes(Person p, double amount) {
+    public void payTaxes(PopulationSegment p, double amount) {
         p.balanceSheet.decreaseSavings(amount);
         government.balanceSheet.increaseSavings(amount);
         government.monthlyResults.addIncome(amount);
@@ -41,32 +41,32 @@ public class Transactions {
         government.monthlyResults.addIncome(amount);
     }
 
-    public void expend(Person p, double amount) {
+    public void expend(PopulationSegment p, double amount) {
         p.balanceSheet.decreaseSavings(amount);
         companies.balanceSheet.increaseSavings(amount);
         companies.monthlyResults.addIncome(amount);
     }
 
-    public void earnIncomeFromCompanies(Person p, double amount) {
+    public void earnIncomeFromCompanies(PopulationSegment p, double amount) {
         p.balanceSheet.increaseSavings(amount);
         companies.balanceSheet.decreaseSavings(amount);
         companies.monthlyResults.addExpenses(amount);
     }
 
-    public void earnIncomeFromBanks(Person p, double amount) {
+    public void earnIncomeFromBanks(PopulationSegment p, double amount) {
         p.balanceSheet.increaseSavings(amount);
 
         // TODO: Total balance sheet of banks remain unchanged? It should probably be finance by a decrease in reserves
         //banks.balanceSheet.decreaseSavings(amount);
     }
 
-    public void earnIncomeFromGovernment(Person p, double amount) {
+    public void earnIncomeFromGovernment(PopulationSegment p, double amount) {
         p.balanceSheet.increaseSavings(amount);
         government.balanceSheet.decreaseSavings(amount);
         government.monthlyResults.addExpenses(amount);
     }
 
-    public void pay(double amount, Person issuer, Person receiver) {
+    public void pay(double amount, PopulationSegment issuer, PopulationSegment receiver) {
         issuer.getBalanceSheet().decreaseSavings(amount);
         receiver.getBalanceSheet().increaseSavings(amount);
 

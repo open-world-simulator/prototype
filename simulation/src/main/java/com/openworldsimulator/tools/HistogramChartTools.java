@@ -1,89 +1,44 @@
 package com.openworldsimulator.tools;
 
-import org.knowm.xchart.*;
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.Styler;
-import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-// TODO: Parametrize Chart Size
-public class ChartTools {
+public class HistogramChartTools {
+    public static final int CHART_WIDTH = 1024;
+    public static final int CHART_HEIGHT = 800;
 
-    private static List<Date> buildXSeries(int baseYear, int totalMonths) {
-        List<Date> xData = new ArrayList<>();
 
-        Calendar c = Calendar.getInstance();
+    private static void fillDataSeries(Map<Long, Long> histoData, List<Long> xData, List<Long> yData, long min, long max) {
+        // For better representation, we want x values with no representation in the histogram
+        // long sum = yData.stream().collect(Collectors.summingLong(l->l)).longValue();
 
-        // Build xData
-        for (int i = 0; i < totalMonths; i++) {
-            c.set(Calendar.YEAR, baseYear+1);
-            c.set(Calendar.MONTH, 0);
-            c.set(Calendar.DAY_OF_MONTH, 1);
-            c.add(Calendar.MONTH, i);
-            xData.add(c.getTime());
-        }
-        return xData;
-    }
-
-    public static void writeTimeChart(
-            String path,
-            String fileName,
-            String title,
-            List<Number> yData,
-            int baseYear
-    ) {
-
-        List<Date> xData = buildXSeries(baseYear, yData.size());
-
-        // Create Chart
-        XYChart chart = new XYChart(1024, 800);
-        chart.setTitle(title);
-        chart.setXAxisTitle("Year");
-        chart.setYAxisTitle(title);
-
-        chart.getStyler().setXAxisLabelRotation(-90);
-
-        XYSeries series = chart.addSeries(title, xData, yData);
-        series.setMarker(SeriesMarkers.NONE);
-
-        try {
-            saveChart(path, fileName, chart);
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (long i = min; i <= max; i++) {
+            xData.add(i);
+            Long value = histoData.get(i);
+            if (value != null) {
+                yData.add(value);
+            } else {
+                yData.add(null);
+            }
         }
     }
 
-    public static void writeTimeChart(
-            String path,
-            String fileName,
-            String title,
-            List<String> seriesTitle,
-            List<List<Number>> seriesData,
-            int baseYear
-    ) {
-        List<Date> xData = buildXSeries(baseYear, seriesData.get(0).size());
+    private static void saveChart(String path, String fileName, Chart chart) throws IOException {
+        // Save file
+        File f = new File(path, fileName + ".png");
 
-        // Create Chart
-        XYChart chart = new XYChart(1024, 800);
-        chart.setTitle(title);
-        chart.setXAxisTitle("Year");
-        chart.setYAxisTitle(title);
+        System.out.println("- Saving chart: " + f.getCanonicalPath());
 
-        chart.getStyler().setXAxisLabelRotation(-90);
-
-        for (int i = 0; i < seriesData.size(); i++) {
-            XYSeries series = chart.addSeries(seriesTitle.get(i), xData, seriesData.get(i));
-            series.setMarker(SeriesMarkers.NONE);
-        }
-
-        try {
-            saveChart(path, fileName, chart);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        BitmapEncoder.saveBitmap(chart, f.getAbsolutePath(), BitmapEncoder.BitmapFormat.PNG);
     }
 
     /**
@@ -118,8 +73,8 @@ public class ChartTools {
         // Create Chart
         CategoryChart chart =
                 new CategoryChartBuilder()
-                        .width(1024)
-                        .height(800)
+                        .width(CHART_WIDTH)
+                        .height(CHART_HEIGHT)
                         .title(title)
                         .xAxisTitle(title)
                         .yAxisTitle("Frequency").build();
@@ -138,21 +93,6 @@ public class ChartTools {
             saveChart(path, fileName, chart);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private static void fillDataSeries(Map<Long, Long> histoData, List<Long> xData, List<Long> yData, long min, long max) {
-        // For better representation, we want x values with no representation in the histogram
-       // long sum = yData.stream().collect(Collectors.summingLong(l->l)).longValue();
-
-        for (long i = min; i <= max; i++) {
-            xData.add(i);
-            Long value = histoData.get(i);
-            if (value != null ) {
-                yData.add(value);
-            } else {
-                yData.add(null);
-            }
         }
     }
 
@@ -195,8 +135,8 @@ public class ChartTools {
         // Create Chart
         CategoryChart chart =
                 new CategoryChartBuilder()
-                        .width(1024)
-                        .height(800)
+                        .width(CHART_WIDTH)
+                        .height(CHART_HEIGHT)
                         .title(title)
                         .xAxisTitle(title)
                         .yAxisTitle("Frequency").build();
@@ -220,14 +160,5 @@ public class ChartTools {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private static void saveChart(String path, String fileName, Chart chart) throws IOException {
-        // Save file
-        File f = new File(path, fileName + ".png");
-
-        System.out.println("- Saving chart: " + f.getCanonicalPath());
-
-        BitmapEncoder.saveBitmap(chart, f.getAbsolutePath(), BitmapEncoder.BitmapFormat.PNG);
     }
 }

@@ -21,5 +21,11 @@ public class PopulationLoaderTest {
         loader.load();
 
         Assert.assertTrue(Math.abs(population.size() - requested) <= requested * 0.05);
+        Assert.assertTrue( population.getRealPopulationSize() > 45E6);
+        Assert.assertTrue( population.getInitialPopulationSegments() > 0);
+        Assert.assertTrue( population.getSegmentRepresentationRatio() > 0);
+        Assert.assertTrue( population.getSegmentRepresentationRatio() > 0);
+
+        System.out.println(population);
     }
 }

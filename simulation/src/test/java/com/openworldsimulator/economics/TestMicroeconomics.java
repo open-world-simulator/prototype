@@ -1,6 +1,6 @@
 package com.openworldsimulator.economics;
 
-import com.openworldsimulator.model.Person;
+import com.openworldsimulator.model.PopulationSegment;
 import com.openworldsimulator.simulation.Simulation;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,8 +31,8 @@ public class TestMicroeconomics {
         simulation.loadDefaultConfig(2020, 100,"blank", properties);
     }
 
-    protected Person getSinglePerson() {
-        return simulation.getPopulation().getPeople().get(0);
+    protected PopulationSegment getSinglePerson() {
+        return simulation.getPopulation().getPopulationSegments().get(0);
     }
 
     @Before
@@ -49,7 +49,7 @@ public class TestMicroeconomics {
         simulation.simulate();
         System.out.println("Done...");
 
-        Person p = getSinglePerson();
+        PopulationSegment p = getSinglePerson();
 
 
         System.out.println(p);

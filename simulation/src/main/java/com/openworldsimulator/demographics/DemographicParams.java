@@ -1,7 +1,6 @@
 package com.openworldsimulator.demographics;
 
 import com.openworldsimulator.simulation.ModelParameters;
-import com.openworldsimulator.tools.ModelParametersTools;
 
 public class DemographicParams extends ModelParameters {
 
@@ -23,13 +22,15 @@ public class DemographicParams extends ModelParameters {
     public double MATERNITY_MIN_AGE = 14;
     public double MATERNITY_MAX_AGE = 50;
 
-    /*
-     * TODO: Inmigration flow
-     */
+    public double MIGRATION_INFLOW_PCT = 0;
+    public double MIGRATION_INFLOW_AGE_MEAN = 0;
+    public double MIGRATION_INFLOW_AGE_STDEV = 0;
+    public double MIGRATION_INFLOW_GENDER_DIST = 0.55; // Male gender bias
 
     /*
      * TODO: Emigration flow
      */
+
 
     public DemographicParams() {
     }

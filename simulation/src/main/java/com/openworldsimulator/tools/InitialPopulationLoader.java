@@ -2,7 +2,7 @@ package com.openworldsimulator.tools;
 
 import com.google.gson.Gson;
 import com.openworldsimulator.demographics.DemographicParams;
-import com.openworldsimulator.model.Person;
+import com.openworldsimulator.model.PopulationSegment;
 import com.openworldsimulator.model.Population;
 
 import java.io.IOException;
@@ -54,10 +54,13 @@ public class InitialPopulationLoader {
                 int males = e.get("males").intValue();
                 int age = e.get("age").intValue();
 
-                createPeople(population, ratio, females, age, Person.GENDER.FEMALE);
-                createPeople(population, ratio, males, age, Person.GENDER.MALE);
+                createPeople(population, ratio, females, age, PopulationSegment.GENDER.FEMALE);
+                createPeople(population, ratio, males, age, PopulationSegment.GENDER.MALE);
 
             });
+
+            population.setRealPopulationSize(totalPopulation);
+            population.setInitialPopulationSegments(population.size());
 
             System.out.println("Created population: " + population.size());
 
@@ -68,7 +71,7 @@ public class InitialPopulationLoader {
         return population;
     }
 
-    private void createPeople(Population population, double ratio, int people, int age, Person.GENDER gender) {
+    private void createPeople(Population population, double ratio, int people, int age, PopulationSegment.GENDER gender) {
         int n = (int) Math.round((double) people * ratio);
 
         //System.out.println("Age: " + age + " Creating " + n + " " + gender);
@@ -85,45 +88,45 @@ public class InitialPopulationLoader {
         }
     }
 
-    private Person initPerson(Person person, int id, Person.GENDER gender, double age) {
+    private PopulationSegment initPerson(PopulationSegment populationSegment, int id, PopulationSegment.GENDER gender, double age) {
 
-        if (person == null) {
-            person = new Person();
+        if (populationSegment == null) {
+            populationSegment = new PopulationSegment();
         }
-        person.id = id;
-        person.gender = gender;
-        person.status = Person.STATUS.ALIVE;
+        populationSegment.id = id;
+        populationSegment.gender = gender;
+        populationSegment.status = PopulationSegment.STATUS.ALIVE;
 
-        person.age = age;
+        populationSegment.age = age;
 
-        person.bornMonth = -1;
-        person.numChildren = 0;
+        populationSegment.bornMonth = -1;
+        populationSegment.numChildren = 0;
 
         // Update vars for fertility model
-        if (person.isFemale()) {
-            person.initialFirstChildAge =
+        if (populationSegment.isFemale()) {
+            populationSegment.initialFirstChildAge =
                     RandomTools.random(
                             params.MATERNITY_AGE_MEAN,
                             params.MATERNITY_AGE_STDEV,
                             params.MATERNITY_MIN_AGE,
                             params.MATERNITY_MAX_AGE);
 
-            person.initialExpectedChildren =
+            populationSegment.initialExpectedChildren =
                     (int) Math.abs(RandomTools.random(
                             params.MATERNITY_NUM_CHILDREN_MEAN,
                             params.MATERNITY_NUM_CHILDREN_STDEV));
 
-            if( person.age >= person.initialFirstChildAge ) {
-                person.numChildren = person.initialExpectedChildren;
+            if( populationSegment.age >= populationSegment.initialFirstChildAge ) {
+                populationSegment.numChildren = populationSegment.initialExpectedChildren;
             }
         }
 
-        person.initialLifeExpectancy = RandomTools.random(
+        populationSegment.initialLifeExpectancy = RandomTools.random(
                 params.INITIAL_LIFE_EXPECTANCY_MEAN,
                 params.INITIAL_LIFE_EXPECTANCY_STDEV,
-                person.age,
+                populationSegment.age,
                 params.INITIAL_LIFE_EXPECTANCY_MAX);
 
-        return person;
+        return populationSegment;
     }
 }

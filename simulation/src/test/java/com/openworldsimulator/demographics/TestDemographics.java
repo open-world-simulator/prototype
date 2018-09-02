@@ -21,13 +21,12 @@ public class TestDemographics {
         );
 
         Map props = new HashMap();
-        props.put("INITIAL_DEMOGRAPHY_DATA_COUNTRY", "Spain");
         props.put("_ENABLE_ECONOMY_SIMULATION", "0");
 
         Experiment e = experimentsManager.newExperiment();
         e.setExperimentId("run-1");
         e.setBaseSimulationConfig("Spain.defaults");
-        e.setMonths(30*12);
+        e.setMonths(20*12);
         e.setBaseYear(2017);
         e.setOptionalProperties(props);
 

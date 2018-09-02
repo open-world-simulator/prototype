@@ -57,10 +57,10 @@ public class SimulationMain {
             System.out.println("-- Open World Simulator usage:");
             System.out.println("---------------------------------------------------------------------------");
             System.out.println("  - ./ows.sh --help");
-            System.out.println("  - ./ows.sh <experiment name> <base config> [months=<num_months>] [output=<output dir>] [<SIMULATION_PARAM>=<value>]*");
+            System.out.println("  - ./ows.sh <experiment name> <base config> [months=<num_months>] [year=<base_year>] [output=<output dir>] [<SIMULATION_PARAM>=<value>]*");
             System.out.println("\nExamples:\n");
-            System.out.println(" ./ows.sh my-sim-1 Spain months=1200");
-            System.out.println(" ./ows.sh my-sim-2 Spain months=1200 INITIAL_POPULATION_SIZE=500000");
+            System.out.println(" ./ows.sh my-sim-1 Spain.defaults months=1200 year=2016");
+            System.out.println(" ./ows.sh my-sim-2 Spain.defaults months=1200 year=2016 INITIAL_POPULATION_SIZE=500000");
             System.out.println("\n\n");
             System.exit(0);
         }

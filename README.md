@@ -72,8 +72,12 @@ Technical improvements:
 Future ideas:
 ---
 * Align with OECD Indicators
+* Integrate with existing data sources
+    - https://esa.un.org/unpd/wpp/Download/Standard/Population/
+    - https://data.worldbank.org/indicator
     - https://data.oecd.org/searchresults/?r=+f/type/indicators
     - https://datacatalog.worldbank.org/
     - http://api.population.io/
     - http://databank.worldbank.org/data/home.aspx
+    - https://wits.worldbank.org/Default.aspx?lang=en
 

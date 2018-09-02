@@ -1,7 +1,7 @@
 package com.openworldsimulator.simulation;
 
-import com.openworldsimulator.model.Person;
 import com.openworldsimulator.model.Population;
+import com.openworldsimulator.model.PopulationSegment;
 
 import java.io.File;
 import java.util.*;
@@ -52,26 +52,29 @@ public abstract class ModelStats {
         return f;
     }
 
+    public Map<String, DoubleSummaryStatistics> getCurrentMonthStats() {
+        return currentMonthStats;
+    }
 
     // Iterators over population
 
-    protected List<Person> allPeople() {
-        return getPopulation().getPeople();
+    protected List<PopulationSegment> allPeople() {
+        return getPopulation().getPopulationSegments();
     }
 
-    protected Stream<Person> allPeopleStream() {
-        return getPopulation().getPeople().stream();
+    protected Stream<PopulationSegment> allPeopleStream() {
+        return getPopulation().getPopulationSegments().stream();
     }
 
-    protected Stream<Person> allPeopleAliveStream() {
-        return getPopulation().getPeople().stream().filter(Person::isAlive);
+    protected Stream<PopulationSegment> allPeopleAliveStream() {
+        return getPopulation().getPopulationSegments().stream().filter(PopulationSegment::isAlive);
     }
 
-    protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, ToDoubleFunction<Person> numericStat) {
+    protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, ToDoubleFunction<PopulationSegment> numericStat) {
         return (onlyAlive ? allPeopleAliveStream() : allPeopleStream()).mapToDouble(numericStat).summaryStatistics();
     }
 
-    protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, Predicate<Person> filter, ToDoubleFunction<Person> numericStat) {
+    protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, Predicate<PopulationSegment> filter, ToDoubleFunction<PopulationSegment> numericStat) {
         return (onlyAlive ? allPeopleAliveStream() : allPeopleStream()).filter(filter).mapToDouble(numericStat).summaryStatistics();
     }
 
@@ -88,10 +91,18 @@ public abstract class ModelStats {
         currentMonthStats = new HashMap<>();
     }
 
-    protected void collectMonthStats(String statName, boolean onlyAlive, ToDoubleFunction<Person> selectorStat) {
+    protected void collectMonthStats(String statName, boolean onlyAlive, ToDoubleFunction<PopulationSegment> selectorStat) {
         currentMonthStats.put(
                 statName,
                 statsPopulation(onlyAlive, selectorStat)
+        );
+    }
+
+
+    protected void collectMonthStats(String statName, boolean onlyAlive, Predicate<PopulationSegment> filter, ToDoubleFunction<PopulationSegment> selectorStat) {
+        currentMonthStats.put(
+                statName,
+                statsPopulation(onlyAlive, filter, selectorStat)
         );
     }
 
@@ -104,12 +115,6 @@ public abstract class ModelStats {
         );
     }
 
-    protected void collectMonthStats(String statName, boolean onlyAlive, Predicate<Person> filter, ToDoubleFunction<Person> selectorStat) {
-        currentMonthStats.put(
-                statName,
-                statsPopulation(onlyAlive, filter, selectorStat)
-        );
-    }
 
     protected List<Number> buildSumSeries(String statId) {
         return collectedMonthlyStats.stream().map(t -> t.get(statId).getSum()).collect(Collectors.toList());
@@ -127,9 +132,12 @@ public abstract class ModelStats {
         ).collect(Collectors.toList());
     }
 
+    protected String getChartTitle(String chartName) {
+        return "[" + simulation.getSimulationId() + "] " + chartName;
+    }
 
-    protected <T> Map<Long, Long> histogram(Predicate<Person> filter, Function<Person, Long> fieldToLong) {
-        return getPopulation().getPeople().stream().filter(filter).collect(
+    protected <T> Map<Long, Long> histogram(Predicate<PopulationSegment> filter, Function<PopulationSegment, Long> fieldToLong) {
+        return getPopulation().getPopulationSegments().stream().filter(filter).collect(
                 Collectors.groupingBy(
                         fieldToLong,
                         TreeMap::new,
