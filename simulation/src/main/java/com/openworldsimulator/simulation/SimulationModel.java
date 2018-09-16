@@ -1,8 +1,19 @@
 package com.openworldsimulator.simulation;
 
+import com.openworldsimulator.model.PopulationSegment;
+import com.openworldsimulator.tools.ConfigTools;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public abstract class SimulationModel {
+    private int PARALLEL_POPULATION_SEGMENTS = ConfigTools.getConfigInt("PARALLEL_POPULATION_SEGMENTS", 8);
+
     protected Simulation simulation;
     private File outputPath;
 
@@ -39,6 +50,52 @@ public abstract class SimulationModel {
 
     protected void logDebug(String format, Object... args) {
         simulation.logDebug(format, args);
+    }
+
+
+    /**
+     * Splits a list of population segment and executes a calculation over each segment in parallel
+     *
+     * @param population
+     * @param computation
+     */
+    protected void parallelRun(
+            List<PopulationSegment> population,
+            Consumer<PopulationSegment[]> computation
+    ) {
+        ExecutorService executorService = Executors.newWorkStealingPool();
+
+        int segmentSize = population.size() / PARALLEL_POPULATION_SEGMENTS;
+
+        List<PopulationSegment[]> segments = new ArrayList<>();
+
+        for (int i = 0; i < PARALLEL_POPULATION_SEGMENTS; i++) {
+            int segmentBegin = i * segmentSize;
+            int segmentEnd = i == PARALLEL_POPULATION_SEGMENTS - 1 ? population.size() : segmentBegin + segmentSize;
+            int segmentLength = segmentEnd - segmentBegin;
+
+           logDebug("Cutting segment " + i + " [" + segmentBegin + " to " + (segmentEnd - 1) + "] for population size of " + population.size());
+
+            segments.add(population.subList(segmentBegin, segmentEnd).toArray(new PopulationSegment[segmentLength]));
+        }
+
+        for (PopulationSegment[] s : segments) {
+            executorService.submit(
+                    () -> {
+                        try {
+                            computation.accept(s);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+            );
+        }
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(1, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public abstract String getId();

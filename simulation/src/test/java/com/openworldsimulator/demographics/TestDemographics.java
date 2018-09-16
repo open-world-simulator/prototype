@@ -26,7 +26,7 @@ public class TestDemographics {
         Experiment e = experimentsManager.newExperiment();
         e.setExperimentId("run-1");
         e.setBaseSimulationConfig("Spain.defaults");
-        e.setMonths(20*12);
+        e.setMonths(50*12);
         e.setBaseYear(2017);
         e.setOptionalProperties(props);
 

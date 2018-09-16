@@ -82,6 +82,8 @@ public class DemographicsStats extends ModelStats {
     public void writeChartsAtStart() {
         File initialPath = getStatsDir("initial");
 
+        double populationScalingFactor = getPopulation().getSegmentRepresentationRatio();
+
         writeHistoChart(initialPath.getPath(),
                 "dist-initial-life-expectancy",
                 "Life expectancy at birth",
@@ -90,7 +92,7 @@ public class DemographicsStats extends ModelStats {
         writeHistoChart(initialPath.getPath(),
                 "dist-initial-age",
                 "Initial age",
-                histogram(p -> true, p -> (long) (p.age)));
+                histogram(p -> true, p -> (long) (p.age), populationScalingFactor));
 
 
         writeHistoChart(initialPath.getPath(),
@@ -164,8 +166,7 @@ public class DemographicsStats extends ModelStats {
                 "population_pct",
                 "Population",
                 Arrays.asList(
-                        "Population"
-                ),
+                        "Population"º
                 Arrays.asList(
                         buildCountSeries(POPULATION)
                 )

@@ -75,6 +75,7 @@ public class TimeSeriesChartTools {
 
         double minValue = Double.MAX_VALUE;
         double maxValue = Double.MIN_VALUE;
+        double displayFactor = 1.0;
 
         // Get
         for (List<Number> aSeriesData : seriesData) {
@@ -83,7 +84,6 @@ public class TimeSeriesChartTools {
             maxValue = Math.max(maxValue, statistics.getMax());
         }
 
-        double displayFactor = 1.0;
         // Automatic units detection
         String units = "";
         if (maxValue > 1E6) {
@@ -97,13 +97,6 @@ public class TimeSeriesChartTools {
         minValue /= displayFactor;
         maxValue /= displayFactor;
 
-        for (int i = 0; i < seriesData.size(); i++) {
-            List<Number> data = smoothing(seriesData.get(i), CHART_SMOOTHING_PERIOD, 1D / displayFactor);
-
-            XYSeries series = chart.addSeries(seriesTitle.get(i), xData, data);
-            series.setMarker(SeriesMarkers.NONE);
-        }
-
         // Create custom Y labels
         Map<Double, Object> override = new HashMap<>();
         double step = (maxValue - minValue) / CHART_Y_LABELS;
@@ -111,6 +104,13 @@ public class TimeSeriesChartTools {
         for (int i = 0; i <= CHART_Y_LABELS; i++) {
             double y = minValue + step * i;
             override.put(y, String.format("%.2f", y) + units);
+        }
+
+        for (int i = 0; i < seriesData.size(); i++) {
+            List<Number> data = smoothing(seriesData.get(i), CHART_SMOOTHING_PERIOD, 1D / displayFactor);
+
+            XYSeries series = chart.addSeries(seriesTitle.get(i), xData, data);
+            series.setMarker(SeriesMarkers.NONE);
         }
 
         chart.setYAxisLabelOverrideMap(override);
@@ -130,7 +130,7 @@ public class TimeSeriesChartTools {
                 fileName,
                 chartTitle,
                 yTitle,
-                Collections.singletonList(chartTitle),
+                Collections.singletonList(yTitle),
                 Collections.singletonList(yData),
                 baseYear
         );

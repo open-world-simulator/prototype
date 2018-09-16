@@ -10,7 +10,6 @@ import com.openworldsimulator.tools.RandomTools;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class DemographicsModel extends SimulationModel {
 
@@ -92,15 +91,16 @@ public class DemographicsModel extends SimulationModel {
 
         log("[START Month %d (%.02f year) - Population: %d]", month, (month) / 12D, simulation.getPopulation().size());
 
-        List<PopulationSegment> people = simulation.getPopulation().getPopulationSegments();
-
-        for (int i = 0; i < people.size(); i++) {
-            PopulationSegment p = people.get(i);
-
-            simulateEventGettingOlder(p);
-            simulateEventDeath(month, p);
-            simulateBehaviourMaternity(month, p);
-        }
+        parallelRun(
+                simulation.getPopulation().getPopulationSegments(),
+                populationSegment -> {
+                    for (PopulationSegment person : populationSegment) {
+                        simulateEventGettingOlder(person);
+                        simulateEventDeath(month, person);
+                        simulateBehaviourMaternity(month, person);
+                    }
+                }
+        );
 
         simulateImmigration(month);
     }
@@ -160,7 +160,7 @@ public class DemographicsModel extends SimulationModel {
             immigrants += params.INITIAL_POPULATION_SIZE * params.MIGRATION_INFLOW_BASE_PCT / (12.0D * 100);
             immigrants += (int) Math.round(currentPop * params.MIGRATION_INFLOW_PCT / (12.0D * 100));
 
-            System.out.printf("[IMMIGRANTS] Immigrants: %d / Population: %d\n", immigrants, currentPop);
+            logDebug("[IMMIGRANTS] Immigrants: %d / Population: %d\n", immigrants, currentPop);
 
             for (int i = 0; i < immigrants; i++) {
 

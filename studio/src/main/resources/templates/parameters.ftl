@@ -47,6 +47,7 @@
                 <br>
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="demography">
+
                         <div class="form-group">
                             <label for="INITIAL_DEMOGRAPHY_DATA_COUNTRY">INITIAL_DEMOGRAPHY_DATA_COUNTRY</label>
                             <input type="text" class="form-control sim-property"

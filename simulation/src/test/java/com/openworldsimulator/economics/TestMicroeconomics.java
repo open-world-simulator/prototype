@@ -1,58 +1,42 @@
 package com.openworldsimulator.economics;
 
-import com.openworldsimulator.model.PopulationSegment;
-import com.openworldsimulator.simulation.Simulation;
+import com.openworldsimulator.experiments.Experiment;
+import com.openworldsimulator.experiments.ExperimentsManager;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TestMicroeconomics {
 
-    private Simulation simulation;
-
-    protected void buildTestSimulation() throws IOException {
-        File output = new File(".", "output");
-
-        System.out.println("Output at " + output.getCanonicalPath());
-
-        Assert.assertTrue(output.exists());
-
-        simulation = new Simulation("test-economics", output);
-
-        Properties properties = new Properties();
-        properties.put("INITIAL_POPULATION_SIZE", "1");
-
-        simulation.init();
-        simulation.loadDefaultConfig(2020, 100,"blank", properties);
-    }
-
-    protected PopulationSegment getSinglePerson() {
-        return simulation.getPopulation().getPopulationSegments().get(0);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
     @Test
-    @Ignore
     public void testMicroeconomy() throws Exception {
-        System.out.println("TEST");
+        File baseDir = new File(".", "output-tests");
 
-        System.out.println("Preparing runSimulation...");
-        buildTestSimulation();
-        simulation.simulate();
-        System.out.println("Done...");
+        ExperimentsManager experimentsManager = new ExperimentsManager(
+                baseDir
+        );
 
-        PopulationSegment p = getSinglePerson();
+        Map props = new HashMap();
+        props.put("_ENABLE_ECONOMY_SIMULATION", "1");
+        props.put("INITIAL_POPULATION_SIZE", "1000");
 
+        Experiment e = experimentsManager.newExperiment();
+        e.setExperimentId("run-2");
+        e.setBaseSimulationConfig("Spain.defaults");
+        e.setMonths(20 * 12);
+        e.setBaseYear(2017);
+        e.setOptionalProperties(props);
 
-        System.out.println(p);
+        experimentsManager.saveExperiment(e);
+        e.run();
 
+        List<String> results = experimentsManager.listExperimentResults(e.getExperimentId());
+        Assert.assertTrue(results.size() > 10);
+        results.forEach(System.out::println);
     }
+
 }

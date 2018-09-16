@@ -115,6 +115,8 @@ public class Experiment {
         simulation.log("YEAR   : " + baseYear);
         simulation.log("MONTHS : " + months);
 
+        long startTime = System.currentTimeMillis();
+
         try {
             simulation.init();
             simulation.loadDefaultConfig(baseYear, months, baseSimulationConfig, optionalProperties);
@@ -123,5 +125,8 @@ public class Experiment {
             e.printStackTrace();
             throw e;
         }
+
+        long ellapsed = System.currentTimeMillis() - startTime;
+        System.out.printf("Experiment took %.2f sec\n", (ellapsed / 1000D));
     }
 }

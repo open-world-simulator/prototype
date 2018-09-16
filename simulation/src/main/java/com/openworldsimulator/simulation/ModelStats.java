@@ -137,13 +137,26 @@ public abstract class ModelStats {
     }
 
     protected <T> Map<Long, Long> histogram(Predicate<PopulationSegment> filter, Function<PopulationSegment, Long> fieldToLong) {
-        return getPopulation().getPopulationSegments().stream().filter(filter).collect(
+        return histogram(filter, fieldToLong, 1.0D);
+    }
+
+    protected <T> Map<Long, Long> histogram(Predicate<PopulationSegment> filter, Function<PopulationSegment, Long> fieldToLong, double scaling) {
+        Map<Long, Long> histogram = getPopulation().getPopulationSegments().stream().filter(filter).collect(
                 Collectors.groupingBy(
                         fieldToLong,
                         TreeMap::new,
                         Collectors.counting()
                 )
         );
+
+        if( scaling != 1.0D) {
+            // Apply scaling
+            histogram.replaceAll(
+                    (k, v) -> (long) ((double) v * scaling)
+            );
+        }
+
+        return histogram;
     }
 
     public void writeSnapshots(int month) {

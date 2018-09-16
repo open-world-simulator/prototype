@@ -9,12 +9,14 @@ import org.knowm.xchart.style.Styler;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class HistogramChartTools {
-    public static final int CHART_WIDTH = 1024;
-    public static final int CHART_HEIGHT = 800;
+    public static final int CHART_WIDTH = ConfigTools.getConfigInt("CHART_HISTOGRAM_WIDTH", 1024);
+    public static final int CHART_HEIGHT = ConfigTools.getConfigInt("CHART_HISTOGRAM_HEIGHT", 600);
+    public static final int CHART_Y_LABELS = ConfigTools.getConfigInt("CHART_HISTOGRAM_Y_LABELS", 20);
 
 
     private static void fillDataSeries(Map<Long, Long> histoData, List<Long> xData, List<Long> yData, long min, long max) {
@@ -60,15 +62,48 @@ public class HistogramChartTools {
         List<Long> xData = new ArrayList<>();
         List<Long> yData = new ArrayList<>();
 
-        long min = 0;
-        long max = 0;
+        long minX = 0;
+        long maxX = 0;
+        long minFreq = 0;
+        long maxFreq = 0;
+        long countTotal = 0;
 
         if (!histoData.isEmpty()) {
-            // Calc min and max values
-            min = histoData.keySet().stream().min(Long::compareTo).get();
-            max = histoData.keySet().stream().max(Long::compareTo).get();
+            // Calc minX and maxX values
+            minX = histoData.keySet().stream().min(Long::compareTo).get();
+            maxX = histoData.keySet().stream().max(Long::compareTo).get();
+
+            minFreq = histoData.values().stream().min(Long::compareTo).get();
+            maxFreq = histoData.values().stream().max(Long::compareTo).get();
+
+            countTotal = histoData.values().stream().mapToLong(k -> k).sum();
         }
-        fillDataSeries(histoData, xData, yData, min, max);
+
+        // Automatic units detection
+        double displayFactor = 1.0;
+
+        String units = "";
+        if (maxFreq > 1E6) {
+            units = "M";
+            displayFactor = 1E6;
+        } else if (maxFreq > 1E3) {
+            units = "K";
+            displayFactor = 1E3;
+        }
+
+        // Create custom Y labels
+        Map<Double, Object> override = new HashMap<>();
+        double step = (maxFreq - minFreq) / CHART_Y_LABELS;
+
+        for (int i = 0; i <= CHART_Y_LABELS; i++) {
+            double y = minFreq + step * i;
+            override.put(y,
+                    String.format("%.2f", y / displayFactor)
+                            + units +
+                            String.format(" [%.2f%%]", y / countTotal * 100.0D));
+        }
+
+        fillDataSeries(histoData, xData, yData, minX, maxX);
 
         // Create Chart
         CategoryChart chart =
@@ -83,77 +118,14 @@ public class HistogramChartTools {
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
         chart.getStyler().setXAxisLabelRotation(-90);
         chart.getStyler().setHasAnnotations(false);
+
+        // Change Y axis
+        chart.setYAxisLabelOverrideMap(override);
 
         // Series
         chart.addSeries(title,
                 xData,
                 yData);
-
-        try {
-            saveChart(path, fileName, chart);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Writes an histogram like chart for frequency of long ranges with 2 series
-     */
-    public static void writeHistoChart(
-            String path,
-            String fileName,
-            String title,
-            String series1,
-            Map<Long, Long> histoData1,
-            String series2,
-            Map<Long, Long> histoData2
-    ) {
-
-        long min = 0;
-        long max = 0;
-
-        if (!histoData1.isEmpty()) {
-            // Calc min and max values
-            min = histoData1.keySet().stream().min(Long::compareTo).get();
-            max = histoData1.keySet().stream().max(Long::compareTo).get();
-        }
-
-        if (!histoData2.isEmpty()) {
-            // Calc min and max values
-            min = Math.min(min, histoData2.keySet().stream().min(Long::compareTo).get());
-            max = Math.max(max, histoData1.keySet().stream().max(Long::compareTo).get());
-        }
-
-        List<Long> xData1 = new ArrayList<>();
-        List<Long> yData1 = new ArrayList<>();
-        List<Long> xData2 = new ArrayList<>();
-        List<Long> yData2 = new ArrayList<>();
-
-        fillDataSeries(histoData1, xData1, yData1, min, max);
-        fillDataSeries(histoData2, xData2, yData2, min, max);
-
-        // Create Chart
-        CategoryChart chart =
-                new CategoryChartBuilder()
-                        .width(CHART_WIDTH)
-                        .height(CHART_HEIGHT)
-                        .title(title)
-                        .xAxisTitle(title)
-                        .yAxisTitle("Frequency").build();
-
-        // Customize Chart
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
-        chart.getStyler().setXAxisLabelRotation(-90);
-        chart.getStyler().setHasAnnotations(false);
-
-        // Series
-        chart.addSeries(series1,
-                xData1,
-                yData1);
-
-        chart.addSeries(series2,
-                xData2,
-                yData2);
 
         try {
             saveChart(path, fileName, chart);

@@ -35,7 +35,6 @@ public class DemographicParams extends ModelParameters {
      * TODO: Emigration flow
      */
 
-
     public DemographicParams() {
     }
 
