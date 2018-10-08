@@ -160,9 +160,11 @@ public class EconomyModel extends SimulationModel {
         if (populationSegment.age >= populationSegment.initialFirstJobAge && populationSegment.monthlyData.monthIncomeWage == 0) {
             // Find a job
             if( RandomTools.random(params.JOB_MARKET_PUBLIC_SECTOR_RATE) ) {
+                // Finds a job in public sector
                 populationSegment.economicStatus = PopulationSegment.ECONOMIC_STATUS.WORKING_PUBLIC_SECTOR;
                 populationSegment.grossMonthlySalary = RandomTools.random(params.PUBLIC_SECTOR_MONTHLY_WAGE_MEAN, params.PUBLIC_SECTOR_MONTHLY_WAGE_STDEV);
             } else {
+                // Finds a job in private sector
                 populationSegment.economicStatus = PopulationSegment.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR;
                 populationSegment.grossMonthlySalary = RandomTools.random(params.PRIVATE_SECTOR_MONTHLY_WAGE_MEAN, params.PRIVATE_SECTOR_MONTHLY_WAGE_STDEV);
             }

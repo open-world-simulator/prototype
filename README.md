@@ -24,6 +24,13 @@ Stage 1. First prototype - synthetic model
   - Inflow and outflow of population
   
 * Basic household economics
+  - GDP calculation
+    - Demand
+        - Consumption
+        - Company investment
+        - Public expenses
+        - Exports
+        - Imports
  
   - Income
     - Wages
