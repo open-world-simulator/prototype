@@ -2,8 +2,10 @@ package com.openworldsimulator.simulation;
 
 import com.openworldsimulator.model.Population;
 import com.openworldsimulator.model.PopulationSegment;
+import com.openworldsimulator.tools.CSVTools;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -19,9 +21,11 @@ public abstract class ModelStats {
     // Current Month Stats
     private Map<String, DoubleSummaryStatistics> currentMonthStats = new HashMap<>();
 
-    // Collected monthly statss
+    // Collected monthly stats
     private List<Map<String, DoubleSummaryStatistics>> collectedMonthlyStats = new ArrayList<>();
 
+    // Calculated aggregated series
+    private Map<String, List<Number>> aggregatedSeries = new TreeMap<>();
 
     public ModelStats(Simulation simulation) {
         this.simulation = simulation;
@@ -88,6 +92,7 @@ public abstract class ModelStats {
 
     public void clearMonthStats() {
         collectedMonthlyStats.clear();
+        aggregatedSeries.clear();
         currentMonthStats = new HashMap<>();
     }
 
@@ -117,19 +122,32 @@ public abstract class ModelStats {
 
 
     protected List<Number> buildSumSeries(String statId) {
-        return collectedMonthlyStats.stream().map(t -> t.get(statId).getSum()).collect(Collectors.toList());
+        List<Number> series = collectedMonthlyStats.stream().map(t -> t.get(statId).getSum()).collect(Collectors.toList());
+
+        aggregatedSeries.put(statId, series);
+        return series;
     }
 
     protected List<Number> buildAvgSeries(String statId) {
-        return collectedMonthlyStats.stream().map(
+        List<Number> series = collectedMonthlyStats.stream().map(
                 t -> t.get(statId).getAverage()
         ).collect(Collectors.toList());
+
+        aggregatedSeries.put(statId, series);
+        return series;
     }
 
     protected List<Number> buildCountSeries(String statId) {
-        return collectedMonthlyStats.stream().map(
+        List<Number> series = collectedMonthlyStats.stream().map(
                 t -> t.get(statId).getCount()
         ).collect(Collectors.toList());
+
+        aggregatedSeries.put(statId, series);
+        return series;
+    }
+
+    protected Map<String, List<Number>> getAggregatedSeries() {
+        return aggregatedSeries;
     }
 
     protected String getChartTitle(String chartName) {
@@ -149,7 +167,7 @@ public abstract class ModelStats {
                 )
         );
 
-        if( scaling != 1.0D) {
+        if (scaling != 1.0D) {
             // Apply scaling
             histogram.replaceAll(
                     (k, v) -> (long) ((double) v * scaling)
@@ -157,6 +175,24 @@ public abstract class ModelStats {
         }
 
         return histogram;
+    }
+
+    public void writeAllAggregatedSeriesCSV(String file, int baseYear) throws IOException {
+
+        List<List<Number>> series = new ArrayList<>();
+        List<String> seriesNames = new ArrayList<>();
+        // Add series
+        for (String k : getAggregatedSeries().keySet()) {
+            seriesNames.add(k);
+            series.add(getAggregatedSeries().get(k));
+        }
+
+        CSVTools.writeCSV(
+                new File(getStatsBasePath(), file),
+                baseYear,
+                seriesNames,
+                series
+        );
     }
 
     public void writeSnapshots(int month) {

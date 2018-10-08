@@ -209,6 +209,9 @@ public class DemographicsStats extends ModelStats {
                     "Final distribution of age",
                     histogram(PopulationSegment::isAlive, p -> (long) (p.age)));
 
+
+            // Write CSV
+            writeAllAggregatedSeriesCSV("series.csv", getSimulation().getBaseYear());
         } catch (IOException e) {
             e.printStackTrace();
         }
