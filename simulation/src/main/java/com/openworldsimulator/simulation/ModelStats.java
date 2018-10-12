@@ -177,7 +177,7 @@ public abstract class ModelStats {
         return histogram;
     }
 
-    public void writeAllAggregatedSeriesCSV(String file, int baseYear) throws IOException {
+    public void writeAllAggregatedTimeSeriesCSV(String file, int baseYear) throws IOException {
 
         List<List<Number>> series = new ArrayList<>();
         List<String> seriesNames = new ArrayList<>();
@@ -194,6 +194,8 @@ public abstract class ModelStats {
                 series
         );
     }
+
+    public abstract void collect(int month);
 
     public void writeSnapshots(int month) {
     }

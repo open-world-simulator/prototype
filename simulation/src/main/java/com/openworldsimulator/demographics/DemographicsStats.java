@@ -8,8 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static com.openworldsimulator.tools.HistogramChartTools.writeHistoChart;
-import static com.openworldsimulator.tools.TimeSeriesChartTools.writeTimeSeriesChart;
+import static com.openworldsimulator.tools.charts.HistogramChartTools.writeHistoChart;
+import static com.openworldsimulator.tools.charts.TimeSeriesChartTools.writeTimeSeriesChart;
 
 public class DemographicsStats extends ModelStats {
     private static final String POPULATION = "population";
@@ -21,7 +21,7 @@ public class DemographicsStats extends ModelStats {
     private static final String POPULATION_BIRTHS = "populationNewBorn";
     private static final String POPULATION_DECEASES = "populationDeceases";
     private static final String POPULATION_NET_GROWTH = "populationGrowth";
-    private static final String POPULATATION_AGE = "age";
+    private static final String POPULATION_AGE = "age";
     private static final String POPULATION_NUM_CHILDREN = "numChildren";
     private DemographicParams params;
 
@@ -35,6 +35,7 @@ public class DemographicsStats extends ModelStats {
         return "demography";
     }
 
+    @Override
     public void collect(int month) {
         beginMonthStats();
 
@@ -58,7 +59,7 @@ public class DemographicsStats extends ModelStats {
                         getCurrentMonthStats().get(POPULATION_DECEASES).getSum()
         );
 
-        collectMonthStats(POPULATATION_AGE, true, p -> true, p -> p.age);
+        collectMonthStats(POPULATION_AGE, true, p -> true, p -> p.age);
         collectMonthStats(POPULATION_NUM_CHILDREN, true, p -> p.isFemale() && p.age > params.MATERNITY_MAX_AGE, p -> p.numChildren);
 
 
@@ -160,18 +161,6 @@ public class DemographicsStats extends ModelStats {
                     getSimulation().getBaseYear()
             );
 
-
-/*   TimeSeriesChartTools.writeTimeChartYoYPercent(
-                demographyPath.getPath(),
-                "population_pct",
-                "Population",
-                Arrays.asList(
-                        "Population"º
-                Arrays.asList(
-                        buildCountSeries(POPULATION)
-                )
-        );
-*/
             // TODO: Population growth
 
             writeTimeSeriesChart(demographyPath.getPath(), "age",
@@ -211,10 +200,9 @@ public class DemographicsStats extends ModelStats {
 
 
             // Write CSV
-            writeAllAggregatedSeriesCSV("series.csv", getSimulation().getBaseYear());
+            writeAllAggregatedTimeSeriesCSV("series.csv", getSimulation().getBaseYear());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }

@@ -1,5 +1,6 @@
-package com.openworldsimulator.tools;
+package com.openworldsimulator.tools.charts;
 
+import com.openworldsimulator.tools.ConfigTools;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;

@@ -22,6 +22,8 @@ public class DemographicsModel extends SimulationModel {
      **/
     private DemographicsStats modelStats;
 
+    private ModelStats[] allStats = null;
+
     public DemographicsModel(Simulation simulation, DemographicParams params, File outputPath) {
         super(outputPath, simulation);
 
@@ -49,6 +51,7 @@ public class DemographicsModel extends SimulationModel {
         super.init();
 
         modelStats = new DemographicsStats(simulation, params);
+        allStats = new ModelStats[] {modelStats};
 
         log("*** INITIALIZING INITIAL POPULATION OF " + params.INITIAL_POPULATION_SIZE);
 
@@ -71,10 +74,9 @@ public class DemographicsModel extends SimulationModel {
     }
 
     @Override
-    public ModelStats getStats() {
-        return modelStats;
+    public ModelStats[] getStats() {
+        return allStats;
     }
-
 
     /*
      * Simulation

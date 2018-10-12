@@ -1,34 +1,37 @@
-package com.openworldsimulator.economics;
+package com.openworldsimulator.economics.stats;
 
+import com.openworldsimulator.economics.EconomyParams;
 import com.openworldsimulator.simulation.ModelStats;
 import com.openworldsimulator.simulation.Simulation;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-import static com.openworldsimulator.tools.HistogramChartTools.writeHistoChart;
-import static com.openworldsimulator.tools.TimeSeriesChartTools.writeTimeSeriesChart;
+import static com.openworldsimulator.tools.charts.HistogramChartTools.writeHistoChart;
+import static com.openworldsimulator.tools.charts.TimeSeriesChartTools.writeTimeSeriesChart;
 
-public class MicroEconomyStats extends ModelStats {
+public class PersonalEconomyStats extends ModelStats {
 
-    private static final String INCOME_WAGE = "monthIncomeWage";
-    private static final String INCOME_PENSION = "monthIncomePension";
-    private static final String INCOME_FINANCIAL = "monthIncomeSavings";
-    private static final String INCOME_TOTAL = "incomeTotal";
-    private static final String ASSETS_SAVINGS = "assetsSavings";
-    private static final String EXPENSES_TOTAL = "expensesTotal";
-    private static final String EXPENSES_DISCRETIONARY = "monthExpensesDiscretionary";
-    private static final String EXPENSES_NON_DISCRETIONARY = "monthExpensesNonDiscretionary";
-    private static final String TAXES_TOTAL = "taxesTotal";
-    private static final String NET_SAVINGS = "netSavings";
+    private static final String INCOME_WAGE = "personalIncomeWages";
+    private static final String INCOME_PENSION = "personalIncomePension";
+    private static final String INCOME_FINANCIAL = "personalIncomeSavings";
+    private static final String INCOME_TOTAL = "personalIncomeTotal";
+    private static final String EXPENSES_TOTAL = "personalExpensesTotal";
+    private static final String EXPENSES_DISCRETIONARY = "personalExpensesDiscretionary";
+    private static final String EXPENSES_NON_DISCRETIONARY = "personalExpensesNonDiscretionary";
 
-    public MicroEconomyStats(EconomyParams params, Simulation simulation) {
+    private static final String NET_SAVINGS = "personalNetSavings";
+
+    // TODO: Track types of taxation
+    // TODO: Assets / debt
+
+    public PersonalEconomyStats(Simulation simulation) {
         super(simulation);
     }
 
     @Override
     protected String getStatsId() {
-        return "economy";
+        return "personal";
     }
 
 
@@ -42,12 +45,12 @@ public class MicroEconomyStats extends ModelStats {
         collectMonthStats(INCOME_FINANCIAL, true, p -> p.monthlyData.monthIncomeSavings);
 
         collectMonthStats(INCOME_TOTAL, true, p -> p.monthlyData.getTotalMonthIncome());
-        collectMonthStats(ASSETS_SAVINGS, true, p -> p.getBalanceSheet().getSavings());
+//      collectMonthStats(ASSETS_SAVINGS, true, p -> p.getBalanceSheet().getSavings());
 
         collectMonthStats(EXPENSES_TOTAL, true, p -> p.monthlyData.getTotalExpenses() + p.monthlyData.getTotalTaxes());
         collectMonthStats(EXPENSES_DISCRETIONARY, true, p -> p.monthlyData.monthExpensesDiscretionary);
         collectMonthStats(EXPENSES_NON_DISCRETIONARY, true, p -> p.monthlyData.monthExpensesNonDiscretionary);
-        collectMonthStats(TAXES_TOTAL, true, p -> p.monthlyData.monthTaxesIncome + p.monthlyData.monthTaxesFinancial + p.monthlyData.monthTaxesConsumption);
+        //collectMonthStats(EXPENSES_TAXES_TOTAL, true, p -> p.monthlyData.monthTaxesIncome + p.monthlyData.monthTaxesFinancial + p.monthlyData.monthTaxesConsumption);
 
         collectMonthStats(NET_SAVINGS, true, p -> p.monthlyData.getTotalMonthNetResult());
 
@@ -60,7 +63,7 @@ public class MicroEconomyStats extends ModelStats {
 
         try {
             writeTimeSeriesChart(
-                    getStatsBasePath().getPath(), "avg-net-savings",
+                    getStatsBasePath().getPath(), "personal-avg-net-savings",
                     getChartTitle("Average of net savings"),
                     "Average of net savings",
                     Arrays.asList("Total Net Savings", "Income", "Expenses"),
@@ -73,24 +76,8 @@ public class MicroEconomyStats extends ModelStats {
                     getSimulation().getBaseYear()
             );
 
-
             writeTimeSeriesChart(
-                    getStatsBasePath().getPath(), "sum-net-savings",
-                    getChartTitle("Sum of net savings"),
-                    "Sum of net savings",
-                    Arrays.asList("Total Net Savings", "Income", "Expenses"),
-                    Arrays.asList(
-                            buildSumSeries(NET_SAVINGS),
-                            buildSumSeries(INCOME_TOTAL),
-                            buildSumSeries(EXPENSES_TOTAL)
-                    )
-                    ,
-                    getSimulation().getBaseYear()
-            );
-
-
-            writeTimeSeriesChart(
-                    getStatsBasePath().getPath(), "avg-individual-income",
+                    getStatsBasePath().getPath(), "personal-income",
                     getChartTitle("Average of monthly income"),
                     "Average of monthly income",
                     Arrays.asList("Total", "Wages", "Pensions", "Financial"),
@@ -105,7 +92,7 @@ public class MicroEconomyStats extends ModelStats {
             );
 
             writeTimeSeriesChart(
-                    getStatsBasePath().getPath(), "sum-individual-income",
+                    getStatsBasePath().getPath(), "total-monthly-income",
                     getChartTitle("Sum of monthly income"),
                     "Sum of monthly income",
                     Arrays.asList("Total", "Wages", "Pensions", "Financial"),
@@ -120,58 +107,33 @@ public class MicroEconomyStats extends ModelStats {
             );
 
             writeTimeSeriesChart(
-                    getStatsBasePath().getPath(), "avg-individual-expenses",
+                    getStatsBasePath().getPath(), "personal-expenses",
                     getChartTitle("Average of monthly expenses"),
                     "Average of monthly expenses",
-                    Arrays.asList("Total", "Discretionary", "Non discretionary", "Taxes"),
+                    Arrays.asList("Total", "Discretionary", "Non discretionary"),
                     Arrays.asList(
                             buildAvgSeries(EXPENSES_TOTAL),
                             buildAvgSeries(EXPENSES_DISCRETIONARY),
-                            buildAvgSeries(EXPENSES_NON_DISCRETIONARY),
-                            buildAvgSeries(TAXES_TOTAL)
+                            buildAvgSeries(EXPENSES_NON_DISCRETIONARY)
                     )
                     ,
                     getSimulation().getBaseYear()
             );
 
             writeTimeSeriesChart(
-                    getStatsBasePath().getPath(), "sum-individual-expenses",
+                    getStatsBasePath().getPath(), "sum-personal-expenses",
                     "Sum of monthly expenses",
                     getChartTitle("Sum of monthly expenses"),
-                    Arrays.asList("Total", "Discretionary", "Non discretionary", "Taxes"),
+                    Arrays.asList("Total", "Discretionary", "Non discretionary"),
                     Arrays.asList(
                             buildSumSeries(EXPENSES_TOTAL),
                             buildSumSeries(EXPENSES_DISCRETIONARY),
-                            buildSumSeries(EXPENSES_NON_DISCRETIONARY),
-                            buildSumSeries(TAXES_TOTAL)
+                            buildSumSeries(EXPENSES_NON_DISCRETIONARY)
                     )
                     ,
                     getSimulation().getBaseYear()
             );
 
-            writeTimeSeriesChart(
-                    getStatsBasePath().getPath(), "avg-individual-assets",
-                    getChartTitle("Average of individual assets"),
-                    "Average of individual assets",
-                    Arrays.asList("Savings"),
-                    Arrays.asList(
-                            buildAvgSeries(ASSETS_SAVINGS)
-                    )
-                    ,
-                    getSimulation().getBaseYear()
-            );
-
-            writeTimeSeriesChart(
-                    getStatsBasePath().getPath(), "sum-individual-assets",
-                    getChartTitle("Sum of individual assets"),
-                    "Sum of individual assets",
-                    Arrays.asList("Savings"),
-                    Arrays.asList(
-                            buildSumSeries(ASSETS_SAVINGS)
-                    )
-                    ,
-                    getSimulation().getBaseYear()
-            );
 
             // Salary distribution
             writeHistoChart(getStatsBasePath().getPath(),
@@ -185,11 +147,12 @@ public class MicroEconomyStats extends ModelStats {
                     histogram(p -> p.isAlive() && p.monthlyData.getTotalMonthIncome() > 0, p -> (long) (p.monthlyData.getTotalMonthIncome() / 100)));
 
             // TODO: Unemployment, activity rate,
-
             // TODO: Average wage, pension, subsidy
+
+            // Write CSV
+            writeAllAggregatedTimeSeriesCSV("series.csv", getSimulation().getBaseYear());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

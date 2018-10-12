@@ -22,9 +22,9 @@ public class Simulation {
 
     /////////////////////////////////////////////////////////////////////////7
     //// Status variables
-    private int currentMonth = 0;
-    private boolean running = false;
-    private String status = null;
+    private volatile int currentMonth = 0;
+    private volatile boolean running = false;
+    private volatile String status = null;
 
     /////////////////////////////////////////////////////////////////////////7
     //// Simulation models
@@ -207,7 +207,9 @@ public class Simulation {
             // Write initial reports
             models.forEach(m -> {
                 if (m.getStats() != null) {
-                    m.getStats().writeChartsAtStart();
+                    for (ModelStats stats : m.getStats()) {
+                        stats.writeChartsAtStart();
+                    }
                 }
             });
 
@@ -244,7 +246,9 @@ public class Simulation {
                 models.forEach(m -> {
                     logDebug("Writing snapshots " + m.getId());
                     if (m.getStats() != null) {
-                        m.getStats().writeSnapshots(month);
+                        for (ModelStats stats : m.getStats()) {
+                            stats.writeSnapshots(month);
+                        }
                     }
                 });
             }
@@ -256,7 +260,9 @@ public class Simulation {
             models.forEach(m -> {
                 if (m.getStats() != null) {
                     logDebug("Writing reports at end" + m.getId());
-                    m.getStats().writeChartsAtEnd();
+                    for (ModelStats stats : m.getStats()) {
+                        stats.writeChartsAtEnd();
+                    }
                 }
             });
         } finally {

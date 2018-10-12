@@ -100,7 +100,7 @@ public abstract class SimulationModel {
 
     public abstract String getId();
 
-    public ModelStats getStats() {
+    public ModelStats[] getStats() {
         return null;
     }
 
