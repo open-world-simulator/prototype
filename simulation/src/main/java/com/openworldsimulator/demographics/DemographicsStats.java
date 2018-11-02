@@ -1,6 +1,6 @@
 package com.openworldsimulator.demographics;
 
-import com.openworldsimulator.model.PopulationSegment;
+import com.openworldsimulator.model.Person;
 import com.openworldsimulator.simulation.ModelStats;
 import com.openworldsimulator.simulation.Simulation;
 
@@ -45,8 +45,8 @@ public class DemographicsStats extends ModelStats {
         // Population evolution stats
         collectMonthStats(POPULATION, true, p -> populationScalingFactor);
         collectMonthStats(POPULATION_SIZE_0_15, true, p -> p.age < 16.0, p -> populationScalingFactor);
-        collectMonthStats(POPULATION_SIZE_16_35, true, p -> p.age >= 16 && p.age < 35.0, p -> populationScalingFactor);
-        collectMonthStats(POPULATION_SIZE_36_65, true, p -> p.age >= 35 && p.age < 65.0, p -> populationScalingFactor);
+        collectMonthStats(POPULATION_SIZE_16_35, true, p -> p.age >= 16 && p.age < 36.0, p -> populationScalingFactor);
+        collectMonthStats(POPULATION_SIZE_36_65, true, p -> p.age >= 36 && p.age < 65.0, p -> populationScalingFactor);
         collectMonthStats(POPULATION_SIZE_65_PLUS, true, p -> p.age > 65.0, p -> populationScalingFactor);
 
         collectMonthStats(POPULATION_IMMIGRATION, true, p -> p.immigrationMonth == month, p -> populationScalingFactor * 12.0);
@@ -99,12 +99,12 @@ public class DemographicsStats extends ModelStats {
         writeHistoChart(initialPath.getPath(),
                 "dist-expected-children",
                 "Expected children",
-                histogram(PopulationSegment::isFemale, p -> (long) (p.initialExpectedChildren)));
+                histogram(Person::isFemale, p -> (long) (p.initialExpectedChildren)));
 
         writeHistoChart(initialPath.getPath(),
                 "dist-expected-first-born-age",
                 "Expected age of first born",
-                histogram(PopulationSegment::isFemale, p -> (long) (p.initialFirstChildAge)));
+                histogram(Person::isFemale, p -> (long) (p.initialFirstChildAge)));
 
     }
 
@@ -196,7 +196,7 @@ public class DemographicsStats extends ModelStats {
             writeHistoChart(demographyPath.getPath(),
                     "dist-age-final",
                     "Final distribution of age",
-                    histogram(PopulationSegment::isAlive, p -> (long) (p.age)));
+                    histogram(Person::isAlive, p -> (long) (p.age)));
 
 
             // Write CSV

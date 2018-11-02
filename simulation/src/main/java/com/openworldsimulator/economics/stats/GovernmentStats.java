@@ -7,7 +7,7 @@ import com.openworldsimulator.tools.charts.TimeSeriesChartTools;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class GovStats extends ModelStats {
+public class GovernmentStats extends ModelStats {
 
     private static final String GOV_ASSETS   = "govAssets";
     private static final String GOV_DEBT     = "govDebt";
@@ -19,7 +19,7 @@ public class GovStats extends ModelStats {
     // TODO: Track income by type of taxes (social security, personal income, consumption, ...)
     // TODO: Track expenses by type of expenses (pensions, public expenses, investment,...)
 
-    public GovStats(Simulation simulation) {
+    public GovernmentStats(Simulation simulation) {
         super(simulation);
     }
 

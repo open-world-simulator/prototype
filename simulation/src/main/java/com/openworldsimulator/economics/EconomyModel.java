@@ -1,10 +1,10 @@
 package com.openworldsimulator.economics;
 
-import com.openworldsimulator.economics.stats.BalanceSheetStats;
-import com.openworldsimulator.economics.stats.BizStats;
-import com.openworldsimulator.economics.stats.GovStats;
+import com.openworldsimulator.economics.stats.MacroBalanceSheetStats;
+import com.openworldsimulator.economics.stats.CompaniesStats;
+import com.openworldsimulator.economics.stats.GovernmentStats;
 import com.openworldsimulator.economics.stats.PersonalEconomyStats;
-import com.openworldsimulator.model.PopulationSegment;
+import com.openworldsimulator.model.Person;
 import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.simulation.ModelStats;
 import com.openworldsimulator.simulation.Simulation;
@@ -70,17 +70,17 @@ public class EconomyModel extends SimulationModel {
 
         allStats = new ModelStats[]{
                 new PersonalEconomyStats(simulation),
-                new GovStats(simulation),
-                new BizStats(simulation),
-                new BalanceSheetStats(simulation)
+                new GovernmentStats(simulation),
+                new CompaniesStats(simulation),
+                new MacroBalanceSheetStats(simulation)
         };
     }
 
 
-    void initEconomicData(PopulationSegment p) {
+    void initEconomicData(Person p) {
         p.initialFirstJobAge = RandomTools.random(params.jobMarket.FIRST_JOB_AGE_MEAN, params.jobMarket.FIRST_JOB_AGE_STDEV);
         p.retirementAge = RandomTools.random(params.jobMarket.RETIRE_AGE_MEAN, params.jobMarket.RETIRE_AGE_STDEV);
-        p.economicStatus = PopulationSegment.ECONOMIC_STATUS.NONE;
+        p.economicStatus = Person.ECONOMIC_STATUS.NONE;
         p.getMonthlyData().reset();
     }
 
@@ -99,9 +99,9 @@ public class EconomyModel extends SimulationModel {
 
         log("\n[ECONOMICS]", month, (month) / 12D);
 
-        List<PopulationSegment> people = simulation.getPopulation().getPopulationSegments();
+        List<Person> people = simulation.getPopulation().getPopulationSegments();
 
-        for (PopulationSegment p : people) {
+        for (Person p : people) {
             // Init cycle vars
             p.getMonthlyData().reset();
 
@@ -118,16 +118,16 @@ public class EconomyModel extends SimulationModel {
             simulateEmploymentStatus(month, p);
 
             // Collect income
-            simulateRetirementIncome(month, p);
             simulateJobIncome(month, p);
-            simulateSavingsYieldIncome(month, p);
+            simulateRetirementIncome(month, p);
+     //       simulateSavingsYieldIncome(month, p);
 
             // Simulate expenses
             simulateNonDiscretionaryExpenses(month, p);
             simulateDiscretionaryExpenses(month, p);
 
             // Simulate consumption debt
-            simulateConsumptionDebt(month, p);
+       ///     simulateConsumptionDebt(month, p);
 
             // Simulate saving & investment decisions
             //   simulateInvestmentDecisions(month, p);
@@ -142,7 +142,7 @@ public class EconomyModel extends SimulationModel {
             return;
         }
 
-        simulatePublicSectorDebtService(month);
+        //simulatePublicSectorDebtService(month);
 
         for (ModelStats s : allStats) {
             s.collect(month);
@@ -152,110 +152,111 @@ public class EconomyModel extends SimulationModel {
         simulation.evolveParametersMonthly(params);
     }
 
-    void simulateConsumptionDebt(int month, PopulationSegment p) {
+    void simulateConsumptionDebt(int month, Person p) {
         //  TODO
     }
 
-    void simulateInvestmentDecisions(int month, PopulationSegment p) {
+    void simulateInvestmentDecisions(int month, Person p) {
         // TODO
     }
 
 
-    void simulateEmploymentStatus(int month, PopulationSegment populationSegment) {
-        if (!populationSegment.isAlive()) return;
-        if (populationSegment.age >= populationSegment.initialFirstJobAge && populationSegment.monthlyData.monthIncomeWage == 0) {
+    void simulateEmploymentStatus(int month, Person person) {
+        if (!person.isAlive()) return;
+        if (person.age >= person.initialFirstJobAge && person.monthlyData.incomeWage == 0) {
             // Find a job
             if (RandomTools.random(params.jobMarket.PUBLIC_SECTOR_WORK_PCT)) {
                 // Finds a job in public sector
-                populationSegment.economicStatus = PopulationSegment.ECONOMIC_STATUS.WORKING_PUBLIC_SECTOR;
-                populationSegment.grossMonthlySalary = RandomTools.random(params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_MEAN, params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_STDEV);
+                person.economicStatus = Person.ECONOMIC_STATUS.WORKING_PUBLIC_SECTOR;
+                person.grossMonthlySalary = RandomTools.random(params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_MEAN, params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_STDEV);
             } else {
                 // Finds a job in private sector
-                populationSegment.economicStatus = PopulationSegment.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR;
-                populationSegment.grossMonthlySalary = RandomTools.random(params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_MEAN, params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_STDEV);
+                person.economicStatus = Person.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR;
+                person.grossMonthlySalary = RandomTools.random(params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_MEAN, params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_STDEV);
             }
-            if (populationSegment.grossMonthlySalary < params.jobMarket.MINIMAL_WAGE) {
-                populationSegment.grossMonthlySalary = params.jobMarket.MINIMAL_WAGE;
+            if (person.grossMonthlySalary < params.jobMarket.MINIMAL_WAGE) {
+                person.grossMonthlySalary = params.jobMarket.MINIMAL_WAGE;
             }
-            log("[JOBS] PopulationSegment " + populationSegment.id + " finds job of %.2f at age %.2f", populationSegment.grossMonthlySalary, populationSegment.age);
+            log("[JOBS] Person " + person.id + " finds job of %.2f at age %.2f", person.grossMonthlySalary, person.age);
         }
     }
 
-    void simulateJobIncome(int month, PopulationSegment populationSegment) {
-        if (!populationSegment.isAlive()) return;
+    void simulateJobIncome(int month, Person person) {
+        if (!person.isAlive()) return;
 
         // TODO: Unemployment
-        if (populationSegment.age >= populationSegment.initialFirstJobAge && populationSegment.age < populationSegment.retirementAge) {
-            populationSegment.monthlyData.monthIncomeWage = populationSegment.grossMonthlySalary;
+        if (person.age >= person.initialFirstJobAge && person.age < person.retirementAge) {
+            person.monthlyData.incomeWage = person.grossMonthlySalary;
 
-            double employeeTaxes = populationSegment.monthlyData.monthIncomeWage * params.government.TAX_ON_INCOME_EMPLOYEE_RATE;
-            double employerTaxes = populationSegment.monthlyData.monthIncomeWage * params.government.TAX_ON_INCOME_EMPLOYER_RATE;
+            double employeeTaxes = person.monthlyData.incomeWage * params.government.TAX_ON_INCOME_EMPLOYEE_RATE;
+            double employerTaxes = person.monthlyData.incomeWage * params.government.TAX_ON_INCOME_EMPLOYER_RATE;
 
-            if (populationSegment.economicStatus.equals(PopulationSegment.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR)) {
-                simulation.getTransactions().earnIncomeFromCompanies(populationSegment, populationSegment.monthlyData.monthIncomeWage);
-                simulation.getTransactions().payTaxes(populationSegment, employeeTaxes);
+            if (person.economicStatus.equals(Person.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR)) {
+                simulation.getTransactions().earnIncomeFromCompanies(person, person.monthlyData.incomeWage);
+                simulation.getTransactions().payTaxes(person, employeeTaxes);
                 simulation.getTransactions().payTaxes(simulation.getCompanies(), employerTaxes);
             } else {
                 // Public sector worker
-                simulation.getTransactions().earnIncomeFromGovernment(populationSegment, populationSegment.monthlyData.monthIncomeWage);
-                simulation.getTransactions().payTaxes(populationSegment, employeeTaxes);
+                simulation.getTransactions().earnIncomeFromGovernment(person, person.monthlyData.incomeWage);
+                simulation.getTransactions().payTaxes(person, employeeTaxes);
             }
 
-            populationSegment.monthlyData.monthTaxesIncome += employeeTaxes;
+            person.monthlyData.taxesIncome += employeeTaxes;
         }
     }
 
-    void simulateRetirementIncome(int month, PopulationSegment populationSegment) {
-        if (!populationSegment.isAlive()) return;
+    void simulateRetirementIncome(int month, Person person) {
+        if (!person.isAlive()) return;
+        if(person.age < person.retirementAge ) return;
 
-        if (populationSegment.age >= populationSegment.retirementAge && populationSegment.monthlyData.monthIncomePension == 0) {
-            populationSegment.grossPension = populationSegment.monthlyData.monthIncomeWage * params.government.PENSION_REPLACEMENT_RATE;
-            populationSegment.monthlyData.monthIncomeWage = 0;
-            populationSegment.economicStatus = PopulationSegment.ECONOMIC_STATUS.RETIRED;
-            log("PopulationSegment " + populationSegment.id + " starts receiving avgMonthlyIncomePension of %.2f at age %.2f", populationSegment.monthlyData.monthIncomePension, populationSegment.age);
+        if (person.grossPension == 0) {
+            person.grossPension = person.grossMonthlySalary * params.government.PENSION_REPLACEMENT_RATE;
+            logDebug("Person " + person.id + " starts receiving avgMonthlyIncomePension of %.2f at age %.2f", person.grossPension, person.age);
         }
 
-        populationSegment.monthlyData.monthIncomePension = populationSegment.grossPension;
+        person.monthlyData.incomeWage = 0;
+        person.monthlyData.incomePension = person.grossPension;
+        person.economicStatus = Person.ECONOMIC_STATUS.RETIRED;
 
-        if (populationSegment.monthlyData.monthIncomePension == 0) {
+        if (person.monthlyData.incomePension == 0) {
             return;
         }
 
-        double taxes = populationSegment.monthlyData.monthIncomePension * params.government.TAX_ON_INCOME_EMPLOYEE_RATE;
+        double taxes = person.monthlyData.incomePension * params.government.TAX_ON_INCOME_EMPLOYEE_RATE;
 
-        simulation.getTransactions().earnIncomeFromGovernment(populationSegment, populationSegment.monthlyData.monthIncomePension);
-        simulation.getTransactions().payTaxes(populationSegment, taxes);
+        simulation.getTransactions().earnIncomeFromGovernment(person, person.monthlyData.incomePension);
+        simulation.getTransactions().payTaxes(person, taxes);
 
-        populationSegment.monthlyData.monthTaxesIncome += taxes;
+        person.monthlyData.taxesIncome += taxes;
     }
 
-    void simulateEconomicDeath(int month, PopulationSegment populationSegment) {
+    void simulateEconomicDeath(int month, Person person) {
 
-//        simulateInheritance(month, populationSegment);
+//        simulateInheritance(month, person);
 
         // Remove sources of income
-        populationSegment.monthlyData.reset();
+        person.monthlyData.reset();
 
-        populationSegment.getBalanceSheet().reset();
+        person.getBalanceSheet().reset();
 
-        populationSegment.economicStatus = PopulationSegment.ECONOMIC_STATUS.NONE;
+        person.economicStatus = Person.ECONOMIC_STATUS.NONE;
 
-        log("PopulationSegment " + populationSegment.id + " economic death at age %.2f", populationSegment.age);
+        log("Person " + person.id + " economic death at age %.2f", person.age);
     }
 
-    void simulateInheritance(int month, PopulationSegment populationSegment) {
-        // Assign all assets to one random living populationSegment
-        List<PopulationSegment> alive = simulation.getPopulation().getAlivePeople();
+    void simulateInheritance(int month, Person person) {
+        // Assign all assets to one random living person
+        List<Person> alive = simulation.getPopulation().getAlivePeople();
         if (alive.size() > 0) {
-            PopulationSegment receiver = alive.get(RandomTools.random(alive.size()));
+            Person receiver = alive.get(RandomTools.random(alive.size()));
 
             simulation.getTransactions().pay(
-                    populationSegment.getBalanceSheet().getSavings(),
-                    populationSegment,
+                    person.getBalanceSheet().getSavings(),
+                    person,
                     receiver
             );
 
-            log("[INHERITANCE] PopulationSegment %s received %.2f", receiver.toString(),
+            log("[INHERITANCE] Person %s received %.2f", receiver.toString(),
                     receiver.getBalanceSheet().getSavings()
             );
         } else {
@@ -263,77 +264,77 @@ public class EconomyModel extends SimulationModel {
         }
     }
 
-    void simulateSavingsYieldIncome(int month, PopulationSegment populationSegment) {
+    void simulateSavingsYieldIncome(int month, Person person) {
 
-        populationSegment.monthlyData.monthIncomeSavings = populationSegment.getBalanceSheet().getSavings() * params.personalEconomy.YIELD_SAVINGS_RATE / 12D;
+        person.monthlyData.incomeSavings = person.getBalanceSheet().getSavings() * params.personalEconomy.YIELD_SAVINGS_RATE / 12D;
 
-        double taxes = populationSegment.monthlyData.monthIncomeSavings * params.government.TAX_ON_SAVINGS_PCT;
+        double taxes = person.monthlyData.incomeSavings * params.government.TAX_ON_SAVINGS_PCT;
 
         // Cash in interests
-        simulation.getTransactions().earnIncomeFromBanks(populationSegment, populationSegment.monthlyData.monthIncomeSavings);
-        simulation.getTransactions().payTaxes(populationSegment, taxes);
+        simulation.getTransactions().earnIncomeFromBanks(person, person.monthlyData.incomeSavings);
+        simulation.getTransactions().payTaxes(person, taxes);
 
-        populationSegment.monthlyData.monthTaxesFinancial += taxes;
+        person.monthlyData.taxesFinancial += taxes;
     }
 
 
-    void simulateNonDiscretionaryExpenses(int month, PopulationSegment populationSegment) {
-        if (!populationSegment.isAlive()) return;
+    void simulateNonDiscretionaryExpenses(int month, Person person) {
+        if (!person.isAlive()) return;
 
         // TODO: Simulate based on income and situation (i.e age)
-        populationSegment.monthlyData.monthExpensesNonDiscretionary = RandomTools.random(
+        person.monthlyData.consumptionNonDiscretionary = RandomTools.random(
                 params.personalEconomy.MONTHLY_NON_DISCRETIONARY_EXPENSES_MEAN,
                 params.personalEconomy.MONTHLY_NON_DISCRETIONARY_EXPENSES_STDEV,
                 params.personalEconomy.MONTHLY_NON_DISCRETIONARY_EXPENSES_MIN,
                 -1
         );
 
-        if (populationSegment.monthlyData.monthExpensesNonDiscretionary > populationSegment.getBalanceSheet().getSavings()) {
-            log("[EXPENSES1] PopulationSegment %d - Savings: %.2f Expenses: %.2f", populationSegment.id, populationSegment.getBalanceSheet().getSavings(), populationSegment.monthlyData.monthExpensesNonDiscretionary);
+        if (person.monthlyData.consumptionNonDiscretionary > person.getBalanceSheet().getSavings()) {
+            log("[EXPENSES1] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.consumptionNonDiscretionary);
 
             // TODO: Simulate debt or asset liquidation
-            // populationSegment.monthExpensesNonDiscretionary = populationSegment.getSavings();
+            // person.consumptionNonDiscretionary = person.getSavings();
         }
 
-        double taxes = populationSegment.getMonthlyData().monthExpensesNonDiscretionary * params.government.TAX_ON_NON_DISCRETIONARY_CONSUMPTION_RATE;
+        double taxes = person.getMonthlyData().consumptionNonDiscretionary * params.government.TAX_ON_NON_DISCRETIONARY_CONSUMPTION_RATE;
 
-        simulation.getTransactions().expend(populationSegment, populationSegment.monthlyData.monthExpensesNonDiscretionary);
-        simulation.getTransactions().payTaxes(populationSegment, taxes);
+        simulation.getTransactions().expend(person, person.monthlyData.consumptionNonDiscretionary);
+        simulation.getTransactions().payTaxes(person, taxes);
 
-        populationSegment.getMonthlyData().monthExpensesNonDiscretionary += taxes;
+        person.getMonthlyData().consumptionNonDiscretionary += taxes;
 
         // Assume no debt yet
     }
 
-    void simulateDiscretionaryExpenses(int month, PopulationSegment populationSegment) {
-        if (!populationSegment.isAlive()) return;
+    void simulateDiscretionaryExpenses(int month, Person person) {
+        if (!person.isAlive()) return;
 
-        double remainingIncome = populationSegment.monthlyData.getTotalMonthIncome() - populationSegment.monthlyData.getTotalExpenses() - populationSegment.monthlyData.getTotalTaxes();
+        double remainingIncome = person.monthlyData.getTotalMonthIncome() - person.monthlyData.getTotalConsumption() - person.monthlyData.getTotalTaxes();
         if (remainingIncome < 0) {
             // Income < non discretionary expenses => don't expend additional
             remainingIncome = 0;
         }
 
-        populationSegment.monthlyData.monthExpensesDiscretionary = RandomTools.random(
+        person.monthlyData.consumptionDiscretionary = RandomTools.random(
                 params.personalEconomy.PROPENSITY_TO_CONSUMPTION_MEAN_RATE,
                 params.personalEconomy.PROPENSITY_TO_CONSUMPTION_STDEV_RATE
         ) * (1 - params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE) * remainingIncome;
 
-        if (populationSegment.monthlyData.monthExpensesDiscretionary > populationSegment.getBalanceSheet().getSavings()) {
-            log("[EXPENSES2] PopulationSegment %d - Savings: %.2f Expenses: %.2f", populationSegment.id, populationSegment.getBalanceSheet().getSavings(), populationSegment.monthlyData.monthExpensesDiscretionary);
+        if (person.monthlyData.consumptionDiscretionary > person.getBalanceSheet().getSavings()) {
+            log("[EXPENSES2] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.consumptionDiscretionary);
 
             // TODO: Simulate debt or asset liquidation
-            //populationSegment.monthExpensesDiscretionary = populationSegment.getSavings();
+            //person.consumptionDiscretionary = person.getSavings();
         }
 
-        double taxes = populationSegment.getMonthlyData().monthExpensesDiscretionary * params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE;
+        double taxes = person.getMonthlyData().consumptionDiscretionary * params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE;
 
-        simulation.getTransactions().expend(populationSegment, populationSegment.monthlyData.monthExpensesDiscretionary);
-        simulation.getTransactions().payTaxes(populationSegment, taxes);
+        simulation.getTransactions().expend(person, person.monthlyData.consumptionDiscretionary);
+        simulation.getTransactions().payTaxes(person, taxes);
 
-        populationSegment.getMonthlyData().monthExpensesDiscretionary += taxes;
+        person.getMonthlyData().consumptionDiscretionary += taxes;
     }
-
+/*
     void simulatePublicSectorDebtService(int month) {
         // TODO: Add cost of debt for public government
         double publicDebt = simulation.getPublicSector().getBalanceSheet().getDebt();
@@ -345,4 +346,5 @@ public class EconomyModel extends SimulationModel {
 
         System.out.println("PUBLIC DEBT: " + publicDebt + " COST OF DEBT: " + costOfDebt);
     }
+*/
 }

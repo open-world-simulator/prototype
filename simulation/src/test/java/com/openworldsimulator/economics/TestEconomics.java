@@ -25,13 +25,16 @@ public class TestEconomics {
         props.put("INITIAL_POPULATION_SIZE", "1000");
 
         Experiment e = experimentsManager.newExperiment();
-        e.setExperimentId("run-2");
+        e.setExperimentId("economics-1");
         e.setBaseSimulationConfig("Spain.defaults");
         e.setMonths(20 * 12);
         e.setBaseYear(2017);
         e.setOptionalProperties(props);
 
         experimentsManager.saveExperiment(e);
+
+        e.getSimulation().getSimulationLog().setDebug(true);
+
         e.run();
 
         List<String> results = experimentsManager.listExperimentResults(e.getExperimentId());

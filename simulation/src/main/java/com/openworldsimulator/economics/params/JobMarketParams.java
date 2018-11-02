@@ -17,7 +17,7 @@ public class JobMarketParams extends ModelParameters {
     public double FIRST_JOB_AGE_MEAN = 25;
     public double FIRST_JOB_AGE_STDEV = 5;
 
-    public double RETIRE_AGE_MEAN = 50;
-    public double RETIRE_AGE_STDEV = 2;
+    public double RETIRE_AGE_MEAN = 64;
+    public double RETIRE_AGE_STDEV = 4;
 
 }

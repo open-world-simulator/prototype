@@ -7,7 +7,7 @@ import com.openworldsimulator.tools.charts.TimeSeriesChartTools;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class BalanceSheetStats extends ModelStats {
+public class MacroBalanceSheetStats extends ModelStats {
 
     private static final String ASSETS_POPULATION = "assetsPopulation";
     private static final String DEBT_POPULATION = "debtPopulation";
@@ -21,7 +21,7 @@ public class BalanceSheetStats extends ModelStats {
     private static final String ASSETS_BANKS = "assetsBanks";
     private static final String DEBT_BANKS = "debtBanks";
 
-    public BalanceSheetStats(Simulation simulation) {
+    public MacroBalanceSheetStats(Simulation simulation) {
         super(simulation);
     }
 

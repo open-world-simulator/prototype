@@ -8,7 +8,7 @@ public class Population {
     private long realPopulationSize;
     private long initialPopulationSegments;
 
-    private List<PopulationSegment> people = new ArrayList<>();
+    private List<Person> people = new ArrayList<>();
 
     public Population() {
     }
@@ -19,7 +19,7 @@ public class Population {
         initialPopulationSegments = 0;
     }
 
-    public void add(PopulationSegment p) {
+    public void add(Person p) {
         people.add(p);
     }
 
@@ -47,12 +47,12 @@ public class Population {
         return (double) realPopulationSize / (double) initialPopulationSegments;
     }
 
-    public List<PopulationSegment> getPopulationSegments() {
+    public List<Person> getPopulationSegments() {
         return people;
     }
 
-    public List<PopulationSegment> getAlivePeople() {
-        return people.stream().filter(PopulationSegment::isAlive).collect(Collectors.toList());
+    public List<Person> getAlivePeople() {
+        return people.stream().filter(Person::isAlive).collect(Collectors.toList());
     }
 
     @Override

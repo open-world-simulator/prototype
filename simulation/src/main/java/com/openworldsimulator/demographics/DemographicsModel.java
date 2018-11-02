@@ -1,6 +1,6 @@
 package com.openworldsimulator.demographics;
 
-import com.openworldsimulator.model.PopulationSegment;
+import com.openworldsimulator.model.Person;
 import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.simulation.ModelStats;
 import com.openworldsimulator.simulation.Simulation;
@@ -96,7 +96,7 @@ public class DemographicsModel extends SimulationModel {
         parallelRun(
                 simulation.getPopulation().getPopulationSegments(),
                 populationSegment -> {
-                    for (PopulationSegment person : populationSegment) {
+                    for (Person person : populationSegment) {
                         simulateEventGettingOlder(person);
                         simulateEventDeath(month, person);
                         simulateBehaviourMaternity(month, person);
@@ -120,24 +120,24 @@ public class DemographicsModel extends SimulationModel {
      * Simulate Events
      */
 
-    protected void simulateEventGettingOlder(PopulationSegment populationSegment) {
-        if (populationSegment.isAlive()) {
-            populationSegment.age += 1 / 12D; // One month older
+    protected void simulateEventGettingOlder(Person person) {
+        if (person.isAlive()) {
+            person.age += 1 / 12D; // One month older
         }
     }
 
-    protected void simulateEventDeath(int month, PopulationSegment populationSegment) {
+    protected void simulateEventDeath(int month, Person person) {
         // Check probability of death
-        if (populationSegment.isAlive() && populationSegment.age >= populationSegment.initialLifeExpectancy) {
-            populationSegment.deathMonth = month;
-            populationSegment.status = PopulationSegment.STATUS.DEAD;
+        if (person.isAlive() && person.age >= person.initialLifeExpectancy) {
+            person.deathMonth = month;
+            person.status = Person.STATUS.DEAD;
 
-            logDebug("[DEATH] %s - id: %d -age %.2f", populationSegment.gender, populationSegment.id, populationSegment.age);
+            logDebug("[DEATH] %s - id: %d -age %.2f", person.gender, person.id, person.age);
         }
     }
 
-    protected PopulationSegment simulateEventBirth(int month, PopulationSegment mother, double motherAge) {
-        PopulationSegment newBorn = initPerson(null, simulation.getPopulation().size());
+    protected Person simulateEventBirth(int month, Person mother, double motherAge) {
+        Person newBorn = initPerson(null, simulation.getPopulation().size());
 
         newBorn.mothersAgeAtBirth = motherAge;
         newBorn.age = 0;
@@ -174,10 +174,10 @@ public class DemographicsModel extends SimulationModel {
                 );
 
                 //System.out.println("Age: " + age);
-                PopulationSegment p = initPerson(null, simulation.getPopulation().size(),
+                Person p = initPerson(null, simulation.getPopulation().size(),
                         RandomTools.random(
                                 params.MIGRATION_INFLOW_GENDER_DIST
-                        ) ? PopulationSegment.GENDER.MALE : PopulationSegment.GENDER.FEMALE,
+                        ) ? Person.GENDER.MALE : Person.GENDER.FEMALE,
                         age);
 
                 p.immigrationMonth = month;
@@ -189,52 +189,52 @@ public class DemographicsModel extends SimulationModel {
         }
     }
 
-    protected PopulationSegment initPerson(PopulationSegment populationSegment, int id, PopulationSegment.GENDER gender, double age) {
+    protected Person initPerson(Person person, int id, Person.GENDER gender, double age) {
 
-        if (populationSegment == null) {
-            populationSegment = new PopulationSegment();
+        if (person == null) {
+            person = new Person();
         }
-        populationSegment.id = id;
-        populationSegment.gender = gender;
-        populationSegment.status = PopulationSegment.STATUS.ALIVE;
+        person.id = id;
+        person.gender = gender;
+        person.status = Person.STATUS.ALIVE;
 
-        populationSegment.age = age;
+        person.age = age;
 
-        populationSegment.bornMonth = -1;
-        populationSegment.numChildren = 0;
+        person.bornMonth = -1;
+        person.numChildren = 0;
 
         // Update vars for fertility model
-        if (populationSegment.isFemale()) {
-            populationSegment.initialFirstChildAge =
+        if (person.isFemale()) {
+            person.initialFirstChildAge =
                     RandomTools.random(
                             params.MATERNITY_AGE_MEAN,
                             params.MATERNITY_AGE_STDEV,
                             params.MATERNITY_MIN_AGE,
                             params.MATERNITY_MAX_AGE);
 
-            populationSegment.initialExpectedChildren =
+            person.initialExpectedChildren =
                     (int) Math.abs(RandomTools.random(
                             params.MATERNITY_NUM_CHILDREN_MEAN,
                             params.MATERNITY_NUM_CHILDREN_STDEV));
         }
 
-        populationSegment.initialLifeExpectancy = RandomTools.random(
+        person.initialLifeExpectancy = RandomTools.random(
                 params.INITIAL_LIFE_EXPECTANCY_MEAN,
                 params.INITIAL_LIFE_EXPECTANCY_STDEV,
-                populationSegment.age,
+                person.age,
                 params.INITIAL_LIFE_EXPECTANCY_MAX);
 
-        return populationSegment;
+        return person;
     }
 
-    protected PopulationSegment initPerson(PopulationSegment populationSegment, int id) {
-        populationSegment = initPerson(populationSegment,
+    protected Person initPerson(Person person, int id) {
+        person = initPerson(person,
                 id,
-                RandomTools.random(2) == 0 ? PopulationSegment.GENDER.MALE : PopulationSegment.GENDER.FEMALE,
+                RandomTools.random(2) == 0 ? Person.GENDER.MALE : Person.GENDER.FEMALE,
                 0
         );
 
-        return populationSegment;
+        return person;
     }
 
 
@@ -242,18 +242,18 @@ public class DemographicsModel extends SimulationModel {
      * Simulate behaviours
      */
 
-    protected void simulateBehaviourMaternity(int month, PopulationSegment populationSegment) {
+    protected void simulateBehaviourMaternity(int month, Person person) {
 
-        boolean hasChildAtAge = populationSegment.isAlive()
-                && populationSegment.gender == PopulationSegment.GENDER.FEMALE
-                && populationSegment.numChildren < populationSegment.initialExpectedChildren
-                && populationSegment.age >= populationSegment.initialFirstChildAge
-                && populationSegment.age >= params.MATERNITY_MIN_AGE
-                && populationSegment.age < params.MATERNITY_MAX_AGE;
+        boolean hasChildAtAge = person.isAlive()
+                && person.gender == Person.GENDER.FEMALE
+                && person.numChildren < person.initialExpectedChildren
+                && person.age >= person.initialFirstChildAge
+                && person.age >= params.MATERNITY_MIN_AGE
+                && person.age < params.MATERNITY_MAX_AGE;
 
         if (hasChildAtAge) {
-            for (int i = 0; i < populationSegment.initialExpectedChildren; i++) {
-                simulateEventBirth(month, populationSegment, populationSegment.age);
+            for (int i = 0; i < person.initialExpectedChildren; i++) {
+                simulateEventBirth(month, person, person.age);
             }
         }
     }

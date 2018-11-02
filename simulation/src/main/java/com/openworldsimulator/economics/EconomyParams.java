@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.Properties;
 
 public class EconomyParams extends ModelParameters {
-    public double _ENABLE_ECONOMY_SIMULATION = 0;
+    public double _ENABLE_ECONOMY_SIMULATION = 1;
 
-    public GovParams government = new GovParams();
+    public GovernmentParams government = new GovernmentParams();
 
     public JobMarketParams jobMarket = new JobMarketParams();
 
-    public PersonalEconomyParams personalEconomy = new PersonalEconomyParams();
+    public ConsumerParams personalEconomy = new ConsumerParams();
 
     @Override
     public void loadParameterValues(Properties defaultProperties, Map overrideProperties) {

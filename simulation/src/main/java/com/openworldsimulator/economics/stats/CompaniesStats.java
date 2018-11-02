@@ -7,14 +7,14 @@ import com.openworldsimulator.tools.charts.TimeSeriesChartTools;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class BizStats extends ModelStats {
+public class CompaniesStats extends ModelStats {
 
     private static final String BUSINESS_ASSETS = "businessAssets";
     private static final String BUSINESS_DEBT = "businessDebt";
     private static final String BUSINESS_NET_INCOME = "businessNetIncome";
 
 
-    public BizStats(Simulation simulation) {
+    public CompaniesStats(Simulation simulation) {
         super(simulation);
     }
 

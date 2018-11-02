@@ -1,6 +1,6 @@
 package com.openworldsimulator.simulation;
 
-import com.openworldsimulator.model.PopulationSegment;
+import com.openworldsimulator.model.Person;
 import com.openworldsimulator.tools.ConfigTools;
 
 import java.io.File;
@@ -60,14 +60,14 @@ public abstract class SimulationModel {
      * @param computation
      */
     protected void parallelRun(
-            List<PopulationSegment> population,
-            Consumer<PopulationSegment[]> computation
+            List<Person> population,
+            Consumer<Person[]> computation
     ) {
         ExecutorService executorService = Executors.newWorkStealingPool();
 
         int segmentSize = population.size() / PARALLEL_POPULATION_SEGMENTS;
 
-        List<PopulationSegment[]> segments = new ArrayList<>();
+        List<Person[]> segments = new ArrayList<>();
 
         for (int i = 0; i < PARALLEL_POPULATION_SEGMENTS; i++) {
             int segmentBegin = i * segmentSize;
@@ -76,10 +76,10 @@ public abstract class SimulationModel {
 
            logDebug("Cutting segment " + i + " [" + segmentBegin + " to " + (segmentEnd - 1) + "] for population size of " + population.size());
 
-            segments.add(population.subList(segmentBegin, segmentEnd).toArray(new PopulationSegment[segmentLength]));
+            segments.add(population.subList(segmentBegin, segmentEnd).toArray(new Person[segmentLength]));
         }
 
-        for (PopulationSegment[] s : segments) {
+        for (Person[] s : segments) {
             executorService.submit(
                     () -> {
                         try {

@@ -1,7 +1,7 @@
 package com.openworldsimulator.simulation;
 
+import com.openworldsimulator.model.Person;
 import com.openworldsimulator.model.Population;
-import com.openworldsimulator.model.PopulationSegment;
 import com.openworldsimulator.tools.CSVTools;
 
 import java.io.File;
@@ -62,23 +62,23 @@ public abstract class ModelStats {
 
     // Iterators over population
 
-    protected List<PopulationSegment> allPeople() {
+    protected List<Person> allPeople() {
         return getPopulation().getPopulationSegments();
     }
 
-    protected Stream<PopulationSegment> allPeopleStream() {
+    protected Stream<Person> allPeopleStream() {
         return getPopulation().getPopulationSegments().stream();
     }
 
-    protected Stream<PopulationSegment> allPeopleAliveStream() {
-        return getPopulation().getPopulationSegments().stream().filter(PopulationSegment::isAlive);
+    protected Stream<Person> allPeopleAliveStream() {
+        return getPopulation().getPopulationSegments().stream().filter(Person::isAlive);
     }
 
-    protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, ToDoubleFunction<PopulationSegment> numericStat) {
+    protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, ToDoubleFunction<Person> numericStat) {
         return (onlyAlive ? allPeopleAliveStream() : allPeopleStream()).mapToDouble(numericStat).summaryStatistics();
     }
 
-    protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, Predicate<PopulationSegment> filter, ToDoubleFunction<PopulationSegment> numericStat) {
+    protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, Predicate<Person> filter, ToDoubleFunction<Person> numericStat) {
         return (onlyAlive ? allPeopleAliveStream() : allPeopleStream()).filter(filter).mapToDouble(numericStat).summaryStatistics();
     }
 
@@ -96,7 +96,7 @@ public abstract class ModelStats {
         currentMonthStats = new HashMap<>();
     }
 
-    protected void collectMonthStats(String statName, boolean onlyAlive, ToDoubleFunction<PopulationSegment> selectorStat) {
+    protected void collectMonthStats(String statName, boolean onlyAlive, ToDoubleFunction<Person> selectorStat) {
         currentMonthStats.put(
                 statName,
                 statsPopulation(onlyAlive, selectorStat)
@@ -104,7 +104,7 @@ public abstract class ModelStats {
     }
 
 
-    protected void collectMonthStats(String statName, boolean onlyAlive, Predicate<PopulationSegment> filter, ToDoubleFunction<PopulationSegment> selectorStat) {
+    protected void collectMonthStats(String statName, boolean onlyAlive, Predicate<Person> filter, ToDoubleFunction<Person> selectorStat) {
         currentMonthStats.put(
                 statName,
                 statsPopulation(onlyAlive, filter, selectorStat)
@@ -120,11 +120,14 @@ public abstract class ModelStats {
         );
     }
 
-
     protected List<Number> buildSumSeries(String statId) {
-        List<Number> series = collectedMonthlyStats.stream().map(t -> t.get(statId).getSum()).collect(Collectors.toList());
+        return buildSumSeries(statId, 1.0);
+    }
 
-        aggregatedSeries.put(statId, series);
+    protected List<Number> buildSumSeries(String statId, double scaleFactor) {
+        List<Number> series = collectedMonthlyStats.stream().map(t -> t.get(statId).getSum()*scaleFactor).collect(Collectors.toList());
+
+        aggregatedSeries.put(statId+"_sum", series);
         return series;
     }
 
@@ -133,7 +136,7 @@ public abstract class ModelStats {
                 t -> t.get(statId).getAverage()
         ).collect(Collectors.toList());
 
-        aggregatedSeries.put(statId, series);
+        aggregatedSeries.put(statId+"_avg", series);
         return series;
     }
 
@@ -142,7 +145,7 @@ public abstract class ModelStats {
                 t -> t.get(statId).getCount()
         ).collect(Collectors.toList());
 
-        aggregatedSeries.put(statId, series);
+        aggregatedSeries.put(statId+"_count", series);
         return series;
     }
 
@@ -154,11 +157,11 @@ public abstract class ModelStats {
         return "[" + simulation.getSimulationId() + "] " + chartName;
     }
 
-    protected <T> Map<Long, Long> histogram(Predicate<PopulationSegment> filter, Function<PopulationSegment, Long> fieldToLong) {
+    protected <T> Map<Long, Long> histogram(Predicate<Person> filter, Function<Person, Long> fieldToLong) {
         return histogram(filter, fieldToLong, 1.0D);
     }
 
-    protected <T> Map<Long, Long> histogram(Predicate<PopulationSegment> filter, Function<PopulationSegment, Long> fieldToLong, double scaling) {
+    protected <T> Map<Long, Long> histogram(Predicate<Person> filter, Function<Person, Long> fieldToLong, double scaling) {
         Map<Long, Long> histogram = getPopulation().getPopulationSegments().stream().filter(filter).collect(
                 Collectors.groupingBy(
                         fieldToLong,

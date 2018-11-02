@@ -45,6 +45,10 @@ public class Simulation {
         this.simulationOutputPath = simulationOutputPath;
     }
 
+    public SimulationLog getSimulationLog() {
+        return simulationLog;
+    }
+
     public String getSimulationId() {
         return simulationId;
     }
