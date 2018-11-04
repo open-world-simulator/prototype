@@ -3,7 +3,7 @@ package com.openworldsimulator.economics;
 import com.openworldsimulator.economics.stats.MacroBalanceSheetStats;
 import com.openworldsimulator.economics.stats.CompaniesStats;
 import com.openworldsimulator.economics.stats.GovernmentStats;
-import com.openworldsimulator.economics.stats.PersonalEconomyStats;
+import com.openworldsimulator.economics.stats.HouseholdEconomyStats;
 import com.openworldsimulator.model.Person;
 import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.simulation.ModelStats;
@@ -69,7 +69,7 @@ public class EconomyModel extends SimulationModel {
         );
 
         allStats = new ModelStats[]{
-                new PersonalEconomyStats(simulation),
+                new HouseholdEconomyStats(simulation),
                 new GovernmentStats(simulation),
                 new CompaniesStats(simulation),
                 new MacroBalanceSheetStats(simulation)
@@ -97,7 +97,7 @@ public class EconomyModel extends SimulationModel {
             return;
         }
 
-        log("\n[ECONOMICS]", month, (month) / 12D);
+        logDebug("\n - [ECONOMICS]", month, (month) / 12D);
 
         List<Person> people = simulation.getPopulation().getPopulationSegments();
 
@@ -120,7 +120,7 @@ public class EconomyModel extends SimulationModel {
             // Collect income
             simulateJobIncome(month, p);
             simulateRetirementIncome(month, p);
-     //       simulateSavingsYieldIncome(month, p);
+            simulateSavingsYieldIncome(month, p);
 
             // Simulate expenses
             simulateNonDiscretionaryExpenses(month, p);
@@ -133,7 +133,7 @@ public class EconomyModel extends SimulationModel {
             //   simulateInvestmentDecisions(month, p);
         }
 
-        log("[END Economics %d]", simulation.getPopulation().size());
+        logDebug("[END Economics %d]", simulation.getPopulation().size());
     }
 
     @Override
@@ -168,16 +168,18 @@ public class EconomyModel extends SimulationModel {
             if (RandomTools.random(params.jobMarket.PUBLIC_SECTOR_WORK_PCT)) {
                 // Finds a job in public sector
                 person.economicStatus = Person.ECONOMIC_STATUS.WORKING_PUBLIC_SECTOR;
-                person.grossMonthlySalary = RandomTools.random(params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_MEAN, params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_STDEV);
+                person.grossMonthlySalary = RandomTools.random(
+                        params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_MEAN / 12.0,
+                        params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_STDEV / 12.0);
             } else {
                 // Finds a job in private sector
                 person.economicStatus = Person.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR;
-                person.grossMonthlySalary = RandomTools.random(params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_MEAN, params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_STDEV);
+                person.grossMonthlySalary = RandomTools.random(params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_MEAN / 12.0, params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_STDEV / 12.0);
             }
-            if (person.grossMonthlySalary < params.jobMarket.MINIMAL_WAGE) {
-                person.grossMonthlySalary = params.jobMarket.MINIMAL_WAGE;
+            if (person.grossMonthlySalary < params.jobMarket.MINIMAL_MONTHLY_WAGE) {
+                person.grossMonthlySalary = params.jobMarket.MINIMAL_MONTHLY_WAGE;
             }
-            log("[JOBS] Person " + person.id + " finds job of %.2f at age %.2f", person.grossMonthlySalary, person.age);
+            logDebug("[JOBS] Person " + person.id + " finds job of %.2f at age %.2f", person.grossMonthlySalary, person.age);
         }
     }
 
@@ -241,7 +243,7 @@ public class EconomyModel extends SimulationModel {
 
         person.economicStatus = Person.ECONOMIC_STATUS.NONE;
 
-        log("Person " + person.id + " economic death at age %.2f", person.age);
+        logDebug("Person " + person.id + " economic death at age %.2f", person.age);
     }
 
     void simulateInheritance(int month, Person person) {
@@ -256,11 +258,11 @@ public class EconomyModel extends SimulationModel {
                     receiver
             );
 
-            log("[INHERITANCE] Person %s received %.2f", receiver.toString(),
+            logDebug("[INHERITANCE] Person %s received %.2f", receiver.toString(),
                     receiver.getBalanceSheet().getSavings()
             );
         } else {
-            log("[ERROR] No alive people left to receive inheritance");
+            logDebug("[ERROR] No alive people left to receive inheritance");
         }
     }
 
@@ -290,7 +292,7 @@ public class EconomyModel extends SimulationModel {
         );
 
         if (person.monthlyData.consumptionNonDiscretionary > person.getBalanceSheet().getSavings()) {
-            log("[EXPENSES1] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.consumptionNonDiscretionary);
+            logDebug("[EXPENSES1] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.consumptionNonDiscretionary);
 
             // TODO: Simulate debt or asset liquidation
             // person.consumptionNonDiscretionary = person.getSavings();
@@ -321,7 +323,7 @@ public class EconomyModel extends SimulationModel {
         ) * (1 - params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE) * remainingIncome;
 
         if (person.monthlyData.consumptionDiscretionary > person.getBalanceSheet().getSavings()) {
-            log("[EXPENSES2] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.consumptionDiscretionary);
+            logDebug("[EXPENSES2] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.consumptionDiscretionary);
 
             // TODO: Simulate debt or asset liquidation
             //person.consumptionDiscretionary = person.getSavings();

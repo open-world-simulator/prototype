@@ -107,7 +107,7 @@ public class SimulationStudioApp extends AbstractVerticle {
 
             ctx.put("experiments", getExperimentsManager().listExperiments());
             ctx.put("experiment", experiment);
-            ctx.put("configs", Arrays.asList("blank.defaults", "Spain.defaults"));
+            ctx.put("configs", Arrays.asList("blank.defaults", "Narnia.defaults"));
         } catch (IOException e) {
             ctx.fail(e);
             return;

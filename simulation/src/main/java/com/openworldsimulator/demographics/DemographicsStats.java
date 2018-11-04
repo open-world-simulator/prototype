@@ -13,16 +13,16 @@ import static com.openworldsimulator.tools.charts.TimeSeriesChartTools.writeTime
 
 public class DemographicsStats extends ModelStats {
     private static final String POPULATION = "population";
-    private static final String POPULATION_SIZE_0_15 = "populationSize0_15";
-    private static final String POPULATION_SIZE_16_35 = "populationSize16_35";
-    private static final String POPULATION_SIZE_36_65 = "populationSize36_65";
-    private static final String POPULATION_SIZE_65_PLUS = "populationSize65";
-    private static final String POPULATION_IMMIGRATION = "populationImmigration";
-    private static final String POPULATION_BIRTHS = "populationNewBorn";
-    private static final String POPULATION_DECEASES = "populationDeceases";
-    private static final String POPULATION_NET_GROWTH = "populationGrowth";
-    private static final String POPULATION_AGE = "age";
-    private static final String POPULATION_NUM_CHILDREN = "numChildren";
+    private static final String POPULATION_SIZE_0_15 = "population_size_0_15";
+    private static final String POPULATION_SIZE_16_35 = "population_size_16_35";
+    private static final String POPULATION_SIZE_36_65 = "population_size_36_65";
+    private static final String POPULATION_SIZE_65_PLUS = "population_size_65_plus";
+    private static final String POPULATION_IMMIGRATION = "population_immigration";
+    private static final String POPULATION_BIRTHS = "population_new_born";
+    private static final String POPULATION_DECEASES = "population_deceases";
+    private static final String POPULATION_NET_GROWTH = "population_growth";
+    private static final String POPULATION_AGE = "population_age";
+    private static final String POPULATION_NUM_CHILDREN = "population_num_children";
     private DemographicParams params;
 
     public DemographicsStats(Simulation simulation, DemographicParams params) {
@@ -166,12 +166,12 @@ public class DemographicsStats extends ModelStats {
             writeTimeSeriesChart(demographyPath.getPath(), "age",
                     getChartTitle("Average Age of population"),
                     "Age",
-                    buildAvgSeries("age"), getSimulation().getBaseYear());
+                    buildAvgSeries(POPULATION_AGE), getSimulation().getBaseYear());
 
             writeTimeSeriesChart(demographyPath.getPath(), "fertility",
                     getChartTitle("Average children per woman"),
                     "Children",
-                    buildAvgSeries("numChildren"), getSimulation().getBaseYear());
+                    buildAvgSeries(POPULATION_NUM_CHILDREN), getSimulation().getBaseYear());
 
             //
             // Write histograms

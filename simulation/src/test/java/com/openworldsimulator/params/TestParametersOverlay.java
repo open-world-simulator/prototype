@@ -1,5 +1,7 @@
 package com.openworldsimulator.params;
 
+import com.openworldsimulator.demographics.DemographicParams;
+import com.openworldsimulator.economics.EconomyParams;
 import com.openworldsimulator.simulation.ModelParameters;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,8 +15,8 @@ public class TestParametersOverlay {
     public static class TestParams extends ModelParameters {
         public String STR_1 = null;
 
-        public double DB_1= 80;
-        public double DB_2= 10;
+        public double DB_1 = 80;
+        public double DB_2 = 10;
 
     }
 
@@ -28,8 +30,8 @@ public class TestParametersOverlay {
         );
 
         Assert.assertEquals(null, params.STR_1);
-        Assert.assertEquals(80, params.DB_1,0.001);
-        Assert.assertEquals(10, params.DB_2,0.001);
+        Assert.assertEquals(80, params.DB_1, 0.001);
+        Assert.assertEquals(10, params.DB_2, 0.001);
 
         ///////////////////////////////////////////////////////////////////
         params = new TestParams();
@@ -44,8 +46,8 @@ public class TestParametersOverlay {
         );
 
         Assert.assertEquals("Z", params.STR_1);
-        Assert.assertEquals(90, params.DB_1,0.001);
-        Assert.assertEquals(10, params.DB_2,0.001);
+        Assert.assertEquals(90, params.DB_1, 0.001);
+        Assert.assertEquals(10, params.DB_2, 0.001);
 
         ///////////////////////////////////////////////////////////////////
         params = new TestParams();
@@ -64,8 +66,8 @@ public class TestParametersOverlay {
                 additional
         );
         Assert.assertEquals("ZZ", params.STR_1);
-        Assert.assertEquals(900, params.DB_1,0.001);
-        Assert.assertEquals(10, params.DB_2,0.001);
+        Assert.assertEquals(900, params.DB_1, 0.001);
+        Assert.assertEquals(10, params.DB_2, 0.001);
     }
 
     @Test
@@ -90,5 +92,31 @@ public class TestParametersOverlay {
         Assert.assertTrue(map.containsKey("DB_1"));
         Assert.assertTrue(map.containsKey("DB_2"));
         Assert.assertEquals(2, map.size());
+    }
+
+    @Test
+    public void testComplexParameters() {
+        EconomyParams params = new EconomyParams();
+
+        DemographicParams demographicParams = new DemographicParams();
+
+        Properties properties = new Properties();
+        properties.setProperty("INITIAL_DEMOGRAPHY_DATA_COUNTRY", "Spain");
+        properties.setProperty("MATERNITY_AGE_MEAN", "99");
+        properties.setProperty("TAX_ON_DISCRETIONARY_CONSUMPTION_RATE", "99");
+        properties.setProperty("MINIMAL_MONTHLY_WAGE", "1000");
+        properties.setProperty("MONTHLY_NON_DISCRETIONARY_EXPENSES_MIN", "1000");
+
+        params.loadParameterValues(
+                properties, null
+        );
+
+
+        demographicParams.loadParameterValues(properties, null);
+
+        Assert.assertEquals("Spain", demographicParams.INITIAL_DEMOGRAPHY_DATA_COUNTRY);
+        Assert.assertEquals(1000, params.jobMarket.MINIMAL_MONTHLY_WAGE, 1);
+        Assert.assertEquals(99, params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE, 1);
+        Assert.assertEquals(1000, params.personalEconomy.MONTHLY_NON_DISCRETIONARY_EXPENSES_MIN, 1);
     }
 }

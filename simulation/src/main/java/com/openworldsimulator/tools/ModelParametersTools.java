@@ -30,13 +30,15 @@ public class ModelParametersTools {
                         try {
                             if (isDouble(params, key)) {
                                 double value = Double.valueOf(properties.get(k).toString().trim());
-                                //System.out.println("Setting property '" + key + "' to '" + value + "");
+                                System.out.printf("[%s] Setting property %s -> %.2f\n", params.getClass().getName(), key, value);
                                 setParameterValue(params, key, value);
                             } else if (isString(params, key)) {
-                                setParameterValue(params, key, properties.get(k).toString().trim());
+                                String value = properties.get(k).toString().trim();
+                                System.out.printf("[%s] Setting property %s -> %s\n", params.getClass().getName(), key, value);
+                                setParameterValue(params, key, value);
                             }
                         } catch (Exception e) {
-                            System.out.println("[ERROR] Failed to set property '" + key + "' with value '" + properties.get(k) + "' on " + params.getClass().getName());
+                            //System.out.println("[ERROR] Failed to set property '" + key + "' with value '" + properties.get(k) + "' on " + params.getClass().getName());
                         }
                     }
                 }

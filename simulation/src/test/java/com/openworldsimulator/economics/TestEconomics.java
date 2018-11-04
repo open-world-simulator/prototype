@@ -26,7 +26,7 @@ public class TestEconomics {
 
         Experiment e = experimentsManager.newExperiment();
         e.setExperimentId("economics-1");
-        e.setBaseSimulationConfig("Spain.defaults");
+        e.setBaseSimulationConfig("Narnia.defaults");
         e.setMonths(20 * 12);
         e.setBaseYear(2017);
         e.setOptionalProperties(props);
@@ -41,5 +41,38 @@ public class TestEconomics {
         Assert.assertTrue(results.size() > 10);
         results.forEach(System.out::println);
     }
+
+    @Test
+    public void testNarnia() throws Exception {
+        File baseDir = new File(".", "output-tests");
+
+        ExperimentsManager experimentsManager = new ExperimentsManager(
+                baseDir
+        );
+
+        Map props = new HashMap();
+        props.put("_ENABLE_ECONOMY_SIMULATION", "1");
+        props.put("INITIAL_POPULATION_SIZE", "10000");
+        props.put("MIGRATION_INFLOW_BASE_PCT", "0.5");
+
+        Experiment e = experimentsManager.newExperiment();
+        e.setExperimentId("economics-2");
+        e.setBaseSimulationConfig("Narnia.defaults");
+        e.setMonths(40 * 12);
+        e.setBaseYear(2017);
+        e.setOptionalProperties(props);
+
+        experimentsManager.saveExperiment(e);
+
+        e.getSimulation().getSimulationLog().setDebug(true);
+
+        e.run();
+
+        List<String> results = experimentsManager.listExperimentResults(e.getExperimentId());
+        Assert.assertTrue(results.size() > 10);
+        results.forEach(System.out::println);
+    }
+
+
 
 }

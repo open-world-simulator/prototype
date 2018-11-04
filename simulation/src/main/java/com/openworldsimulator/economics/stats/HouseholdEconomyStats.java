@@ -9,42 +9,42 @@ import java.util.Arrays;
 
 import static com.openworldsimulator.tools.charts.TimeSeriesChartTools.writeTimeSeriesChart;
 
-public class PersonalEconomyStats extends ModelStats {
+public class HouseholdEconomyStats extends ModelStats {
 
-    private static final String INCOME_WAGE = "personal_income_wages";
-    private static final String INCOME_PENSION = "personal_income_pension";
-    private static final String INCOME_FINANCIAL = "personal_income_financial";
-    private static final String INCOME_TOTAL = "personal_income_total";
+    private static final String INCOME_WAGE = "household_income_wages";
+    private static final String INCOME_PENSION = "household_income_pension";
+    private static final String INCOME_FINANCIAL = "household_income_financial";
+    private static final String INCOME_TOTAL = "household_income_total";
 
-    private static final String INCOME_16_35 = "personal_income_16_35";
-    private static final String INCOME_36_65 = "personal_income_36_65";
-    private static final String INCOME_65_PLUS = "personal_income_65";
+    private static final String INCOME_16_35 = "household_income_16_35";
+    private static final String INCOME_36_65 = "household_income_36_65";
+    private static final String INCOME_65_PLUS = "household_income_65";
 
-    private static final String EXPENSES_TOTAL = "personal_expenses_total";
-    private static final String CONSUMPTION_DISCRETIONARY = "personal_consumption_discretionary";
-    private static final String CONSUMPTION_NON_DISCRETIONARY = "personal_consumption_non_discretionary";
-    private static final String CONSUMPTION_TOTAL = "personal_consumption_total";
-    private static final String TAXES = "personal_expenses_taxes";
+    private static final String EXPENSES_TOTAL = "household_expenses_total";
+    private static final String CONSUMPTION_DISCRETIONARY = "household_consumption_discretionary";
+    private static final String CONSUMPTION_NON_DISCRETIONARY = "household_consumption_non_discretionary";
+    private static final String CONSUMPTION_TOTAL = "household_consumption_total";
+    private static final String TAXES = "household_expenses_taxes";
 
-    private static final String CONSUMPTION_16_35 = "personal_consumption_16_35";
-    private static final String CONSUMPTION_36_65 = "personal_consumption_36_65";
-    private static final String CONSUMPTION_65_PLUS = "personal_consumption_65";
+    private static final String CONSUMPTION_16_35 = "household_consumption_16_35";
+    private static final String CONSUMPTION_36_65 = "household_consumption_36_65";
+    private static final String CONSUMPTION_65_PLUS = "household_consumption_65";
 
-    private static final String NET_SAVINGS = "personal_net_savings";
-    private static final String NET_SAVINGS_16_35 = "personal_net_savings_16_35";
-    private static final String NET_SAVINGS_36_65 = "personal_net_savings_36_65";
-    private static final String NET_SAVINGS_65_PLUS = "personal_net_savings_65";
+    private static final String NET_SAVINGS = "household_net_savings";
+    private static final String NET_SAVINGS_16_35 = "household_net_savings_16_35";
+    private static final String NET_SAVINGS_36_65 = "household_net_savings_36_65";
+    private static final String NET_SAVINGS_65_PLUS = "household_net_savings_65";
 
     // TODO: Track types of taxation
     // TODO: Assets / debt
 
-    public PersonalEconomyStats(Simulation simulation) {
+    public HouseholdEconomyStats(Simulation simulation) {
         super(simulation);
     }
 
     @Override
     protected String getStatsId() {
-        return "personal";
+        return "household";
     }
 
 
@@ -161,7 +161,7 @@ public class PersonalEconomyStats extends ModelStats {
 
             writeTimeSeriesChart(
                     expensesPath.getPath(), "expenses-avg",
-                    getChartTitle("Average of personal expenses"),
+                    getChartTitle("Average of household expenses"),
                     "Average of expenses",
                     Arrays.asList("Total expenses", "Consumption", "Discretionary consumption", "Non discretionary consumption", "Taxes"),
                     Arrays.asList(
@@ -177,7 +177,7 @@ public class PersonalEconomyStats extends ModelStats {
 
             writeTimeSeriesChart(
                     expensesPath.getPath(), "expenses-sum",
-                    getChartTitle("Sum of personal expenses"),
+                    getChartTitle("Sum of household expenses"),
                     "Sum of expenses",
                     Arrays.asList("Total expenses", "Consumption", "Discretionary consumption", "Non discretionary consumption", "Taxes"),
                     Arrays.asList(
@@ -208,7 +208,7 @@ public class PersonalEconomyStats extends ModelStats {
 
             writeTimeSeriesChart(
                     expensesPath.getPath(), "consumption-sum-by-age-group",
-                    getChartTitle("Average of consumption by age group"),
+                    getChartTitle("Sum of consumption by age group"),
                     "Total of consumption",
                     Arrays.asList("Total", "16-35", "36-65", "65+"),
                     Arrays.asList(

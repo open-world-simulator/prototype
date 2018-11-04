@@ -9,18 +9,22 @@ This long term project will be developed on an iterative, incremental way, with 
 This is the first prototype - **WORK IN PROGRESS**
 
 
-Stage 1. First prototype - synthetic model
+Stage 1. First prototype - simple model
 ----
-* Single region
-  - One population
+* Single economy region
+  - Household Sector  : Population represented by agents
+  - Business Sector   : Aggregated view, not agent based
+  - Government Sector : Aggregated view, not agent based
+  - Foreign Sector    : Aggregated view
+  - Banking Sector    : None
 
-* Generic model
-  - Linear evolution of parameters 
-
+* Evolution of model parameters
+  - Linear evolution - yearly increase (%)
+  - Stochastic modeling by simple normal curves
+   
 * Basic demographics.
   - Fertility rate
-  - Population segments
-  - Simplify model even more
+  - Population segments per age  
   - Inflow and outflow of population
   
 * Basic household economics
@@ -66,7 +70,7 @@ Stage 1. First prototype - synthetic model
    - Banking sector
    - GDP components
    
-Technical improvements:
+Technical improvements TODO:
 ---
 * Load model class dynamically
 * Multi-threading
