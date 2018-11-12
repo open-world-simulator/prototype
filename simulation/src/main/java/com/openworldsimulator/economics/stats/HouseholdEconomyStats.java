@@ -35,9 +35,6 @@ public class HouseholdEconomyStats extends ModelStats {
     private static final String NET_SAVINGS_36_65 = "household_net_savings_36_65";
     private static final String NET_SAVINGS_65_PLUS = "household_net_savings_65";
 
-    // TODO: Track types of taxation
-    // TODO: Assets / debt
-
     public HouseholdEconomyStats(Simulation simulation) {
         super(simulation);
     }

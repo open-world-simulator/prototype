@@ -17,4 +17,12 @@ public class GovernmentParams extends ModelParameters {
     // Pension % compared to last grossMonthlySalary*
     public double PENSION_REPLACEMENT_RATE = 0.7;
 
+    //
+    // Financing
+    //
+    public double DEBT_INTEREST_RATE = 0.02;
+
+    // TODO: Split DEBT buyers internal / external
+
+
 }

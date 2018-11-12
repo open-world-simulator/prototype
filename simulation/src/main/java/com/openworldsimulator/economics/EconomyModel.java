@@ -1,9 +1,10 @@
 package com.openworldsimulator.economics;
 
-import com.openworldsimulator.economics.stats.MacroBalanceSheetStats;
 import com.openworldsimulator.economics.stats.CompaniesStats;
 import com.openworldsimulator.economics.stats.GovernmentStats;
 import com.openworldsimulator.economics.stats.HouseholdEconomyStats;
+import com.openworldsimulator.economics.stats.MacroBalanceSheetStats;
+import com.openworldsimulator.model.Government;
 import com.openworldsimulator.model.Person;
 import com.openworldsimulator.simulation.ModelParameters;
 import com.openworldsimulator.simulation.ModelStats;
@@ -58,7 +59,7 @@ public class EconomyModel extends SimulationModel {
         }
 
         log("* Initializing global balance sheets");
-        simulation.getPublicSector().getBalanceSheet().reset();
+        simulation.getGovernment().getBalanceSheet().reset();
         simulation.getCompanies().getBalanceSheet().reset();
 
         log("* Initializing population income model.");
@@ -86,7 +87,7 @@ public class EconomyModel extends SimulationModel {
 
     @Override
     public void preSimulation(int month) {
-        simulation.getPublicSector().getMonthlyResults().reset();
+        simulation.getGovernment().getMonthlyResults().reset();
         simulation.getCompanies().getMonthlyResults().reset();
         simulation.getBanks().getMonthlyResults().reset();
     }
@@ -127,11 +128,13 @@ public class EconomyModel extends SimulationModel {
             simulateDiscretionaryExpenses(month, p);
 
             // Simulate consumption debt
-       ///     simulateConsumptionDebt(month, p);
+            ///     simulateConsumptionDebt(month, p);
 
             // Simulate saving & investment decisions
             //   simulateInvestmentDecisions(month, p);
         }
+
+        simulateGovernmentFinancing(month);
 
         logDebug("[END Economics %d]", simulation.getPopulation().size());
     }
@@ -159,7 +162,6 @@ public class EconomyModel extends SimulationModel {
     void simulateInvestmentDecisions(int month, Person p) {
         // TODO
     }
-
 
     void simulateEmploymentStatus(int month, Person person) {
         if (!person.isAlive()) return;
@@ -195,12 +197,12 @@ public class EconomyModel extends SimulationModel {
 
             if (person.economicStatus.equals(Person.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR)) {
                 simulation.getTransactions().earnIncomeFromCompanies(person, person.monthlyData.incomeWage);
-                simulation.getTransactions().payTaxes(person, employeeTaxes);
-                simulation.getTransactions().payTaxes(simulation.getCompanies(), employerTaxes);
+                simulation.getTransactions().payTaxes(person, employeeTaxes, Government.TYPE_INCOME_TAXES_INCOME);
+                simulation.getTransactions().payTaxes(simulation.getCompanies(), employerTaxes, Government.TYPE_INCOME_TAXES_INCOME);
             } else {
                 // Public sector worker
-                simulation.getTransactions().earnIncomeFromGovernment(person, person.monthlyData.incomeWage);
-                simulation.getTransactions().payTaxes(person, employeeTaxes);
+                simulation.getTransactions().earnIncomeFromGovernment(person, person.monthlyData.incomeWage, Government.TYPE_EXPENSES_EMPLOYMENT);
+                simulation.getTransactions().payTaxes(person, employeeTaxes, Government.TYPE_INCOME_TAXES_INCOME);
             }
 
             person.monthlyData.taxesIncome += employeeTaxes;
@@ -209,11 +211,11 @@ public class EconomyModel extends SimulationModel {
 
     void simulateRetirementIncome(int month, Person person) {
         if (!person.isAlive()) return;
-        if(person.age < person.retirementAge ) return;
+        if (person.age < person.retirementAge) return;
 
         if (person.grossPension == 0) {
             person.grossPension = person.grossMonthlySalary * params.government.PENSION_REPLACEMENT_RATE;
-            logDebug("Person " + person.id + " starts receiving avgMonthlyIncomePension of %.2f at age %.2f", person.grossPension, person.age);
+            logDebug("Person " + person.id + " starts receiving pension of %.2f at age %.2f", person.grossPension, person.age);
         }
 
         person.monthlyData.incomeWage = 0;
@@ -226,11 +228,13 @@ public class EconomyModel extends SimulationModel {
 
         double taxes = person.monthlyData.incomePension * params.government.TAX_ON_INCOME_EMPLOYEE_RATE;
 
-        simulation.getTransactions().earnIncomeFromGovernment(person, person.monthlyData.incomePension);
-        simulation.getTransactions().payTaxes(person, taxes);
+        simulation.getTransactions().earnIncomeFromGovernment(person, person.monthlyData.incomePension, Government.TYPE_EXPENSES_PENSIONS);
+        simulation.getTransactions().payTaxes(person, taxes, Government.TYPE_INCOME_TAXES_INCOME);
 
         person.monthlyData.taxesIncome += taxes;
     }
+
+    public static final String TYPE_INCOME_TAXES = "TYPE_TAXES";
 
     void simulateEconomicDeath(int month, Person person) {
 
@@ -274,7 +278,7 @@ public class EconomyModel extends SimulationModel {
 
         // Cash in interests
         simulation.getTransactions().earnIncomeFromBanks(person, person.monthlyData.incomeSavings);
-        simulation.getTransactions().payTaxes(person, taxes);
+        simulation.getTransactions().payTaxes(person, taxes, Government.TYPE_INCOME_TAXES_SAVINGS);
 
         person.monthlyData.taxesFinancial += taxes;
     }
@@ -301,7 +305,7 @@ public class EconomyModel extends SimulationModel {
         double taxes = person.getMonthlyData().consumptionNonDiscretionary * params.government.TAX_ON_NON_DISCRETIONARY_CONSUMPTION_RATE;
 
         simulation.getTransactions().expend(person, person.monthlyData.consumptionNonDiscretionary);
-        simulation.getTransactions().payTaxes(person, taxes);
+        simulation.getTransactions().payTaxes(person, taxes, Government.TYPE_INCOME_TAXES_CONSUMPTION);
 
         person.getMonthlyData().consumptionNonDiscretionary += taxes;
 
@@ -332,21 +336,27 @@ public class EconomyModel extends SimulationModel {
         double taxes = person.getMonthlyData().consumptionDiscretionary * params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE;
 
         simulation.getTransactions().expend(person, person.monthlyData.consumptionDiscretionary);
-        simulation.getTransactions().payTaxes(person, taxes);
+        simulation.getTransactions().payTaxes(person, taxes, Government.TYPE_INCOME_TAXES_CONSUMPTION);
 
         person.getMonthlyData().consumptionDiscretionary += taxes;
     }
-/*
-    void simulatePublicSectorDebtService(int month) {
-        // TODO: Add cost of debt for public government
-        double publicDebt = simulation.getPublicSector().getBalanceSheet().getDebt();
-        double costOfDebt = publicDebt * params.government.AVERAGE_COST_OF_PUBLIC_DEBT / 12.0D;
 
-        simulation.getPublicSector().getBalanceSheet().decreaseSavings(costOfDebt);
-        simulation.getPublicSector().getMonthlyResults().addExpenses(costOfDebt);
-        // TODO: Government debt is in the hand of either population or companies
+    void simulateGovernmentFinancing(int month) {
 
-        System.out.println("PUBLIC DEBT: " + publicDebt + " COST OF DEBT: " + costOfDebt);
+        // First, pay interest on existing debt stock
+        double debtExpenses = simulation.getGovernment().getBalanceSheet().getDebt() * params.government.DEBT_INTEREST_RATE / 12.0;
+        simulation.getGovernment().getBalanceSheet().decreaseSavings(debtExpenses);
+        simulation.getGovernment().getMonthlyResults().addExpenses(debtExpenses, Government.TYPE_EXPENSES_DEBT);
+
+        // Create new debt to finance deficit
+        double deficit = simulation.getGovernment().getMonthlyResults().getMonthlyResult() - debtExpenses;
+
+        if (deficit < 0) {
+            logDebug("Government financing needs %.2f", deficit);
+            // Issue new debt
+            simulation.getGovernment().getBalanceSheet().increaseDebt(-deficit);
+
+            // TODO: Debt must be added as an asset to other sector
+        }
     }
-*/
 }

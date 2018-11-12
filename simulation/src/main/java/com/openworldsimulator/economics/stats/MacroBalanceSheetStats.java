@@ -35,13 +35,13 @@ public class MacroBalanceSheetStats extends ModelStats {
 
         beginMonthStats();
 
-        collectMonthStats(DEBT_PUBLIC_SECTOR, getSimulation().getPublicSector().getBalanceSheet().getDebt());
+        collectMonthStats(DEBT_PUBLIC_SECTOR, getSimulation().getGovernment().getBalanceSheet().getDebt());
         collectMonthStats(DEBT_COMPANIES, getSimulation().getCompanies().getBalanceSheet().getDebt());
         collectMonthStats(DEBT_BANKS, getSimulation().getBanks().getBalanceSheet().getSavings());
         collectMonthStats(DEBT_POPULATION, true, p -> p.getBalanceSheet().getDebt());
 
 
-        collectMonthStats(ASSETS_PUBLIC_SECTOR, getSimulation().getPublicSector().getBalanceSheet().getSavings());
+        collectMonthStats(ASSETS_PUBLIC_SECTOR, getSimulation().getGovernment().getBalanceSheet().getSavings());
         collectMonthStats(ASSETS_COMPANIES, getSimulation().getCompanies().getBalanceSheet().getSavings());
         collectMonthStats(ASSETS_BANKS, getSimulation().getBanks().getBalanceSheet().getDebt());
         collectMonthStats(ASSETS_POPULATION, true, p -> p.getBalanceSheet().getSavings());

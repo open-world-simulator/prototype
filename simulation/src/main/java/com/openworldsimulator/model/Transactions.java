@@ -1,16 +1,16 @@
 package com.openworldsimulator.model;
 
+import com.openworldsimulator.simulation.Simulation;
+
 public class Transactions {
     private Companies companies;
-    private PublicSector government;
-    private Population population;
+    private Government government;
     private Banks banks;
 
-    public Transactions(Companies companies, PublicSector government, Population population, Banks banks) {
-        this.companies = companies;
-        this.government = government;
-        this.population = population;
-        this.banks = banks;
+    public Transactions(Simulation simulation) {
+        this.companies = simulation.getCompanies();
+        this.government = simulation.getGovernment();
+        this.banks = simulation.getBanks();
     }
 
     public void grantLoan(double amount, Person p) {
@@ -29,16 +29,16 @@ public class Transactions {
         p.balanceSheet.decreaseSavings(amount);
     }
 
-    public void payTaxes(Person p, double amount) {
+    public void payTaxes(Person p, double amount, String type) {
         p.balanceSheet.decreaseSavings(amount);
-        government.balanceSheet.increaseSavings(amount);
-        government.monthlyResults.addIncome(amount);
+        government.getBalanceSheet().increaseSavings(amount);
+        government.getMonthlyResults().addIncome(amount, type);
     }
 
-    public void payTaxes(Companies c, double amount) {
+    public void payTaxes(Companies c, double amount, String type) {
         c.balanceSheet.decreaseSavings(amount);
-        government.balanceSheet.increaseSavings(amount);
-        government.monthlyResults.addIncome(amount);
+        government.getBalanceSheet().increaseSavings(amount);
+        government.getMonthlyResults().addIncome(amount, type);
     }
 
     public void expend(Person p, double amount) {
@@ -60,10 +60,16 @@ public class Transactions {
         //banks.balanceSheet.decreaseSavings(amount);
     }
 
-    public void earnIncomeFromGovernment(Person p, double amount) {
+    public void earnIncomeFromGovernment(Person p, double amount, String typeOfIncome) {
         p.balanceSheet.increaseSavings(amount);
-        government.balanceSheet.decreaseSavings(amount);
-        government.monthlyResults.addExpenses(amount);
+        government.getBalanceSheet().decreaseSavings(amount);
+        government.getMonthlyResults().addExpenses(amount, typeOfIncome);
+    }
+
+    public void expendGovernment(double amount, String type) {
+        government.getBalanceSheet().decreaseSavings(amount);
+        // TODO: Government expense is other sector income
+        government.getMonthlyResults().addExpenses(amount, type);
     }
 
     public void pay(double amount, Person issuer, Person receiver) {

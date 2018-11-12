@@ -31,7 +31,7 @@ public class Simulation {
     private Population population;
     private Banks banks;
     private Companies companies;
-    private PublicSector publicSector;
+    private Government government;
     private Transactions transactions;
     private Map<String, Double> simulationParametersChangeRate = new HashMap<>();
 
@@ -69,8 +69,8 @@ public class Simulation {
         return companies;
     }
 
-    public PublicSector getPublicSector() {
-        return publicSector;
+    public Government getGovernment() {
+        return government;
     }
 
     public Transactions getTransactions() {
@@ -143,8 +143,8 @@ public class Simulation {
 
         banks = new Banks();
         companies = new Companies();
-        publicSector = new PublicSector();
-        transactions = new Transactions(companies, publicSector, population, banks);
+        government = new Government();
+        transactions = new Transactions(this);
     }
 
     public void addSimulationModels(List<SimulationModel> models) {
@@ -223,7 +223,7 @@ public class Simulation {
                 logDebug("Iteration " + i);
                 if (i % 120 == 0) {
                     log(" " + i + " (" + (i / 12) + " years)");
-                    //System.out.println(getPublicSector().getBalanceSheet());
+                    //System.out.println(getGovernment().getBalanceSheet());
                     //System.out.println(getCompanies().getBalanceSheet());
                 }
                 final int month = i;
