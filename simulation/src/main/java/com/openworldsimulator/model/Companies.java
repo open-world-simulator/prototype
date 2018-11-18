@@ -1,9 +1,9 @@
 package com.openworldsimulator.model;
 
 public class Companies {
-    MonthlyResults monthlyResults = new MonthlyResults();
+    private MonthlyResults monthlyResults = new MonthlyResults();
 
-    BalanceSheet balanceSheet = new BalanceSheet("Companies");
+    private BalanceSheet balanceSheet = new BalanceSheet("Companies");
 
     public BalanceSheet getBalanceSheet() {
         return balanceSheet;

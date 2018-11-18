@@ -79,8 +79,8 @@ public class EconomyModel extends SimulationModel {
 
 
     void initEconomicData(Person p) {
-        p.initialFirstJobAge = RandomTools.random(params.jobMarket.FIRST_JOB_AGE_MEAN, params.jobMarket.FIRST_JOB_AGE_STDEV);
-        p.retirementAge = RandomTools.random(params.jobMarket.RETIRE_AGE_MEAN, params.jobMarket.RETIRE_AGE_STDEV);
+        p.initialFirstJobAge = RandomTools.random(params.FIRST_JOB_AGE_MEAN, params.FIRST_JOB_AGE_STDEV);
+        p.retirementAge = RandomTools.random(params.RETIRE_AGE_MEAN, params.RETIRE_AGE_STDEV);
         p.economicStatus = Person.ECONOMIC_STATUS.NONE;
         p.getMonthlyData().reset();
     }
@@ -150,9 +150,6 @@ public class EconomyModel extends SimulationModel {
         for (ModelStats s : allStats) {
             s.collect(month);
         }
-
-        // Evolve parameters monthly, if needed
-        simulation.evolveParametersMonthly(params);
     }
 
     void simulateConsumptionDebt(int month, Person p) {
@@ -167,19 +164,19 @@ public class EconomyModel extends SimulationModel {
         if (!person.isAlive()) return;
         if (person.age >= person.initialFirstJobAge && person.monthlyData.incomeWage == 0) {
             // Find a job
-            if (RandomTools.random(params.jobMarket.PUBLIC_SECTOR_WORK_PCT)) {
+            if (RandomTools.random(params.PUBLIC_SECTOR_WORK_PCT)) {
                 // Finds a job in public sector
                 person.economicStatus = Person.ECONOMIC_STATUS.WORKING_PUBLIC_SECTOR;
                 person.grossMonthlySalary = RandomTools.random(
-                        params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_MEAN / 12.0,
-                        params.jobMarket.PUBLIC_SECTOR_YEARLY_WAGE_STDEV / 12.0);
+                        params.PUBLIC_SECTOR_YEARLY_WAGE_MEAN / 12.0,
+                        params.PUBLIC_SECTOR_YEARLY_WAGE_STDEV / 12.0);
             } else {
                 // Finds a job in private sector
                 person.economicStatus = Person.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR;
-                person.grossMonthlySalary = RandomTools.random(params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_MEAN / 12.0, params.jobMarket.PRIVATE_SECTOR_YEARLY_WAGE_STDEV / 12.0);
+                person.grossMonthlySalary = RandomTools.random(params.PRIVATE_SECTOR_YEARLY_WAGE_MEAN / 12.0, params.PRIVATE_SECTOR_YEARLY_WAGE_STDEV / 12.0);
             }
-            if (person.grossMonthlySalary < params.jobMarket.MINIMAL_MONTHLY_WAGE) {
-                person.grossMonthlySalary = params.jobMarket.MINIMAL_MONTHLY_WAGE;
+            if (person.grossMonthlySalary < params.MINIMAL_MONTHLY_WAGE) {
+                person.grossMonthlySalary = params.MINIMAL_MONTHLY_WAGE;
             }
             logDebug("[JOBS] Person " + person.id + " finds job of %.2f at age %.2f", person.grossMonthlySalary, person.age);
         }
@@ -192,8 +189,8 @@ public class EconomyModel extends SimulationModel {
         if (person.age >= person.initialFirstJobAge && person.age < person.retirementAge) {
             person.monthlyData.incomeWage = person.grossMonthlySalary;
 
-            double employeeTaxes = person.monthlyData.incomeWage * params.government.TAX_ON_INCOME_EMPLOYEE_RATE;
-            double employerTaxes = person.monthlyData.incomeWage * params.government.TAX_ON_INCOME_EMPLOYER_RATE;
+            double employeeTaxes = person.monthlyData.incomeWage * params.TAX_ON_INCOME_EMPLOYEE_RATE;
+            double employerTaxes = person.monthlyData.incomeWage * params.TAX_ON_INCOME_EMPLOYER_RATE;
 
             if (person.economicStatus.equals(Person.ECONOMIC_STATUS.WORKING_PRIVATE_SECTOR)) {
                 simulation.getTransactions().earnIncomeFromCompanies(person, person.monthlyData.incomeWage);
@@ -214,7 +211,7 @@ public class EconomyModel extends SimulationModel {
         if (person.age < person.retirementAge) return;
 
         if (person.grossPension == 0) {
-            person.grossPension = person.grossMonthlySalary * params.government.PENSION_REPLACEMENT_RATE;
+            person.grossPension = person.grossMonthlySalary * params.PENSION_REPLACEMENT_RATE;
             logDebug("Person " + person.id + " starts receiving pension of %.2f at age %.2f", person.grossPension, person.age);
         }
 
@@ -226,7 +223,7 @@ public class EconomyModel extends SimulationModel {
             return;
         }
 
-        double taxes = person.monthlyData.incomePension * params.government.TAX_ON_INCOME_EMPLOYEE_RATE;
+        double taxes = person.monthlyData.incomePension * params.TAX_ON_INCOME_EMPLOYEE_RATE;
 
         simulation.getTransactions().earnIncomeFromGovernment(person, person.monthlyData.incomePension, Government.TYPE_EXPENSES_PENSIONS);
         simulation.getTransactions().payTaxes(person, taxes, Government.TYPE_INCOME_TAXES_INCOME);
@@ -272,9 +269,9 @@ public class EconomyModel extends SimulationModel {
 
     void simulateSavingsYieldIncome(int month, Person person) {
 
-        person.monthlyData.incomeSavings = person.getBalanceSheet().getSavings() * params.personalEconomy.YIELD_SAVINGS_RATE / 12D;
+        person.monthlyData.incomeSavings = person.getBalanceSheet().getSavings() * params.YIELD_SAVINGS_RATE / 12D;
 
-        double taxes = person.monthlyData.incomeSavings * params.government.TAX_ON_SAVINGS_PCT;
+        double taxes = person.monthlyData.incomeSavings * params.TAX_ON_SAVINGS_PCT;
 
         // Cash in interests
         simulation.getTransactions().earnIncomeFromBanks(person, person.monthlyData.incomeSavings);
@@ -289,10 +286,11 @@ public class EconomyModel extends SimulationModel {
 
         // TODO: Simulate based on income and situation (i.e age)
         person.monthlyData.consumptionNonDiscretionary = RandomTools.random(
-                params.personalEconomy.MONTHLY_NON_DISCRETIONARY_EXPENSES_MEAN,
-                params.personalEconomy.MONTHLY_NON_DISCRETIONARY_EXPENSES_STDEV,
-                params.personalEconomy.MONTHLY_NON_DISCRETIONARY_EXPENSES_MIN,
-                -1
+                params.MONTHLY_NON_DISCRETIONARY_EXPENSES_MEAN,
+                params.MONTHLY_NON_DISCRETIONARY_EXPENSES_STDEV,
+                params.MONTHLY_NON_DISCRETIONARY_EXPENSES_MIN,
+                -1,
+                "Non Discretionary Consumption"
         );
 
         if (person.monthlyData.consumptionNonDiscretionary > person.getBalanceSheet().getSavings()) {
@@ -302,7 +300,7 @@ public class EconomyModel extends SimulationModel {
             // person.consumptionNonDiscretionary = person.getSavings();
         }
 
-        double taxes = person.getMonthlyData().consumptionNonDiscretionary * params.government.TAX_ON_NON_DISCRETIONARY_CONSUMPTION_RATE;
+        double taxes = person.getMonthlyData().consumptionNonDiscretionary * params.TAX_ON_NON_DISCRETIONARY_CONSUMPTION_RATE;
 
         simulation.getTransactions().expend(person, person.monthlyData.consumptionNonDiscretionary);
         simulation.getTransactions().payTaxes(person, taxes, Government.TYPE_INCOME_TAXES_CONSUMPTION);
@@ -322,9 +320,9 @@ public class EconomyModel extends SimulationModel {
         }
 
         person.monthlyData.consumptionDiscretionary = RandomTools.random(
-                params.personalEconomy.PROPENSITY_TO_CONSUMPTION_MEAN_RATE,
-                params.personalEconomy.PROPENSITY_TO_CONSUMPTION_STDEV_RATE
-        ) * (1 - params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE) * remainingIncome;
+                params.PROPENSITY_TO_CONSUMPTION_MEAN_RATE,
+                params.PROPENSITY_TO_CONSUMPTION_STDEV_RATE
+        ) * (1 - params.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE) * remainingIncome;
 
         if (person.monthlyData.consumptionDiscretionary > person.getBalanceSheet().getSavings()) {
             logDebug("[EXPENSES2] Person %d - Savings: %.2f Expenses: %.2f", person.id, person.getBalanceSheet().getSavings(), person.monthlyData.consumptionDiscretionary);
@@ -333,7 +331,7 @@ public class EconomyModel extends SimulationModel {
             //person.consumptionDiscretionary = person.getSavings();
         }
 
-        double taxes = person.getMonthlyData().consumptionDiscretionary * params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE;
+        double taxes = person.getMonthlyData().consumptionDiscretionary * params.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE;
 
         simulation.getTransactions().expend(person, person.monthlyData.consumptionDiscretionary);
         simulation.getTransactions().payTaxes(person, taxes, Government.TYPE_INCOME_TAXES_CONSUMPTION);
@@ -344,7 +342,7 @@ public class EconomyModel extends SimulationModel {
     void simulateGovernmentFinancing(int month) {
 
         // First, pay interest on existing debt stock
-        double debtExpenses = simulation.getGovernment().getBalanceSheet().getDebt() * params.government.DEBT_INTEREST_RATE / 12.0;
+        double debtExpenses = simulation.getGovernment().getBalanceSheet().getDebt() * params.DEBT_INTEREST_RATE / 12.0;
         simulation.getGovernment().getBalanceSheet().decreaseSavings(debtExpenses);
         simulation.getGovernment().getMonthlyResults().addExpenses(debtExpenses, Government.TYPE_EXPENSES_DEBT);
 

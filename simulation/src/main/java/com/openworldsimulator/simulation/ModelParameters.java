@@ -2,9 +2,12 @@ package com.openworldsimulator.simulation;
 
 import com.openworldsimulator.tools.ModelParametersTools;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 
-public class ModelParameters {
+public abstract class ModelParameters {
 
     public List<String> getParameterNames() {
         return ModelParametersTools.getParameterNames(this);
@@ -22,10 +25,15 @@ public class ModelParameters {
         ModelParametersTools.updateParameterValues(defaultProperties, overrideProperties, this);
     }
 
+    public void setParameterValue(String fieldName, double fieldValue) {
+        ModelParametersTools.setParameterValue(fieldName, fieldValue, this);
+    }
+
+ /*
     public Map<String, Double> getParameterMapForDouble() {
         Map<String, Double> params = new TreeMap<>();
         getParameterNames().forEach(p -> {
-                    if(ModelParametersTools.isDouble(this, p)) {
+                    if (ModelParametersTools.isDouble(this, p)) {
                         Double d = getParameterValueDouble(p);
                         if (d != null) {
                             params.put(p, d);
@@ -35,7 +43,7 @@ public class ModelParameters {
         );
         return params;
     }
-
+*/
     public String toString() {
         return ModelParametersTools.toString(this);
     }

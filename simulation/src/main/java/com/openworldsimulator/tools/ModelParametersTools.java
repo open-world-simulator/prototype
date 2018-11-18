@@ -31,7 +31,7 @@ public class ModelParametersTools {
                             if (isDouble(params, key)) {
                                 double value = Double.valueOf(properties.get(k).toString().trim());
                                 System.out.printf("[%s] Setting property %s -> %.2f\n", params.getClass().getName(), key, value);
-                                setParameterValue(params, key, value);
+                                setParameterValue(key, value, params);
                             } else if (isString(params, key)) {
                                 String value = properties.get(k).toString().trim();
                                 System.out.printf("[%s] Setting property %s -> %s\n", params.getClass().getName(), key, value);
@@ -45,24 +45,8 @@ public class ModelParametersTools {
         );
     }
 
-    public static void loadParameterChanges(Properties properties, Map<String, Double> paramChanges) {
-        if (properties == null) {
-            return;
-        }
 
-        properties.keySet().forEach(
-                k -> {
-                    String key = k.toString().trim();
-                    if (key.startsWith("CHANGE_")) {
-                        String param = key.substring("CHANGE_".length());
-                        double rate = Double.valueOf(properties.get(k).toString().trim());
-                        paramChanges.put(param, rate);
-                    }
-                }
-        );
-    }
-
-    private static void setParameterValue(ModelParameters modelParameters, String fieldName, double fieldValue) {
+    public static void setParameterValue(String fieldName, double fieldValue, ModelParameters modelParameters) {
         Class<?> clazz = modelParameters.getClass();
         try {
             Field field = clazz.getDeclaredField(fieldName);
@@ -139,7 +123,7 @@ public class ModelParametersTools {
                 return field.getDouble(modelParameters);
             }
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            // Do nothing
         }
 
         return null;
@@ -193,18 +177,5 @@ public class ModelParametersTools {
         );
 
         return buffer.toString();
-    }
-
-    public static void evolveParameterDeltaMonthly(ModelParameters parameters, Map<String, Double> parametersChangeAnualRate) {
-        for (String p : getParameterNames(parameters)) {
-            Double changeRate = parametersChangeAnualRate.get(p);
-            if (changeRate != null && changeRate == 0.0D) {
-                double currentValue = getParameterValueDouble(parameters, p);
-                double delta = currentValue * changeRate / 12.0D;
-                double newValue = currentValue + delta;
-                System.out.println("Increasing parameter " + p + " by " + delta);
-                setParameterValue(parameters, p, newValue);
-            }
-        }
     }
 }

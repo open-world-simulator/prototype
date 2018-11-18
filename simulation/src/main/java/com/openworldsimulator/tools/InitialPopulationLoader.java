@@ -109,7 +109,8 @@ public class InitialPopulationLoader {
                             params.MATERNITY_AGE_MEAN,
                             params.MATERNITY_AGE_STDEV,
                             params.MATERNITY_MIN_AGE,
-                            params.MATERNITY_MAX_AGE);
+                            params.MATERNITY_MAX_AGE,
+                            "Initial first child age");
 
             person.initialExpectedChildren =
                     (int) Math.abs(RandomTools.random(
@@ -125,7 +126,8 @@ public class InitialPopulationLoader {
                 params.INITIAL_LIFE_EXPECTANCY_MEAN,
                 params.INITIAL_LIFE_EXPECTANCY_STDEV,
                 person.age,
-                params.INITIAL_LIFE_EXPECTANCY_MAX);
+                params.INITIAL_LIFE_EXPECTANCY_MAX,
+                "Loader : Initial life expectancy");
 
         return person;
     }

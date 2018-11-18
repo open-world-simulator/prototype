@@ -111,9 +111,6 @@ public class DemographicsModel extends SimulationModel {
     public void postSimulation(int month) {
         // Build monthly stats
         modelStats.collect(month);
-
-        // Evolve parameters monthly, if needed
-        simulation.evolveParametersMonthly(params);
     }
 
     /*
@@ -170,7 +167,8 @@ public class DemographicsModel extends SimulationModel {
                         params.MIGRATION_INFLOW_AGE_MEAN,
                         params.MIGRATION_INFLOW_AGE_STDEV,
                         0,
-                        params.INITIAL_LIFE_EXPECTANCY_MAX
+                        params.INITIAL_LIFE_EXPECTANCY_MAX,
+                        "Immigrant Age"
                 );
 
                 //System.out.println("Age: " + age);
@@ -210,7 +208,8 @@ public class DemographicsModel extends SimulationModel {
                             params.MATERNITY_AGE_MEAN,
                             params.MATERNITY_AGE_STDEV,
                             params.MATERNITY_MIN_AGE,
-                            params.MATERNITY_MAX_AGE);
+                            params.MATERNITY_MAX_AGE,
+                            "Initial First Child Age");
 
             person.initialExpectedChildren =
                     (int) Math.abs(RandomTools.random(
@@ -222,7 +221,8 @@ public class DemographicsModel extends SimulationModel {
                 params.INITIAL_LIFE_EXPECTANCY_MEAN,
                 params.INITIAL_LIFE_EXPECTANCY_STDEV,
                 person.age,
-                params.INITIAL_LIFE_EXPECTANCY_MAX);
+                params.INITIAL_LIFE_EXPECTANCY_MAX,
+                "Initial Life Expectancy");
 
         return person;
     }

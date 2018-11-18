@@ -5,7 +5,7 @@ import com.openworldsimulator.demographics.DemographicsModel;
 import com.openworldsimulator.economics.EconomyModel;
 import com.openworldsimulator.economics.EconomyParams;
 import com.openworldsimulator.model.*;
-import com.openworldsimulator.tools.ModelParametersTools;
+import com.openworldsimulator.simulation.stats.ParameterEvolutionStats;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,7 +33,9 @@ public class Simulation {
     private Companies companies;
     private Government government;
     private Transactions transactions;
-    private Map<String, Double> simulationParametersChangeRate = new HashMap<>();
+
+    private ModelParametersEvolution modelParametersEvolution;
+    private ParameterEvolutionStats evolutionStats;
 
     private File simulationOutputPath;
     private SimulationLog simulationLog;
@@ -55,6 +57,10 @@ public class Simulation {
 
     public File getSimulationOutputPath() {
         return simulationOutputPath;
+    }
+
+    public ModelParametersEvolution getModelParametersEvolution() {
+        return modelParametersEvolution;
     }
 
     public Population getPopulation() {
@@ -88,6 +94,12 @@ public class Simulation {
 
         Properties defaults = loadDefaults(defaultSettings);
 
+        modelParametersEvolution = new ModelParametersEvolution();
+        modelParametersEvolution.loadParametersChangeRate(defaults, optionalProperties);
+        evolutionStats = new ParameterEvolutionStats(this);
+
+        simulationLog.log(modelParametersEvolution.toString());
+
         DemographicParams demographicParams = new DemographicParams();
         demographicParams.loadParameterValues(defaults, optionalProperties);
 
@@ -99,9 +111,6 @@ public class Simulation {
 
         simulationLog.log(economicsParams.toString());
 
-        // Load parameter change rate
-        ModelParametersTools.loadParameterChanges(defaults, simulationParametersChangeRate);
-        simulationLog.log(printParametersRate());
 
         simulationLog.log("Building models....");
         DemographicsModel demographicsModel = new DemographicsModel(this, demographicParams, simulationOutputPath);
@@ -112,25 +121,6 @@ public class Simulation {
                 demographicsModel,
                 microEconomyModel
         ));
-    }
-
-    private String printParametersRate() {
-        StringBuffer buffer = new StringBuffer();
-
-        buffer.append("Parameter change rate:\n");
-
-        simulationParametersChangeRate.forEach(
-                (k, v) -> {
-                    buffer.append(k)
-                            .append("=")
-                            .append(String.format("%.02f", v))
-                            .append(" - ")
-                            .append(String.format("%.02f", v * 100.0))
-                            .append("%\n");
-                }
-        );
-
-        return buffer.toString();
     }
 
     public void init() throws IOException {
@@ -255,6 +245,15 @@ public class Simulation {
                         }
                     }
                 });
+
+                // Evolve params
+                models.forEach(m -> {
+                    logDebug("Evolving params " + m.getId());
+                    modelParametersEvolution.evolveMonthly(m.getParams());
+                });
+
+                // Collect month stats
+                evolutionStats.collect(month);
             }
 
             log("\n");
@@ -269,16 +268,13 @@ public class Simulation {
                     }
                 }
             });
+
+            evolutionStats.writeChartsAtEnd();
         } finally {
             setStatus(null);
             setRunning(false);
             setCurrentMonth(0);
         }
-    }
-
-    public void evolveParametersMonthly(ModelParameters parameters) {
-        // TODO: Change call
-        ModelParametersTools.evolveParameterDeltaMonthly(parameters, simulationParametersChangeRate);
     }
 
     public void log(String log) {

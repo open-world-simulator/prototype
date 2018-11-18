@@ -21,7 +21,7 @@ public class RandomTools {
         return random.nextGaussian() * stddev + mean;
     }
 
-    public static double random(double mean, double stddev, double min, double max) {
+    public static double random(double mean, double stddev, double min, double max, String desc ) {
         double r;
 
         if( min == -1 ) min = Double.MIN_VALUE;
@@ -32,7 +32,7 @@ public class RandomTools {
             r = random.nextGaussian() * stddev + mean;
             n++;
             if( n > 10 ) {
-                System.out.println("Random iterations > 10 - please, check your parameters");
+                System.out.println("Random for '" + desc + "' - please, check : Min: " + min + " Max: " + max + " Mean: " + mean + " - Random: " + r);
             }
         } while (r < min || r > max );
         return r;

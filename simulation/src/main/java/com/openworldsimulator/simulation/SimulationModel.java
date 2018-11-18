@@ -74,7 +74,7 @@ public abstract class SimulationModel {
             int segmentEnd = i == PARALLEL_POPULATION_SEGMENTS - 1 ? population.size() : segmentBegin + segmentSize;
             int segmentLength = segmentEnd - segmentBegin;
 
-           logDebug("Cutting segment " + i + " [" + segmentBegin + " to " + (segmentEnd - 1) + "] for population size of " + population.size());
+            logDebug("Cutting segment " + i + " [" + segmentBegin + " to " + (segmentEnd - 1) + "] for population size of " + population.size());
 
             segments.add(population.subList(segmentBegin, segmentEnd).toArray(new Person[segmentLength]));
         }

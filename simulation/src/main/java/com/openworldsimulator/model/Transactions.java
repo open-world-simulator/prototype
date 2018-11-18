@@ -36,21 +36,21 @@ public class Transactions {
     }
 
     public void payTaxes(Companies c, double amount, String type) {
-        c.balanceSheet.decreaseSavings(amount);
+        c.getBalanceSheet().decreaseSavings(amount);
         government.getBalanceSheet().increaseSavings(amount);
         government.getMonthlyResults().addIncome(amount, type);
     }
 
     public void expend(Person p, double amount) {
         p.balanceSheet.decreaseSavings(amount);
-        companies.balanceSheet.increaseSavings(amount);
-        companies.monthlyResults.addIncome(amount);
+        companies.getBalanceSheet().increaseSavings(amount);
+        companies.getMonthlyResults().addIncome(amount);
     }
 
     public void earnIncomeFromCompanies(Person p, double amount) {
         p.balanceSheet.increaseSavings(amount);
-        companies.balanceSheet.decreaseSavings(amount);
-        companies.monthlyResults.addExpenses(amount);
+        companies.getBalanceSheet().decreaseSavings(amount);
+        companies.getMonthlyResults().addExpenses(amount);
     }
 
     public void earnIncomeFromBanks(Person p, double amount) {

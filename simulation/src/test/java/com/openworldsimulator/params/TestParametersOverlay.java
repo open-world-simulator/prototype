@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 public class TestParametersOverlay {
@@ -87,11 +86,6 @@ public class TestParametersOverlay {
 
         params.STR_1 = "aa";
         Assert.assertEquals("aa", params.getParameterValueString("STR_1"));
-
-        Map<String, Double> map = params.getParameterMapForDouble();
-        Assert.assertTrue(map.containsKey("DB_1"));
-        Assert.assertTrue(map.containsKey("DB_2"));
-        Assert.assertEquals(2, map.size());
     }
 
     @Test
@@ -115,8 +109,8 @@ public class TestParametersOverlay {
         demographicParams.loadParameterValues(properties, null);
 
         Assert.assertEquals("Spain", demographicParams.INITIAL_DEMOGRAPHY_DATA_COUNTRY);
-        Assert.assertEquals(1000, params.jobMarket.MINIMAL_MONTHLY_WAGE, 1);
-        Assert.assertEquals(99, params.government.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE, 1);
-        Assert.assertEquals(1000, params.personalEconomy.MONTHLY_NON_DISCRETIONARY_EXPENSES_MIN, 1);
+        Assert.assertEquals(1000, params.MINIMAL_MONTHLY_WAGE, 1);
+        Assert.assertEquals(99, params.TAX_ON_DISCRETIONARY_CONSUMPTION_RATE, 1);
+        Assert.assertEquals(1000, params.MONTHLY_NON_DISCRETIONARY_EXPENSES_MIN, 1);
     }
 }
