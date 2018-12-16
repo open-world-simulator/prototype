@@ -1,5 +1,5 @@
 #!/bin/sh
-set -o xtrace
+#set -o xtrace
 set -e
 cd ..
 export MAVEN_OPTS=-Xmx4096m

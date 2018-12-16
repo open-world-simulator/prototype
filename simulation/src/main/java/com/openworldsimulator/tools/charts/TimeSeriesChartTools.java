@@ -14,7 +14,7 @@ import java.util.*;
 public class TimeSeriesChartTools {
     public static final int CHART_SMOOTHING_PERIOD = ConfigTools.getConfigInt("CHART_TIMES_SMOOTHING", 12);
     public static final int CHART_WIDTH = ConfigTools.getConfigInt("CHART_TIMES_WIDTH", 1024);
-    public static final int CHART_HEIGHT = ConfigTools.getConfigInt("CHART_TIMES_HEIGHT", 1024);
+    public static final int CHART_HEIGHT = ConfigTools.getConfigInt("CHART_TIMES_HEIGHT", 800);
     public static final int CHART_Y_LABELS = ConfigTools.getConfigInt("CHART_TIMES_Y_LABELS", 10);
 
     private static List<Date> buildXSeries(int baseYear, int totalMonths) {

@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class HistogramChartTools {
     public static final int CHART_WIDTH = ConfigTools.getConfigInt("CHART_HISTOGRAM_WIDTH", 1024);
-    public static final int CHART_HEIGHT = ConfigTools.getConfigInt("CHART_HISTOGRAM_HEIGHT", 1024);
+    public static final int CHART_HEIGHT = ConfigTools.getConfigInt("CHART_HISTOGRAM_HEIGHT", 800);
     public static final int CHART_Y_LABELS = ConfigTools.getConfigInt("CHART_HISTOGRAM_Y_LABELS", 20);
 
 

@@ -1,11 +1,9 @@
-#
+########################################################################################################################
 # Default demographics parameters
-#
 #
 
 INITIAL_DEMOGRAPHY_DATA_COUNTRY = Spain
-
-INITIAL_POPULATION_SIZE       = 100000
+INITIAL_POPULATION_SIZE         = 100000
 
 # Life expectancy at birth:
 # https://data.worldbank.org/indicator/SP.DYN.LE00.IN?view=chart
@@ -24,17 +22,19 @@ MATERNITY_AGE_STDEV = 2
 MATERNITY_NUM_CHILDREN_MEAN  = 1.8
 MATERNITY_NUM_CHILDREN_STDEV = 0.8
 
+# Migration inflow
 # http://www.ine.es/jaxi/Datos.htm?path=/t20/p277/prov/e01/l0/&file=01005.px
 MIGRATION_INFLOW_BASE_PCT    = 0
 MIGRATION_INFLOW_AGE_MEAN    = 30
 MIGRATION_INFLOW_AGE_STDEV   = 15
 
-http://www.ine.es/jaxi/Datos.htm?path=/t20/p277/prov/e01/l0/&file=01006.px
+# Migration outflow
+#http://www.ine.es/jaxi/Datos.htm?path=/t20/p277/prov/e01/l0/&file=01006.px
 MIGRATION_OUTFLOW_BASE_PCT   = 0
 MIGRATION_OUTFLOW_AGE_MEAN   = 30
 MIGRATION_OUTFLOW_AGE_STDEV  = 10
 
-#
+########################################################################################################################
 # Economic parameters
 #
 
@@ -70,7 +70,6 @@ RETIRE_AGE_MEAN = 63
 RETIRE_AGE_STDEV = 4
 
 YIELD_SAVINGS_RATE = 0.01
-
 
 ## PARAMETERS CHANGE OVER TIME
 ##
