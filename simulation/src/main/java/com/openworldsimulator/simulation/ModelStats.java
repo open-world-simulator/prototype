@@ -71,7 +71,7 @@ public abstract class ModelStats {
     }
 
     protected Stream<Person> allPeopleAliveStream() {
-        return getPopulation().getPopulationSegments().stream().filter(Person::isAlive);
+        return getPopulation().getPopulationSegments().stream().filter(Person::isInPopulation);
     }
 
     protected DoubleSummaryStatistics statsPopulation(boolean onlyAlive, ToDoubleFunction<Person> numericStat) {
@@ -96,18 +96,18 @@ public abstract class ModelStats {
         currentMonthStats = new HashMap<>();
     }
 
-    protected void collectMonthStats(String statName, boolean onlyAlive, ToDoubleFunction<Person> selectorStat) {
+    protected void collectMonthStats(String statName, boolean onlyInPopulation, ToDoubleFunction<Person> selectorStat) {
         currentMonthStats.put(
                 statName,
-                statsPopulation(onlyAlive, selectorStat)
+                statsPopulation(onlyInPopulation, selectorStat)
         );
     }
 
 
-    protected void collectMonthStats(String statName, boolean onlyAlive, Predicate<Person> filter, ToDoubleFunction<Person> selectorStat) {
+    protected void collectMonthStats(String statName, boolean onlyInPopulation, Predicate<Person> filter, ToDoubleFunction<Person> selectorStat) {
         currentMonthStats.put(
                 statName,
-                statsPopulation(onlyAlive, filter, selectorStat)
+                statsPopulation(onlyInPopulation, filter, selectorStat)
         );
     }
 

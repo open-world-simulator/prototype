@@ -1,15 +1,28 @@
 package com.openworldsimulator.tools;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
+
 import java.util.Random;
 
 public class RandomTools {
     private static Random random = new Random();
 
-    public static boolean random(double threshold) {
+    public static boolean testUniformDist(double threshold) {
         return random.nextDouble() <= threshold;
     }
 
-   public static double random() {
+    public static boolean testNormalDist(double x1, double x2, double mean, double stddev, double totalP) {
+        NormalDistribution normalDistribution = new NormalDistribution(mean, stddev);
+        double prob = normalDistribution.probability(x1, x2);
+        if( testUniformDist(prob * totalP) ) {
+            return  true;
+        } else {
+            return false;
+        }
+    }
+
+
+    public static double random() {
         return random.nextDouble();
     }
 
@@ -19,6 +32,10 @@ public class RandomTools {
 
     public static double random(double mean, double stddev) {
         return random.nextGaussian() * stddev + mean;
+    }
+
+    public static double random(double p, double mean, double stddev) {
+        return (random.nextGaussian() * stddev + mean) * p;
     }
 
     public static double random(double mean, double stddev, double min, double max, String desc ) {

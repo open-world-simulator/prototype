@@ -25,17 +25,19 @@ public class DemographicParams extends ModelParameters {
     /*
      * Immigration flow
      */
-    public double MIGRATION_INFLOW_PCT       = 0; // Target percentage of migration inflow
     public double MIGRATION_INFLOW_BASE_PCT  = 0; // Base percentage of initial population
     public double MIGRATION_INFLOW_AGE_MEAN  = 0; // Mean age of immigrants
     public double MIGRATION_INFLOW_AGE_STDEV = 0;
     public double MIGRATION_INFLOW_GENDER_DIST = 0.55; // Male gender bias
 
     /*
-     * TODO: Emigration flow
+     * Emigration flow
      */
+    public double MIGRATION_OUTFLOW_BASE_PCT  = 0;    // Base percentage of initial population
+    public double MIGRATION_OUTFLOW_AGE_MEAN  = 25;   // Mean age of emmigrants
+    public double MIGRATION_OUTFLOW_AGE_STDEV = 5;
+
 
     public DemographicParams() {
     }
-
 }

@@ -18,6 +18,7 @@ public class DemographicsStats extends ModelStats {
     private static final String POPULATION_SIZE_36_65 = "population_size_36_65";
     private static final String POPULATION_SIZE_65_PLUS = "population_size_65_plus";
     private static final String POPULATION_IMMIGRATION = "population_immigration";
+    private static final String POPULATION_EMIGRATION = "population_emigration";
     private static final String POPULATION_BIRTHS = "population_new_born";
     private static final String POPULATION_DECEASES = "population_deceases";
     private static final String POPULATION_NET_GROWTH = "population_growth";
@@ -50,18 +51,19 @@ public class DemographicsStats extends ModelStats {
         collectMonthStats(POPULATION_SIZE_65_PLUS, true, p -> p.age > 65.0, p -> populationScalingFactor);
 
         collectMonthStats(POPULATION_IMMIGRATION, true, p -> p.immigrationMonth == month, p -> populationScalingFactor * 12.0);
+        collectMonthStats(POPULATION_EMIGRATION, false, p -> p.emigrationMonth== month, p -> populationScalingFactor * 12.0 * -1.0);
         collectMonthStats(POPULATION_BIRTHS, true, p -> p.justBorn(month), p -> populationScalingFactor * 12.0);
         collectMonthStats(POPULATION_DECEASES, false, p -> p.justDead(month), p -> populationScalingFactor * 12.0);
         collectMonthStats(
                 POPULATION_NET_GROWTH,
-                getCurrentMonthStats().get(POPULATION_IMMIGRATION).getSum() +
-                        getCurrentMonthStats().get(POPULATION_BIRTHS).getSum() -
-                        getCurrentMonthStats().get(POPULATION_DECEASES).getSum()
+                getCurrentMonthStats().get(POPULATION_IMMIGRATION).getSum()
+                        + getCurrentMonthStats().get(POPULATION_BIRTHS).getSum()
+                        - getCurrentMonthStats().get(POPULATION_DECEASES).getSum()
+                        - getCurrentMonthStats().get(POPULATION_EMIGRATION).getSum()
         );
 
         collectMonthStats(POPULATION_AGE, true, p -> true, p -> p.age);
         collectMonthStats(POPULATION_NUM_CHILDREN, true, p -> p.isFemale() && p.age > params.MATERNITY_MAX_AGE, p -> p.numChildren);
-
 
         endMonthStats();
     }
@@ -75,7 +77,7 @@ public class DemographicsStats extends ModelStats {
             writeHistoChart(path.getPath(),
                     "dist-age-" + (month / 12),
                     "Age at month at year " + ((int) (month / 12)),
-                    histogram(p -> p.isAlive(), p -> (long) (p.age)));
+                    histogram(p -> p.isInPopulation(), p -> (long) (p.age)));
         }
     }
 
@@ -114,6 +116,7 @@ public class DemographicsStats extends ModelStats {
         File demographyPath = getStatsBasePath();
         File birthsPath = getStatsDir("births");
         File deathsPath = getStatsDir("deaths");
+        File migrationPath  = getStatsDir("migration");
 
         //
         // Write time charts
@@ -148,12 +151,14 @@ public class DemographicsStats extends ModelStats {
                     "Population Flows",
                     Arrays.asList(
                             "Immigration",
+                            "Emigration",
                             "Births",
                             "Deceases",
                             "Net growth"
                     ),
                     Arrays.asList(
                             buildSumSeries(POPULATION_IMMIGRATION),
+                            buildSumSeries(POPULATION_EMIGRATION),
                             buildSumSeries(POPULATION_BIRTHS),
                             buildSumSeries(POPULATION_DECEASES),
                             buildSumSeries(POPULATION_NET_GROWTH)
@@ -180,7 +185,7 @@ public class DemographicsStats extends ModelStats {
                     deathsPath.getPath(),
                     "dist-age-of-death",
                     "Death age",
-                    histogram(p -> !p.isAlive(), p -> (long) (p.age)));
+                    histogram(p -> !p.isInPopulation(), p -> (long) (p.age)));
 
             writeHistoChart(birthsPath.getPath(),
                     "dist-births-mother-age",
@@ -196,8 +201,19 @@ public class DemographicsStats extends ModelStats {
             writeHistoChart(demographyPath.getPath(),
                     "dist-age-final",
                     "Final distribution of age",
-                    histogram(Person::isAlive, p -> (long) (p.age)));
+                    histogram(Person::isInPopulation, p -> (long) (p.age)));
 
+            writeHistoChart(
+                    migrationPath.getPath(),
+                    "dist-age-emigration",
+                    "Age of emigration",
+                    histogram(p -> p.emigrationMonth != -1, p -> (long) (p.age)));
+
+            writeHistoChart(
+                    migrationPath.getPath(),
+                    "dist-age-immigration",
+                    "Age of immigration",
+                    histogram(p -> p.immigrationMonth!= -1, p -> (long) (p.immigrationAge)));
 
             // Write CSV
             writeAllAggregatedTimeSeriesCSV("series.csv", getSimulation().getBaseYear());

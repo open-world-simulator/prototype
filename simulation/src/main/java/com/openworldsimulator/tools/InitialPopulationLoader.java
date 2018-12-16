@@ -95,7 +95,7 @@ public class InitialPopulationLoader {
         }
         person.id = id;
         person.gender = gender;
-        person.status = Person.STATUS.ALIVE;
+        person.status = Person.LIFE_STATUS.ALIVE;
 
         person.age = age;
 
@@ -122,6 +122,7 @@ public class InitialPopulationLoader {
             }
         }
 
+        // TODO: Get this from the service too
         person.initialLifeExpectancy = RandomTools.random(
                 params.INITIAL_LIFE_EXPECTANCY_MEAN,
                 params.INITIAL_LIFE_EXPECTANCY_STDEV,

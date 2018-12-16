@@ -161,10 +161,10 @@ public class EconomyModel extends SimulationModel {
     }
 
     void simulateEmploymentStatus(int month, Person person) {
-        if (!person.isAlive()) return;
+        if (!person.isInPopulation()) return;
         if (person.age >= person.initialFirstJobAge && person.monthlyData.incomeWage == 0) {
             // Find a job
-            if (RandomTools.random(params.PUBLIC_SECTOR_WORK_PCT)) {
+            if (RandomTools.testUniformDist(params.PUBLIC_SECTOR_WORK_PCT)) {
                 // Finds a job in public sector
                 person.economicStatus = Person.ECONOMIC_STATUS.WORKING_PUBLIC_SECTOR;
                 person.grossMonthlySalary = RandomTools.random(
@@ -183,7 +183,7 @@ public class EconomyModel extends SimulationModel {
     }
 
     void simulateJobIncome(int month, Person person) {
-        if (!person.isAlive()) return;
+        if (!person.isInPopulation()) return;
 
         // TODO: Unemployment
         if (person.age >= person.initialFirstJobAge && person.age < person.retirementAge) {
@@ -207,7 +207,7 @@ public class EconomyModel extends SimulationModel {
     }
 
     void simulateRetirementIncome(int month, Person person) {
-        if (!person.isAlive()) return;
+        if (!person.isInPopulation()) return;
         if (person.age < person.retirementAge) return;
 
         if (person.grossPension == 0) {
@@ -248,8 +248,8 @@ public class EconomyModel extends SimulationModel {
     }
 
     void simulateInheritance(int month, Person person) {
-        // Assign all assets to one random living person
-        List<Person> alive = simulation.getPopulation().getAlivePeople();
+        // Assign all assets to one testUniformDist living person
+        List<Person> alive = simulation.getPopulation().getPeopleInPopulation();
         if (alive.size() > 0) {
             Person receiver = alive.get(RandomTools.random(alive.size()));
 
@@ -282,7 +282,7 @@ public class EconomyModel extends SimulationModel {
 
 
     void simulateNonDiscretionaryExpenses(int month, Person person) {
-        if (!person.isAlive()) return;
+        if (!person.isInPopulation()) return;
 
         // TODO: Simulate based on income and situation (i.e age)
         person.monthlyData.consumptionNonDiscretionary = RandomTools.random(
@@ -311,7 +311,7 @@ public class EconomyModel extends SimulationModel {
     }
 
     void simulateDiscretionaryExpenses(int month, Person person) {
-        if (!person.isAlive()) return;
+        if (!person.isInPopulation()) return;
 
         double remainingIncome = person.monthlyData.getTotalMonthIncome() - person.monthlyData.getTotalConsumption() - person.monthlyData.getTotalTaxes();
         if (remainingIncome < 0) {

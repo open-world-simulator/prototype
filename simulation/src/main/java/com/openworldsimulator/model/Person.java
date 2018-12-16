@@ -6,17 +6,19 @@ public class Person {
 
     public enum GENDER {MALE, FEMALE}
 
-    public enum STATUS {ALIVE, DEAD}
+    public enum LIFE_STATUS {ALIVE, DEAD, GONE}
 
     // ID for debugging purposes
     public int id;
     public double age;
     public GENDER gender;
-    public STATUS status = STATUS.ALIVE;
+    public LIFE_STATUS status = LIFE_STATUS.ALIVE;
 
     public int deathMonth = -1;
     public int bornMonth = -1;
     public int immigrationMonth = -1;
+    public double immigrationAge = 0;
+    public int emigrationMonth = -1;
 
     // Life expectancy at birth
     public double initialLifeExpectancy = 0;
@@ -54,16 +56,16 @@ public class Person {
         return monthlyData;
     }
 
-    public boolean isAlive() {
-        return status != STATUS.DEAD;
+    public boolean isInPopulation() {
+        return status != LIFE_STATUS.DEAD && status != LIFE_STATUS.GONE;
     }
 
     public boolean justDead(int month) {
-        return !isAlive() && deathMonth == month;
+        return deathMonth == month;
     }
 
     public boolean justBorn(int month) {
-        return isAlive() && bornMonth == month;
+        return bornMonth == month;
     }
 
     public boolean isMale() {

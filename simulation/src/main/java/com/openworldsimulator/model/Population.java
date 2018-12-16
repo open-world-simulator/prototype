@@ -51,8 +51,8 @@ public class Population {
         return people;
     }
 
-    public List<Person> getAlivePeople() {
-        return people.stream().filter(Person::isAlive).collect(Collectors.toList());
+    public List<Person> getPeopleInPopulation() {
+        return people.stream().filter(Person::isInPopulation).collect(Collectors.toList());
     }
 
     @Override

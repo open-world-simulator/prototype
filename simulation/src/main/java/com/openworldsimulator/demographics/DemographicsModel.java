@@ -51,7 +51,7 @@ public class DemographicsModel extends SimulationModel {
         super.init();
 
         modelStats = new DemographicsStats(simulation, params);
-        allStats = new ModelStats[] {modelStats};
+        allStats = new ModelStats[]{modelStats};
 
         log("*** INITIALIZING INITIAL POPULATION OF " + params.INITIAL_POPULATION_SIZE);
 
@@ -100,6 +100,7 @@ public class DemographicsModel extends SimulationModel {
                         simulateEventGettingOlder(person);
                         simulateEventDeath(month, person);
                         simulateBehaviourMaternity(month, person);
+                        simulateEmigration(month, person);
                     }
                 }
         );
@@ -118,16 +119,16 @@ public class DemographicsModel extends SimulationModel {
      */
 
     protected void simulateEventGettingOlder(Person person) {
-        if (person.isAlive()) {
+        if (person.isInPopulation()) {
             person.age += 1 / 12D; // One month older
         }
     }
 
     protected void simulateEventDeath(int month, Person person) {
         // Check probability of death
-        if (person.isAlive() && person.age >= person.initialLifeExpectancy) {
+        if (person.isInPopulation() && person.age >= person.initialLifeExpectancy) {
             person.deathMonth = month;
-            person.status = Person.STATUS.DEAD;
+            person.status = Person.LIFE_STATUS.DEAD;
 
             logDebug("[DEATH] %s - id: %d -age %.2f", person.gender, person.id, person.age);
         }
@@ -151,13 +152,32 @@ public class DemographicsModel extends SimulationModel {
         return newBorn;
     }
 
+    protected void simulateEmigration(int month, Person person) {
+
+        if (person.isInPopulation()) {
+            double halfMonth = 0.5 / 12.0;
+            if (RandomTools.testNormalDist(
+                    person.age - halfMonth, person.age + halfMonth,
+                    params.MIGRATION_OUTFLOW_AGE_MEAN,
+                    params.MIGRATION_OUTFLOW_AGE_STDEV,
+                    params.MIGRATION_OUTFLOW_BASE_PCT / 100.0
+            )) {
+                person.status = Person.LIFE_STATUS.GONE;
+                person.emigrationMonth = month;
+
+                // Emigrate
+                log("[EMIGRANT] %d age: %02.2f", person.id, person.age);
+            }
+        }
+    }
+
     protected void simulateImmigration(int month) {
-        if (params.MIGRATION_INFLOW_PCT > 0 || params.MIGRATION_INFLOW_BASE_PCT > 0) {
-            int currentPop = simulation.getPopulation().getAlivePeople().size();
+        if (params.MIGRATION_INFLOW_BASE_PCT > 0) {
+            int currentPop = simulation.getPopulation().getPeopleInPopulation().size();
             int immigrants = 0;
 
             immigrants += params.INITIAL_POPULATION_SIZE * params.MIGRATION_INFLOW_BASE_PCT / (12.0D * 100);
-            immigrants += (int) Math.round(currentPop * params.MIGRATION_INFLOW_PCT / (12.0D * 100));
+            //immigrants += (int) Math.round(currentPop * params.MIGRATION_INFLOW_PCT / (12.0D * 100));
 
             logDebug("[IMMIGRANTS] Immigrants: %d / Population: %d\n", immigrants, currentPop);
 
@@ -173,12 +193,13 @@ public class DemographicsModel extends SimulationModel {
 
                 //System.out.println("Age: " + age);
                 Person p = initPerson(null, simulation.getPopulation().size(),
-                        RandomTools.random(
+                        RandomTools.testUniformDist(
                                 params.MIGRATION_INFLOW_GENDER_DIST
                         ) ? Person.GENDER.MALE : Person.GENDER.FEMALE,
                         age);
 
                 p.immigrationMonth = month;
+                p.immigrationAge = p.age;
 
                 logDebug("[IMMIGRANT] %d age: %02.2f", p.id, p.age);
 
@@ -194,7 +215,7 @@ public class DemographicsModel extends SimulationModel {
         }
         person.id = id;
         person.gender = gender;
-        person.status = Person.STATUS.ALIVE;
+        person.status = Person.LIFE_STATUS.ALIVE;
 
         person.age = age;
 
@@ -244,7 +265,7 @@ public class DemographicsModel extends SimulationModel {
 
     protected void simulateBehaviourMaternity(int month, Person person) {
 
-        boolean hasChildAtAge = person.isAlive()
+        boolean hasChildAtAge = person.isInPopulation()
                 && person.gender == Person.GENDER.FEMALE
                 && person.numChildren < person.initialExpectedChildren
                 && person.age >= person.initialFirstChildAge

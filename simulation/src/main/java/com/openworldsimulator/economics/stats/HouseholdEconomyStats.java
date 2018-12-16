@@ -257,12 +257,12 @@ public class HouseholdEconomyStats extends ModelStats {
             writeHistoChart(getStatsBasePath().getPath(),
                     "dist-grossMonthlySalary-income",
                     "Salary distribution",
-                    histogram(p -> p.isAlive() && p.monthlyData.incomeWage > 0, p -> (long) (p.monthlyData.incomeWage / 100)));
+                    histogram(p -> p.isInPopulation() && p.monthlyData.incomeWage > 0, p -> (long) (p.monthlyData.incomeWage / 100)));
 
             writeHistoChart(getStatsBasePath().getPath(),
                     "dist-total-income",
                     "Total income distribution",
-                    histogram(p -> p.isAlive() && p.monthlyData.getTotalMonthIncome() > 0, p -> (long) (p.monthlyData.getTotalMonthIncome() / 100)));
+                    histogram(p -> p.isInPopulation() && p.monthlyData.getTotalMonthIncome() > 0, p -> (long) (p.monthlyData.getTotalMonthIncome() / 100)));
 
             // TODO: Unemployment, activity rate,
             // TODO: Average wage, pension, subsidy
