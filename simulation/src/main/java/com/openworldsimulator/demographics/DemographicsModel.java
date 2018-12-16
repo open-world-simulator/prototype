@@ -166,7 +166,7 @@ public class DemographicsModel extends SimulationModel {
                 person.emigrationMonth = month;
 
                 // Emigrate
-                log("[EMIGRANT] %d age: %02.2f", person.id, person.age);
+                logDebug("[EMIGRANT] %d age: %02.2f", person.id, person.age);
             }
         }
     }

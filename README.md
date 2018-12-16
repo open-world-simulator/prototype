@@ -6,5 +6,5 @@ behaviours arising from the agent's decisions.
 
 This long term project will be developed on an iterative, incremental way, with simplicity in mind and minimizing the amount of technical complexities.
 
-**[+ Read more about the current state of the first prototype](docs/Readme.md)**
+**[+ Status of the first prototype](docs/Readme.md)**
 
