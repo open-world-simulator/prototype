@@ -35,7 +35,7 @@ The most meaningful results are the following
 ###### Browse all results
 
 - [View CSV Data](../sim-results/Narnia-0/demography/series.csv)
-- [View all simulation files](../sim-results/Narnia-0/demography)
+- [View all simulation reports](../sim-results/Narnia-0/demography)
 
 ###### Interpretation
 Without any population inflow, there's a very strong trend to population decay and aging. 
@@ -46,8 +46,8 @@ Population age peaks around 2050.
 ### Scenario 1
 **Goal**: Understand current trend, with current policies.
  
-- Migration flows are in line with current reality.
-- No changes in population behaviour or general trends
+- Migration flows are in line with current reality.       
+- No changes in population behaviour or general trends (i.e, life expectancy).
 
 ###### Key results
 
@@ -58,6 +58,6 @@ Population age peaks around 2050.
 ###### Browse all results
 
 - [View CSV Data](../sim-results/Narnia-1/demography/series.csv)
-- [View all simulation files](../sim-results/Narnia-1/demography)
+- [View all simulation reports](../sim-results/Narnia-1/demography)
 
 ###### Interpretation
