@@ -7,12 +7,16 @@ import java.util.Set;
 
 public class ModelParametersEvolution {
 
-    private static final String EVOLVE_YEAR_PCT = "EVOLVE_YEAR_PCT_";
+    private static final String EVOLVE_TOTAL_PCT = "EVOLVE_TOTAL_PCT_";
 
-    private Map<String, Double> yearlyLinearChangeRate = new HashMap<>();
+    private Map<String, Double> linearChangePct = new HashMap<>();
+    private Map<String, Double> initialValue = new HashMap<>();
     private Map<String, Double> lastValue = new HashMap<>();
 
-    public ModelParametersEvolution() {
+    private Simulation simulation;
+
+    public ModelParametersEvolution(Simulation simulation) {
+        this.simulation = simulation;
     }
 
     public void loadParametersChangeRate(Properties properties, Map optionalProperties) {
@@ -22,53 +26,64 @@ public class ModelParametersEvolution {
         if (optionalProperties != null) {
             load(optionalProperties);
         }
+        simulation.log(this.toString());
     }
 
     private void load(Map properties) {
         properties.keySet().forEach(
                 k -> {
                     String key = k.toString().trim();
-                    if (key.startsWith(EVOLVE_YEAR_PCT)) {
-                        String param = key.substring(EVOLVE_YEAR_PCT.length());
+                    if (key.startsWith(EVOLVE_TOTAL_PCT)) {
+                        String param = key.substring(EVOLVE_TOTAL_PCT.length());
                         double rate = Double.valueOf(properties.get(k).toString().trim());
-                        yearlyLinearChangeRate.put(param, rate);
+                        linearChangePct.put(param, rate);
                     }
                 }
         );
     }
 
     private double getChangeRate(String property) {
-        if (yearlyLinearChangeRate.get(property) == null) {
+        if (linearChangePct.get(property) == null) {
             return 0.0D;
         } else {
-            return yearlyLinearChangeRate.get(property);
+            return linearChangePct.get(property);
         }
     }
 
-    public void evolveMonthly(ModelParameters parameters) {
-        yearlyLinearChangeRate.forEach((k, v) -> {
+    public void evolveMonthly(ModelParameters parameters, int month) {
+        linearChangePct.forEach((k, v) -> {
             double changeRate = getChangeRate(k);
             if (changeRate != 0.0D) {
                 Double currentValue = parameters.getParameterValueDouble(k);
                 if (currentValue != null) {
-                    double delta = currentValue * changeRate / 12.0D;
-                    double newValue = currentValue + delta;
-                    System.out.println("Increasing parameter " + k + " by " + delta);
+                    if (initialValue.get(k) == null) {
+                        // Save initial value
+                        initialValue.put(k, parameters.getParameterValueDouble(k));
+                    }
+
+                    double startValue = initialValue.get(k);
+                    double endValue = startValue * (1 + changeRate / 100.0D);
+                    double delta = (endValue - startValue) / (double) simulation.getTotalMonths();
+
+                    double newValue = startValue + delta * month;
+
+                    simulation.logDebug("Evolving parameter " + k + " to " + newValue + " " + (newValue - startValue) / startValue * 100.0 + "%");
                     parameters.setParameterValue(k, newValue);
+
                     // Store value for stats
-                    lastValue.put(k, parameters.getParameterValueDouble(k));
+                    lastValue.put(k, newValue);
                 }
             }
         });
     }
 
     public Set<String> getEvolvingParameters() {
-        return yearlyLinearChangeRate.keySet();
+        return linearChangePct.keySet();
     }
 
     public double getLastChangedValue(String parameter) {
-        Double d  = lastValue.get(parameter);
-        if( d == null ) {
+        Double d = lastValue.get(parameter);
+        if (d == null) {
             System.out.println("[ERROR] Last value for " + parameter + " not found");
             return 0;
         } else {
@@ -78,14 +93,12 @@ public class ModelParametersEvolution {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder("Yearly parameters evolution:\n");
-        yearlyLinearChangeRate.forEach(
+        StringBuilder builder = new StringBuilder("Parameters change in total percent:\n");
+        linearChangePct.forEach(
                 (k, v) -> {
                     builder.append("  - " + k)
                             .append(" = ")
                             .append(String.format("%.02f", v))
-                            .append(" => ")
-                            .append(String.format("%.02f", v * 100.0))
                             .append("%\n");
 
                 }

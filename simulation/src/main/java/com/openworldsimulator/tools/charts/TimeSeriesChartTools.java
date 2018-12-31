@@ -15,7 +15,7 @@ public class TimeSeriesChartTools {
     public static final int CHART_SMOOTHING_PERIOD = ConfigTools.getConfigInt("CHART_TIMES_SMOOTHING", 12);
     public static final int CHART_WIDTH = ConfigTools.getConfigInt("CHART_TIMES_WIDTH", 1024);
     public static final int CHART_HEIGHT = ConfigTools.getConfigInt("CHART_TIMES_HEIGHT", 800);
-    public static final int CHART_Y_LABELS = ConfigTools.getConfigInt("CHART_TIMES_Y_LABELS", 10);
+    public static final int CHART_Y_LABELS = ConfigTools.getConfigInt("CHART_TIMES_Y_LABELS", 5);
 
     private static List<Date> buildXSeries(int baseYear, int totalMonths) {
         List<Date> xData = new ArrayList<>();
@@ -107,14 +107,31 @@ public class TimeSeriesChartTools {
             override.put(y, String.format("%.2f", y) + units);
         }
 
+        // Add 0 if crossed
+        if (minValue <= 0 && maxValue >= 0) {
+            override.put(0D, "0.0");
+        }
+
         for (int i = 0; i < seriesData.size(); i++) {
             List<Number> data = smoothing(seriesData.get(i), CHART_SMOOTHING_PERIOD, 1D / displayFactor);
 
-            XYSeries series = chart.addSeries(seriesTitle.get(i), xData, data);
+            double first = data.get(0).doubleValue();
+            double last = data.get(data.size() - 1).doubleValue();
+            double change = 0;
+            if (first != 0) {
+                change = (last - first) / first * 100.D;
+            }
+
+            //override.put(first, String.format("%.2f", first));
+
+            String resultSummary = String.format("%.2f%s to %.2f%s [%.2f%%]", first, units, last, units, change);
+
+            XYSeries series = chart.addSeries(seriesTitle.get(i) + "\n" + resultSummary, xData, data);
             series.setMarker(SeriesMarkers.NONE);
         }
 
         chart.setYAxisLabelOverrideMap(override);
+        //chart.setYAxisLabelOverrideMap(override, 2);
 
         saveChart(path, fileName, chart);
     }

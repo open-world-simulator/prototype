@@ -54,6 +54,8 @@ public class TestEconomics {
         props.put("_ENABLE_ECONOMY_SIMULATION", "1");
         props.put("INITIAL_POPULATION_SIZE", "10000");
         props.put("MIGRATION_INFLOW_BASE_PCT", "0.5");
+        props.put("EVOLVE_TOTAL_PCT_MATERNITY_NUM_CHILDREN_MEAN", "50");
+        props.put("EVOLVE_TOTAL_PCT_MATERNITY_AGE_MEAN", "-10");
 
         Experiment e = experimentsManager.newExperiment();
         e.setExperimentId("economics-2");

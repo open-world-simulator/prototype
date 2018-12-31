@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-./ows.sh Example-1 Narnia.defaults months=1200 year=2017 output=../simulation/output-sim INITIAL_POPULATION_SIZE=10000 MIGRATION_INFLOW_BASE_PCT=0.5
+POPULATION_SIZE=1000
 
+./ows.sh Test-1 Narnia.defaults months=600 year=2017 output=../simulation/output-sim \
+    INITIAL_POPULATION_SIZE=$POPULATION_SIZE \
+    MIGRATION_INFLOW_BASE_PCT=1 \g
+    MIGRATION_OUTFLOW_BASE_PCT=1

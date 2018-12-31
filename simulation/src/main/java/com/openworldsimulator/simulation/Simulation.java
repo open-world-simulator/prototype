@@ -94,12 +94,6 @@ public class Simulation {
 
         Properties defaults = loadDefaults(defaultSettings);
 
-        modelParametersEvolution = new ModelParametersEvolution();
-        modelParametersEvolution.loadParametersChangeRate(defaults, optionalProperties);
-        evolutionStats = new ParameterEvolutionStats(this);
-
-        simulationLog.log(modelParametersEvolution.toString());
-
         DemographicParams demographicParams = new DemographicParams();
         demographicParams.loadParameterValues(defaults, optionalProperties);
 
@@ -110,6 +104,12 @@ public class Simulation {
         economicsParams.loadParameterValues(defaults, optionalProperties);
 
         simulationLog.log(economicsParams.toString());
+
+        modelParametersEvolution = new ModelParametersEvolution(this);
+        modelParametersEvolution.loadParametersChangeRate(defaults, optionalProperties);
+
+
+        evolutionStats = new ParameterEvolutionStats(this);
 
 
         simulationLog.log("Building models....");
@@ -249,7 +249,7 @@ public class Simulation {
                 // Evolve params
                 models.forEach(m -> {
                     logDebug("Evolving params " + m.getId());
-                    modelParametersEvolution.evolveMonthly(m.getParams());
+                    modelParametersEvolution.evolveMonthly(m.getParams(), month);
                 });
 
                 // Collect month stats
