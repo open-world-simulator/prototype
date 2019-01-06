@@ -117,6 +117,10 @@ public class TimeSeriesChartTools {
 
             double first = data.get(0).doubleValue();
             double last = data.get(data.size() - 1).doubleValue();
+            DoubleSummaryStatistics statistics = data.stream().mapToDouble(Number::doubleValue).summaryStatistics();
+            double seriesMinValue = statistics.getMin();
+            double seriesMaxValue = statistics.getMax();
+
             double change = 0;
             if (first != 0) {
                 change = (last - first) / first * 100.D;
@@ -124,7 +128,14 @@ public class TimeSeriesChartTools {
 
             //override.put(first, String.format("%.2f", first));
 
-            String resultSummary = String.format("%.2f%s to %.2f%s [%.2f%%]", first, units, last, units, change);
+            String resultSummary = String.format("%.2f%s to %.2f%s", first, units, last, units);
+            if (change <= 1000) {
+                resultSummary += String.format(" [%.2f%%]", change);
+            }
+            if( !(seriesMinValue == first && seriesMaxValue == last) &&
+                !(seriesMinValue == last  && seriesMaxValue == first)) {
+                resultSummary += String.format("\nMin: %.2f%s Max: %.2f%s", seriesMinValue, units, seriesMaxValue, units);
+            }
 
             XYSeries series = chart.addSeries(seriesTitle.get(i) + "\n" + resultSummary, xData, data);
             series.setMarker(SeriesMarkers.NONE);

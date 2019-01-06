@@ -13,7 +13,6 @@ Prototype V1
 - Replace PersonMonthlyData with MonthlyResults
 
 **Basic simulation**
-- Emigration flows
 - YoY % growth stats
 - Companies agents
 - Job market, unemployment

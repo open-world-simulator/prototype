@@ -17,6 +17,7 @@ public class DemographicsStats extends ModelStats {
     private static final String POPULATION_SIZE_16_35 = "population_size_16_35";
     private static final String POPULATION_SIZE_36_65 = "population_size_36_65";
     private static final String POPULATION_SIZE_65_PLUS = "population_size_65_plus";
+    private static final String POPULATION_SIZE_IMMIGRATION = "population_size_immigration";
     private static final String POPULATION_IMMIGRATION = "population_immigration";
     private static final String POPULATION_EMIGRATION = "population_emigration";
     private static final String POPULATION_BIRTHS = "population_new_born";
@@ -49,6 +50,8 @@ public class DemographicsStats extends ModelStats {
         collectMonthStats(POPULATION_SIZE_16_35, true, p -> p.age >= 16 && p.age < 36.0, p -> populationScalingFactor);
         collectMonthStats(POPULATION_SIZE_36_65, true, p -> p.age >= 36 && p.age < 65.0, p -> populationScalingFactor);
         collectMonthStats(POPULATION_SIZE_65_PLUS, true, p -> p.age > 65.0, p -> populationScalingFactor);
+
+        collectMonthStats(POPULATION_SIZE_IMMIGRATION, true, p -> p.immigrationMonth != -1, p -> populationScalingFactor);
 
         collectMonthStats(POPULATION_IMMIGRATION, true, p -> p.immigrationMonth == month, p -> populationScalingFactor * 12.0);
         collectMonthStats(POPULATION_EMIGRATION, false, p -> p.emigrationMonth== month, p -> populationScalingFactor * 12.0 * -1.0);
@@ -125,7 +128,7 @@ public class DemographicsStats extends ModelStats {
             writeTimeSeriesChart(
                     demographyPath.getPath(),
                     "population",
-                    getChartTitle("Population segments"),
+                    getChartTitle("Population by age"),
                     "Population",
                     Arrays.asList(
                             "Population",
@@ -140,6 +143,22 @@ public class DemographicsStats extends ModelStats {
                             buildSumSeries(POPULATION_SIZE_16_35),
                             buildSumSeries(POPULATION_SIZE_36_65),
                             buildSumSeries(POPULATION_SIZE_65_PLUS)
+                    ),
+                    getSimulation().getBaseYear()
+            );
+
+            writeTimeSeriesChart(
+                    demographyPath.getPath(),
+                    "population-immigration",
+                    getChartTitle("Population by origin"),
+                    "Population",
+                    Arrays.asList(
+                            "Population",
+                            "Immigration"
+                    ),
+                    Arrays.asList(
+                            buildSumSeries(POPULATION),
+                            buildSumSeries(POPULATION_SIZE_IMMIGRATION)
                     ),
                     getSimulation().getBaseYear()
             );

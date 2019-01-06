@@ -22,11 +22,13 @@ public class TestDemographics {
 
         Map props = new HashMap();
         props.put("_ENABLE_ECONOMY_SIMULATION", "0");
+        props.put("INITIAL_POPULATION_SIZE", 10000);
+        props.put("MIGRATION_INFLOW_BASE_PCT", "1.0");
 
         Experiment e = experimentsManager.newExperiment();
-        e.setExperimentId("run-1");
+        e.setExperimentId("demographics-run-1");
         e.setBaseSimulationConfig("Narnia.defaults");
-        e.setMonths(50*12);
+        e.setMonths(30*12);
         e.setBaseYear(2017);
         e.setOptionalProperties(props);
 
